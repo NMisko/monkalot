@@ -12,7 +12,7 @@ logging.config.fileConfig('logging.conf')
 
 
 class BotFactory(protocol.ClientFactory):
-    """BotFactory for connecting to a protocol
+    """BotFactory for connecting to a protocol."""
 
     protocol = bot.TwitchBot
 
@@ -23,7 +23,9 @@ class BotFactory(protocol.ClientFactory):
     def clientConnectionLost(self, connector, reason):
         """Log and reload bot."""
         logging.error("Lost connection, reconnecting")
-        self.protocol = bot.reload().TwitchBot
+
+        self.protocol = reload(bot).TwitchBot  # noqa
+
         connector.connect()
 
     def clientConnectionFailed(self, connector, reason):
