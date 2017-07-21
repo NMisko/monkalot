@@ -2,6 +2,7 @@
 
 from math_parser import NumericStringParser
 import random
+import json
 
 
 class Permission:
@@ -33,11 +34,118 @@ class Command(object):
         pass
 
 
+class SimpleReply(Command):
+    """Simple meta-command to output a reply given
+    a specific command. Basic key to value mapping.
+    The command list is loaded from a json-file"""
+
+    perm = Permission.User
+
+    """load command list"""
+    with open('sreply_cmds.json') as fp:
+        replies = json.load(fp)
+
+    def match(self, bot, user, msg):
+        cmd = msg.lower().strip()
+
+        return cmd in self.replies
+
+    def run(self, bot, user, msg):
+        cmd = msg.lower().strip()
+
+        if cmd in self.replies:
+            reply = str(self.replies[cmd])
+            bot.write(reply)
+
+
+class EditCommandList(Command):
+    '''Command to add or remove entries from the command-list.
+    Can also be used to display all available commands.'''
+
+    perm = Permission.Moderator
+
+    """load command list"""
+    with open('sreply_cmds.json') as file:
+        replies = json.load(file)
+
+    def addcommand(self, bot, cmd):
+        """Add a new command to the list, make sure
+        there are no duplicates."""
+
+        tailcmd = cmd[len("!addcommand "):]
+        tailcmd.strip()
+
+        """Add all commands in lower case, so no case-sensitive
+        duplicates exist."""
+        entrycmd = tailcmd.split(" ", 1)[0].lower().strip()
+        entryarg = tailcmd.split(" ", 1)[1].strip()
+
+        """Check if the command is already in the list, if not
+        add the command to the list"""
+        if entrycmd in self.replies:
+            bot.write('Command already in the list! DansGame')
+        else:
+            self.replies[entrycmd] = entryarg
+
+            with open('sreply_cmds.json', 'w') as file:
+                json.dump(self.replies, file)
+
+            bot.reload_commands()  # Needs to happen to refresh the list.
+            bot.write('Command '+entrycmd+' added! FeelsGoodMan')
+
+    def delcommand(self, bot, cmd):
+        """Delete an existing command from the list."""
+
+        entrycmd = cmd[len("!delcommand "):]
+        entrycmd.strip()
+
+        if entrycmd in self.replies:
+            del self.replies[entrycmd]
+
+            with open('sreply_cmds.json', 'w') as file:
+                json.dump(self.replies, file)
+
+            bot.reload_commands()  # Needs to happen to refresh the list.
+            bot.write('Command '+entrycmd+' deleted. FeelsBadMan')
+        else:
+            bot.write('Command '+entrycmd+' does not exist. monkaS')
+
+    def replylist(self, bot, cmd):
+        """Write out the Commandlist in chat."""
+
+        replylist = 'Replylist Commands: '
+
+        for key in self.replies:
+            replylist = replylist + key + ' '
+
+        bot.write(str(replylist))
+
+    def match(self, bot, user, msg):
+        cmd = msg.lower().strip()
+
+        if cmd.startswith("!addcommand "):
+            return True
+        elif cmd.startswith("!delcommand "):
+            return True
+        elif cmd.startswith("!replylist"):
+            return True
+        return False
+
+    def run(self, bot, user, msg):
+        cmd = msg.lower().strip()
+
+        if cmd.startswith("!addcommand "):
+            self.addcommand(bot, msg.strip())
+        elif cmd.startswith("!delcommand "):
+            self.delcommand(bot, msg.strip())
+        elif cmd.startswith("!replylist"):
+            self.replylist(bot, msg.strip())
+
+
 class Calculator(Command):
     """A chat calculator that can do some pretty advanced stuff like sqrt and trigonometry.
 
-    Example: !calc log(5^2) + sin(pi/4)'''
-    """
+    Example: !calc log(5^2) + sin(pi/4)"""
 
     nsp = NumericStringParser()
     perm = Permission.User
