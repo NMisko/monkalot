@@ -59,6 +59,34 @@ class Calculator(Command):
             bot.write("{} = ???".format(expr))
 
 
+class PyramidReply(Command):
+    '''Simple meta-command to output a reply with a pyramid given
+        a specific command. Basic key to value mapping.'''
+    
+    perm = Permission.User
+    
+    replies = {
+        "!pjsalt": "PJSalt",
+    }
+    
+    def match(self, bot, user, msg):
+        cmd = msg.lower().strip()
+        for key in self.replies:
+            if cmd == key:
+                return True
+        return False
+    
+    def run(self, bot, user, msg):
+        cmd = msg.lower().strip()
+        
+        for key, reply in self.replies.items():
+            if cmd == key:
+                bot.write(reply)
+                bot.write(reply+" "+reply)
+                bot.write(reply)
+                break
+
+
 class Pyramid(Command):
     """Recognizes pyramids of emotes."""
 
