@@ -1,6 +1,8 @@
 **Monkalot**
 ===============
-A bot for [Zetalot's Twitch stream](https://twitch.tv/zetalot).
+A bot for [Zetalot's Twitch stream](https://twitch.tv/zetalot). 
+
+![monkaS](http://i3.kym-cdn.com/entries/icons/original/000/022/713/4.png)
 
 Uses [SimpleTwitchBot](https://github.com/EhsanKia/SimpleTwitchBot) by [EhsanKia](https://github.com/EhsanKia/) as base.
 
