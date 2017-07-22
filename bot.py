@@ -16,6 +16,9 @@ from six.moves import input
 
 
 USERLIST_API = "http://tmi.twitch.tv/group/user/{}/chatters"
+TWITCHEMOTES_API = "http://api.twitch.tv/kraken/chat/emoticon_images?emotesets=0"
+BTTVEMOTES_API = "http://api.betterttv.net/2/channels/{}"
+
 with open('bot_config.json') as fp:
     CONFIG = json.load(fp)
 
@@ -47,6 +50,30 @@ class TwitchBot(irc.IRCClient, object):
         self.users = set(sum(data['chatters'].values(), []))
         self.mods = set()
         self.subs = set()
+
+        """ When first start, get twitchtv-emotelist """
+        url = TWITCHEMOTES_API
+        data = requests.get(url).json()
+        emotelist = data['emoticon_sets']['0']
+
+        self.twitchemotes = []
+        for i in xrange(0, len(emotelist)):
+            emote = emotelist[i]['code'].encode("utf-8").strip()
+            if ("\\") not in emote:
+                self.twitchemotes.append(emote)
+
+        print self.twitchemotes
+
+        """ When first start, get BTTV-emotelist """
+        """url = BTTVEMOTES_API.format(self.channel[1:]) # This command would work for default channelnames"""
+        url = BTTVEMOTES_API.format("Zetalot")
+        data = requests.get(url).json()
+        emotelist = data['emotes']
+
+        self.bttvemotes = []
+        for i in xrange(0, len(emotelist)):
+            emote = emotelist[i]['code'].encode("utf-8").strip()
+            self.bttvemotes.append(emote)
 
         # Get data structures stored in factory
         self.activity = self.factory.activity
@@ -315,11 +342,12 @@ class TwitchBot(irc.IRCClient, object):
 
         self.commands = [
             cmds.Sleep(self),
-            cmds.SimpleReply(self),
             cmds.EditCommandList(self),
             cmds.Calculator(self),
             cmds.Pyramid(self),
             cmds.KappaGame(self),
+            cmds.GuessEmoteGame(self),
+            cmds.SimpleReply(self),
         ]
 
     def reload(self):

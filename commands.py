@@ -127,7 +127,7 @@ class EditCommandList(Command):
             return True
         elif cmd.startswith("!delcommand "):
             return True
-        elif cmd.startswith("!replylist"):
+        elif cmd == "!replylist":
             return True
         return False
 
@@ -138,7 +138,7 @@ class EditCommandList(Command):
             self.addcommand(bot, msg.strip())
         elif cmd.startswith("!delcommand "):
             self.delcommand(bot, msg.strip())
-        elif cmd.startswith("!replylist"):
+        elif cmd == "!replylist":
             self.replylist(bot, msg.strip())
 
 
@@ -250,6 +250,78 @@ class KappaGame(Command):
             if e != emote:
                 return -1
         return len(arr)
+
+
+class GuessEmoteGame(Command):
+    """Play the Guess The Emote Game.
+
+    On Emote is randomly chosen from the list and the users
+    have to guess which on it is. Give points to the winner.
+    !emotes returns the random emote-list while game is avtive."""
+
+    perm = Permission.User
+    active = False
+    emotes = []
+
+    def initGame(self, bot):
+        """Initialize GuessEmoteGame: Get all twitch- and BTTV-Emotes from APIs,
+        assemble a list of random emotes, chose the winning one."""
+
+        twitchemotes = bot.twitchemotes
+        bttvemotes = bot.bttvemotes
+        emotelist = []
+
+        n_total = 20
+        n_bttv = 3
+
+        i = 0
+        while i < (n_total-n_bttv):
+            rng_emote = random.choice(twitchemotes)
+
+            if rng_emote not in emotelist:
+                emotelist.append(rng_emote)
+                i += 1
+
+        i = 0
+        while i < n_bttv:
+            rng_emote = random.choice(bttvemotes)
+
+            if rng_emote not in emotelist:
+                emotelist.append(rng_emote)
+                i += 1
+
+        emote = random.choice(emotelist)
+        return emotelist, emote
+
+    def match(self, bot, user, msg):
+        """Match if the game is active or gets started with !kstart."""
+        return self.active or msg == "!estart"
+
+    def run(self, bot, user, msg):
+        """Generate a random number n when game gets first started. Afterwards, check if a message contains the emote n times."""
+        cmd = msg.strip()
+
+        if not self.active:
+            self.active = True
+            self.emotes = self.initGame(bot)
+            print ("Right emote: " + self.emotes[1])
+            bot.write("The 'Guess The Emote Game' has started. Write one of the following emotes to start playing: " + EmoteListToString(self.emotes[0]))
+        else:
+            if cmd == self.emotes[1]:
+                bot.write(user + " got it! It was " + self.emotes[1] + " . " + user + " gets 50 spam points.")
+            elif cmd == ("!emotes"):
+                bot.write("Possible game emotes:" + EmoteListToString(self.emotes[0]))
+
+
+def EmoteListToString(emoteList):
+    """Converts an EmoteList to a string."""
+
+    s = ""
+
+    for i in range(0, len(emoteList)):
+        s = s + emoteList[i] + " "
+
+    return s
 
 
 class Active(Command):
