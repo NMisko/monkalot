@@ -17,7 +17,8 @@ from six.moves import input
 
 USERLIST_API = "http://tmi.twitch.tv/group/user/{}/chatters"
 TWITCHEMOTES_API = "http://api.twitch.tv/kraken/chat/emoticon_images?emotesets=0"
-BTTVEMOTES_API = "http://api.betterttv.net/2/channels/{}"
+GLOBAL_BTTVEMOTES_API = "http://api.betterttv.net/2/emotes"
+CHANNEL_BTTVEMOTES_API = "http://api.betterttv.net/2/channels/{}"
 
 with open('bot_config.json') as fp:
     CONFIG = json.load(fp)
@@ -62,18 +63,29 @@ class TwitchBot(irc.IRCClient, object):
             if ("\\") not in emote:
                 self.twitchemotes.append(emote)
 
-        print self.twitchemotes
-
-        """ When first start, get BTTV-emotelist """
-        """url = BTTVEMOTES_API.format(self.channel[1:]) # This command would work for default channelnames"""
-        url = BTTVEMOTES_API.format("Zetalot")
+        """ When first start, get global_BTTV-emotelist """
+        url = GLOBAL_BTTVEMOTES_API
         data = requests.get(url).json()
         emotelist = data['emotes']
 
-        self.bttvemotes = []
+        self.global_bttvemotes = []
         for i in xrange(0, len(emotelist)):
             emote = emotelist[i]['code'].encode("utf-8").strip()
-            self.bttvemotes.append(emote)
+            self.global_bttvemotes.append(emote)
+
+        """ When first start, get channel_BTTV-emotelist """
+        # url = CHANNEL_BTTVEMOTES_API.format(self.channel[1:]) # TODO: This command gets BTTV-emotes for the current channel
+        url = CHANNEL_BTTVEMOTES_API.format("Zetalot")          # TODO: For testing hardcoded channel: Zetalot
+        data = requests.get(url).json()
+        emotelist = data['emotes']
+
+        self.channel_bttvemotes = []
+        for i in xrange(0, len(emotelist)):
+            emote = emotelist[i]['code'].encode("utf-8").strip()
+            self.channel_bttvemotes.append(emote)
+
+        """All available emotes in one list"""
+        self.emotes = self.twitchemotes + self.global_bttvemotes + self.channel_bttvemotes
 
         # Get data structures stored in factory
         self.activity = self.factory.activity
@@ -343,6 +355,8 @@ class TwitchBot(irc.IRCClient, object):
         self.commands = [
             cmds.Sleep(self),
             cmds.EditCommandList(self),
+            cmds.editCiteList(self),
+            cmds.outputCite(self),
             cmds.Calculator(self),
             cmds.Pyramid(self),
             cmds.KappaGame(self),

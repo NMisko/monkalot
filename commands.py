@@ -2,6 +2,7 @@
 
 from math_parser import NumericStringParser
 import random
+from random import shuffle
 import json
 
 
@@ -142,6 +143,92 @@ class EditCommandList(Command):
             self.replylist(bot, msg.strip())
 
 
+class outputCite(Command):
+    """Simple Class to output cites stored in a json-file"""
+
+    perm = Permission.User
+
+    """load cite list"""
+    with open('cites.json') as file:
+        citelist = json.load(file)
+
+    def match(self, bot, user, msg):
+        cmd = msg.lower().strip()
+        if cmd == "!cite":
+            return True
+        elif cmd.startswith("!cite "):
+            return True
+        return False
+
+    def run(self, bot, user, msg):
+        cmd = msg.lower().strip()
+        if cmd == "!cite":
+            cite = random.choice(self.citelist)
+            bot.write(cite.encode("utf-8"))
+        elif cmd.startswith("!cite "):
+            arg = cmd[len("!cite "):]
+            try:
+                arg = int(arg.strip())
+                if arg >= 0 and arg < len(self.citelist):
+                    cite = self.citelist[arg]
+                    bot.write(cite.encode("utf-8"))
+                else:
+                    bot.write('Index not found in citelist.')
+            except ValueError:
+                bot.write('Wrong input for , try !cite <number>')
+
+
+class editCiteList(Command):
+    """Add or delete cites from a json-file"""
+
+    perm = Permission.Moderator
+
+    """load cite list"""
+    with open('cites.json') as file:
+        citelist = json.load(file)
+
+    def addcite(self, bot, msg):
+        cite = msg[len("!addcite "):]
+        cite.strip()
+
+        if cite not in self.citelist:
+            self.citelist.append(cite)
+            with open('cites.json', 'w') as file:
+                json.dump(self.citelist, file)
+            bot.reload_commands()  # Needs to happen to refresh the list.
+            bot.write('Cite has been added. FeelsGoodMan')
+        else:
+            bot.write('Cite is already in the list. :thinking:')
+
+    def delcite(self, bot, msg):
+        cite = msg[len("!delcite "):]
+        cite.strip()
+
+        if cite in self.citelist:
+            self.citelist.remove(cite)
+            with open('cites.json', 'w') as file:
+                json.dump(self.citelist, file)
+            bot.reload_commands()  # Needs to happen to refresh the list.
+            bot.write('Cite has been removed. FeelsBadMan')
+        else:
+            bot.write('Cite not found. :thinking:')
+
+    def match(self, bot, user, msg):
+        cmd = msg.lower().strip()
+        if cmd.startswith("!addcite "):
+            return True
+        elif cmd.startswith("!delcite "):
+            return True
+        return False
+
+    def run(self, bot, user, msg):
+        cmd = msg.lower().strip()
+        if cmd.startswith("!addcite "):
+            self.addcite(bot, msg)
+        elif cmd.startswith("!delcite "):
+            self.delcite(bot, msg)
+
+
 class Calculator(Command):
     """A chat calculator that can do some pretty advanced stuff like sqrt and trigonometry.
 
@@ -174,7 +261,7 @@ class Pyramid(Command):
 
     count = 0
     currentEmote = ""
-    emotes = ["Kappa", "Keepo"]  # Find a list of all Twitch, BTTV and FrankerFaceZ emotes
+    emotes = []
 
     def match(self, bot, user, msg):
         """Match always."""
@@ -191,6 +278,7 @@ class Pyramid(Command):
 
     def run(self, bot, user, msg):
         """Check whether a pyramid was successfully built or a new one was started."""
+        self.emotes = bot.emotes
         if self.count == 0:
             if msg in self.emotes:
                 self.currentEmote = msg
@@ -268,11 +356,12 @@ class GuessEmoteGame(Command):
         assemble a list of random emotes, chose the winning one."""
 
         twitchemotes = bot.twitchemotes
-        bttvemotes = bot.bttvemotes
+        bttvemotes = bot.global_bttvemotes + bot.channel_bttvemotes
+
         emotelist = []
 
-        n_total = 20
-        n_bttv = 3
+        n_total = 25
+        n_bttv = 10
 
         i = 0
         while i < (n_total-n_bttv):
@@ -290,6 +379,7 @@ class GuessEmoteGame(Command):
                 emotelist.append(rng_emote)
                 i += 1
 
+        shuffle(emotelist)
         emote = random.choice(emotelist)
         return emotelist, emote
 
@@ -309,8 +399,9 @@ class GuessEmoteGame(Command):
         else:
             if cmd == self.emotes[1]:
                 bot.write(user + " got it! It was " + self.emotes[1] + " . " + user + " gets 50 spam points.")
+                self.active = False
             elif cmd == ("!emotes"):
-                bot.write("Possible game emotes:" + EmoteListToString(self.emotes[0]))
+                bot.write("Possible game emotes: " + EmoteListToString(self.emotes[0]))
 
 
 def EmoteListToString(emoteList):
