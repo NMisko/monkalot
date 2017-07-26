@@ -19,6 +19,7 @@ USERLIST_API = "http://tmi.twitch.tv/group/user/{}/chatters"
 TWITCHEMOTES_API = "http://api.twitch.tv/kraken/chat/emoticon_images?emotesets=0"
 GLOBAL_BTTVEMOTES_API = "http://api.betterttv.net/2/emotes"
 CHANNEL_BTTVEMOTES_API = "http://api.betterttv.net/2/channels/{}"
+HEARTHSTONE_CARD_API = "http://api.hearthstonejson.com/v1/18336/enUS/cards.collectible.json"
 
 with open('bot_config.json') as fp:
     CONFIG = json.load(fp)
@@ -86,6 +87,10 @@ class TwitchBot(irc.IRCClient, object):
 
         """All available emotes in one list"""
         self.emotes = self.twitchemotes + self.global_bttvemotes + self.channel_bttvemotes
+
+        """ When first start, get all hearthstone cards """
+        url = HEARTHSTONE_CARD_API
+        self.cards = requests.get(url).json()
 
         # Get data structures stored in factory
         self.activity = self.factory.activity
@@ -361,6 +366,7 @@ class TwitchBot(irc.IRCClient, object):
             cmds.Pyramid(self),
             cmds.KappaGame(self),
             cmds.GuessEmoteGame(self),
+            cmds.GuessMinionGame(self),
             cmds.SimpleReply(self),
         ]
 

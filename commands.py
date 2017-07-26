@@ -4,6 +4,8 @@ from math_parser import NumericStringParser
 import random
 from random import shuffle
 import json
+import time
+import threading
 
 
 class Permission:
@@ -352,8 +354,8 @@ class GuessEmoteGame(Command):
     emotes = []
 
     def initGame(self, bot):
-        """Initialize GuessEmoteGame: Get all twitch- and BTTV-Emotes from APIs,
-        assemble a list of random emotes, chose the winning one."""
+        """Initialize GuessEmoteGame: Get all twitch- and BTTV-Emotes,
+        assemble a list of random emotes, choose the winning one."""
 
         twitchemotes = bot.twitchemotes
         bttvemotes = bot.global_bttvemotes + bot.channel_bttvemotes
@@ -384,7 +386,7 @@ class GuessEmoteGame(Command):
         return emotelist, emote
 
     def match(self, bot, user, msg):
-        """Match if the game is active or gets started with !kstart."""
+        """Match if the game is active or gets started with !estart."""
         return self.active or msg == "!estart"
 
     def run(self, bot, user, msg):
@@ -413,6 +415,96 @@ def EmoteListToString(emoteList):
         s = s + emoteList[i] + " "
 
     return s
+
+
+class GuessMinionGame(Command):
+    """Play the Guess The Minion Game.
+
+    One Minion is randomly chosen from the list and the users
+    have to guess which on it is. Give points to the winner."""
+
+    perm = Permission.User
+    active = False
+
+    def giveClue(self, bot):
+        """ Give a random clue to the chat """
+
+        """ This stops the threading once all clues have been
+        given or the game is over """
+        if (not self.attributes) or (not self.active):
+            return
+
+        stat = random.choice(self.attributes)
+        self.attributes.remove(stat)
+
+        """ Write a clue in chat. Some set names have to be renamed. """
+        if(stat == "cardClass"):
+            bot.write("The minion is a " + str(self.minion[stat]).lower() + " card.")
+        elif(stat == "set"):
+            if self.minion[stat] == "EXPERT1" or self.minion[stat] == "CORE":
+                setname = "CLASSIC"
+            elif self.minion[stat] == "OG":
+                setname = "WotOG"
+            elif self.minion[stat] == "GANGS":
+                setname = "MSoG"
+            elif self.minion[stat] == "KARA":
+                setname = "OniK"
+            else:
+                setname = str(self.minion[stat])
+            bot.write("The card is from the " + setname + " set.")
+        elif(stat == "name"):
+            bot.write("The name of the card starts with \'" + str(self.minion[stat][0]) + "\'.")
+        elif(stat == "rarity"):
+            bot.write("The minion is a \'" + str(self.minion[stat]).lower() + "\' card.")
+        elif(stat == "attack"):
+            bot.write("The minion has " + str(self.minion[stat]) + " attackpower.")
+        elif(stat == "cost"):
+            bot.write("The card costs " + str(self.minion[stat]) + " mana.")
+        elif(stat == "health"):
+            if(self.minion[stat]==1):
+                bot.write("The minion has " + str(self.minion[stat]) + " healthpoint.")
+            else:
+                bot.write("The minion has " + str(self.minion[stat]) + " healthpoints.")
+
+        """ start of threading """
+        self.t = threading.Timer(10, self.giveClue, args = (bot, )).start()
+
+    def initGame(self, bot):
+        """Initialize GuessMinionGame """
+
+        self.attributes = ['cardClass', 'set', 'name', 'rarity', 'attack', 'cost', 'health']
+        nominion = True
+        while nominion:
+            self.minion = random.choice(bot.cards)
+            if self.minion['type'] == 'MINION':
+                nominion = False
+
+        self.timeractive = False
+
+    def match(self, bot, user, msg):
+        """Match if the game is active or gets started with !mstart."""
+        return self.active or msg == "!mstart"
+
+    def run(self, bot, user, msg):
+        """On first run initialize game. """
+        cmd = msg.strip()
+
+        if not self.active:
+            self.active = True
+            self.initGame(bot)
+            print ("Right Minion: " + self.minion['name'])
+            bot.write("The 'Guess The Minion Game' has started. Type minion names to play.")
+            self.giveClue(bot)
+        else:
+            name = self.minion['name'].encode("utf-8").strip()
+            if cmd.strip().lower() == name.lower():
+                bot.write(user + " got it! It was " + name + ". " + user + " gets 50 spam points.")
+                self.active = False
+            elif cmd == ("!clue"):
+                self.giveClue(bot)
+
+    def close(self, bot):
+        print "TODO: CLOSE MINION GAME."
 
 
 class Active(Command):
