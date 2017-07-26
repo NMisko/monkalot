@@ -143,90 +143,90 @@ class EditCommandList(Command):
             self.replylist(bot, msg.strip())
 
 
-class outputCite(Command):
-    """Simple Class to output cites stored in a json-file"""
+class outputQuote(Command):
+    """Simple Class to output quotes stored in a json-file"""
 
     perm = Permission.User
 
-    """load cite list"""
-    with open('cites.json') as file:
-        citelist = json.load(file)
+    """load quote list"""
+    with open('quotes.json') as file:
+        quotelist = json.load(file)
 
     def match(self, bot, user, msg):
         cmd = msg.lower().strip()
-        if cmd == "!cite":
+        if cmd == "!quote":
             return True
-        elif cmd.startswith("!cite "):
+        elif cmd.startswith("!quote "):
             return True
         return False
 
     def run(self, bot, user, msg):
         cmd = msg.lower().strip()
-        if cmd == "!cite":
-            cite = random.choice(self.citelist)
-            bot.write(cite.encode("utf-8"))
-        elif cmd.startswith("!cite "):
-            arg = cmd[len("!cite "):]
+        if cmd == "!quote":
+            quote = random.choice(self.quotelist)
+            bot.write(quote.encode("utf-8"))
+        elif cmd.startswith("!quote "):
+            arg = cmd[len("!quote "):]
             try:
-                arg = int(arg.strip())
-                if arg >= 0 and arg < len(self.citelist):
-                    cite = self.citelist[arg]
-                    bot.write(cite.encode("utf-8"))
+                arg = int(arg.strip()) - 1      # -1: So list for users goes from 1 to len + 1
+                if arg >= 0 and arg < len(self.quotelist):
+                    quote = self.quotelist[arg]
+                    bot.write(quote.encode("utf-8"))
                 else:
-                    bot.write('Index not found in citelist.')
+                    bot.write('Quote not found. Try: !quote [1 - ' + str(len(self.quotelist)) + ']')
             except ValueError:
-                bot.write('Wrong input for , try !cite <number>')
+                bot.write('Wrong input for , try !quote <number>')
 
 
-class editCiteList(Command):
-    """Add or delete cites from a json-file"""
+class editQuoteList(Command):
+    """Add or delete quote from a json-file"""
 
     perm = Permission.Moderator
 
-    """load cite list"""
-    with open('cites.json') as file:
-        citelist = json.load(file)
+    """load quote list"""
+    with open('quotes.json') as file:
+        quotelist = json.load(file)
 
-    def addcite(self, bot, msg):
-        cite = msg[len("!addcite "):]
-        cite.strip()
+    def addquote(self, bot, msg):
+        quote = msg[len("!addquote "):]
+        quote.strip()
 
-        if cite not in self.citelist:
-            self.citelist.append(cite)
-            with open('cites.json', 'w') as file:
-                json.dump(self.citelist, file)
+        if quote not in self.quotelist:
+            self.quotelist.append(quote)
+            with open('quotes.json', 'w') as file:
+                json.dump(self.quotelist, file)
             bot.reload_commands()  # Needs to happen to refresh the list.
-            bot.write('Cite has been added. FeelsGoodMan')
+            bot.write('Quote has been added. FeelsGoodMan')
         else:
-            bot.write('Cite is already in the list. :thinking:')
+            bot.write('Quote is already in the list. :thinking:')
 
-    def delcite(self, bot, msg):
-        cite = msg[len("!delcite "):]
-        cite.strip()
+    def delquote(self, bot, msg):
+        quote = msg[len("!delquote "):]
+        quote.strip()
 
-        if cite in self.citelist:
-            self.citelist.remove(cite)
-            with open('cites.json', 'w') as file:
-                json.dump(self.citelist, file)
+        if quote in self.quotelist:
+            self.quotelist.remove(quote)
+            with open('quotes.json', 'w') as file:
+                json.dump(self.quotelist, file)
             bot.reload_commands()  # Needs to happen to refresh the list.
-            bot.write('Cite has been removed. FeelsBadMan')
+            bot.write('Quote has been removed. FeelsBadMan')
         else:
-            bot.write('Cite not found. :thinking:')
+            bot.write('Quote not found. :thinking:')
 
     def match(self, bot, user, msg):
         cmd = msg.lower().strip()
-        if cmd.startswith("!addcite "):
+        if cmd.startswith("!addquote "):
             return True
-        elif cmd.startswith("!delcite "):
+        elif cmd.startswith("!delquote "):
             return True
         return False
 
     def run(self, bot, user, msg):
         cmd = msg.lower().strip()
-        if cmd.startswith("!addcite "):
-            self.addcite(bot, msg)
-        elif cmd.startswith("!delcite "):
-            self.delcite(bot, msg)
+        if cmd.startswith("!addquote "):
+            self.addquote(bot, msg)
+        elif cmd.startswith("!delquote "):
+            self.delquote(bot, msg)
 
 
 class Calculator(Command):

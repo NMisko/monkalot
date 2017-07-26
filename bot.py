@@ -355,8 +355,8 @@ class TwitchBot(irc.IRCClient, object):
         self.commands = [
             cmds.Sleep(self),
             cmds.EditCommandList(self),
-            cmds.editCiteList(self),
-            cmds.outputCite(self),
+            cmds.editQuoteList(self),
+            cmds.outputQuote(self),
             cmds.Calculator(self),
             cmds.Pyramid(self),
             cmds.KappaGame(self),
