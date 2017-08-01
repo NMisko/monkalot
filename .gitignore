@@ -1,5 +1,5 @@
 *.pyc
-bot_config.json
+*.json
 __pycache__/
 logs/
 pylama.ini
