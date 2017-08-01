@@ -13,6 +13,7 @@ import signal
 import json
 import time
 from six.moves import input
+import sqlite3
 
 
 USERLIST_API = "http://tmi.twitch.tv/group/user/{}/chatters"
@@ -21,7 +22,7 @@ GLOBAL_BTTVEMOTES_API = "http://api.betterttv.net/2/emotes"
 CHANNEL_BTTVEMOTES_API = "http://api.betterttv.net/2/channels/{}"
 HEARTHSTONE_CARD_API = "http://api.hearthstonejson.com/v1/18336/enUS/cards.collectible.json"
 
-with open('bot_config.json') as fp:
+with open('configs/bot_config.json') as fp:
     CONFIG = json.load(fp)
 
 
@@ -38,6 +39,46 @@ class TwitchBot(irc.IRCClient, object):
     host_target = False
     pause = False
     commands = []
+
+    # Set up connection to database and create tables if they do not yet exist.
+    connection = sqlite3.connect("data/monkalot.db")
+    sql_create_command = """
+        CREATE TABLE IF NOT EXISTS points (
+        username TEXT PRIMARY_KEY,
+        amount INTEGER
+        );
+        """
+    cursor = connection.cursor()
+    cursor.execute(sql_create_command)
+    connection.commit()
+
+    def getPoints(self, username):
+        """Get the points of a user."""
+        cursor = self.connection.cursor()
+        sql_command = "SELECT amount FROM points WHERE username = ?;"
+        cursor.execute(sql_command, [username])
+        self.connection.commit()
+        one = cursor.fetchone()
+
+        if(one is None):
+            sql_command = "INSERT INTO points (username, amount) VALUES (?, 0);"
+            cursor.execute(sql_command, [username])
+            self.connection.commit()
+            output = 0
+        else:
+            output = one[0]
+
+        cursor.close()
+        return output
+
+    def incrementPoints(self, username, amount):
+        """Increment points of a user by a certain value."""
+        points = int(self.getPoints(username)) + amount
+        sql_command = "UPDATE points SET amount = ? WHERE username = ?;"
+        cursor = self.connection.cursor()
+        cursor.execute(sql_command, [points, username])
+        self.connection.commit()
+        cursor.close()
 
     def signedOn(self):
         """Call when first signed on."""
@@ -379,6 +420,7 @@ class TwitchBot(irc.IRCClient, object):
     def terminate(self):
         """Terminate bot."""
         self.close_commands()
+        self.connection.close()
         reactor.stop()
 
 

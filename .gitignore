@@ -3,3 +3,4 @@ bot_config.json
 __pycache__/
 logs/
 pylama.ini
+*.db

@@ -4,17 +4,17 @@
 from twisted.internet import protocol, reactor
 from collections import defaultdict
 
-import bot
+import bot.bot
 import time
 import logging
 import logging.config
-logging.config.fileConfig('logging.conf')
+logging.config.fileConfig('configs/logging.conf')
 
 
 class BotFactory(protocol.ClientFactory):
     """BotFactory for connecting to a protocol."""
 
-    protocol = bot.TwitchBot
+    protocol = bot.bot.TwitchBot
 
     tags = defaultdict(dict)
     activity = dict()
@@ -24,7 +24,7 @@ class BotFactory(protocol.ClientFactory):
         """Log and reload bot."""
         logging.error("Lost connection, reconnecting")
 
-        self.protocol = reload(bot).TwitchBot  # noqa
+        self.protocol = reload(bot.bot).TwitchBot  # noqa
 
         connector.connect()
 

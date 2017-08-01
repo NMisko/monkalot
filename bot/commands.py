@@ -4,8 +4,10 @@ from math_parser import NumericStringParser
 import random
 from random import shuffle
 import json
-import time
 import threading
+
+QUOTES_FILE = 'data/quotes.json'
+REPLIES_FILE = 'data/sreply_cmds.json'
 
 
 class Permission:
@@ -38,22 +40,25 @@ class Command(object):
 
 
 class SimpleReply(Command):
-    """Simple meta-command to output a reply given
-    a specific command. Basic key to value mapping.
-    The command list is loaded from a json-file"""
+    """Simple meta-command to output a reply given a specific command. Basic key to value mapping.
+
+    The command list is loaded from a json-file.
+    """
 
     perm = Permission.User
 
     """load command list"""
-    with open('sreply_cmds.json') as fp:
+    with open(REPLIES_FILE) as fp:
         replies = json.load(fp)
 
     def match(self, bot, user, msg):
+        """Match if command exists."""
         cmd = msg.lower().strip()
 
         return cmd in self.replies
 
     def run(self, bot, user, msg):
+        """Answer with reply to command."""
         cmd = msg.lower().strip()
 
         if cmd in self.replies:
@@ -62,19 +67,19 @@ class SimpleReply(Command):
 
 
 class EditCommandList(Command):
-    '''Command to add or remove entries from the command-list.
-    Can also be used to display all available commands.'''
+    """Command to add or remove entries from the command-list.
+
+    Can also be used to display all available commands.
+    """
 
     perm = Permission.Moderator
 
     """load command list"""
-    with open('sreply_cmds.json') as file:
+    with open(REPLIES_FILE) as file:
         replies = json.load(file)
 
     def addcommand(self, bot, cmd):
-        """Add a new command to the list, make sure
-        there are no duplicates."""
-
+        """Add a new command to the list, make sure there are no duplicates."""
         tailcmd = cmd[len("!addcommand "):]
         tailcmd.strip()
 
@@ -90,7 +95,7 @@ class EditCommandList(Command):
         else:
             self.replies[entrycmd] = entryarg
 
-            with open('sreply_cmds.json', 'w') as file:
+            with open(REPLIES_FILE, 'w') as file:
                 json.dump(self.replies, file)
 
             bot.reload_commands()  # Needs to happen to refresh the list.
@@ -98,14 +103,13 @@ class EditCommandList(Command):
 
     def delcommand(self, bot, cmd):
         """Delete an existing command from the list."""
-
         entrycmd = cmd[len("!delcommand "):]
         entrycmd.strip()
 
         if entrycmd in self.replies:
             del self.replies[entrycmd]
 
-            with open('sreply_cmds.json', 'w') as file:
+            with open(REPLIES_FILE, 'w') as file:
                 json.dump(self.replies, file)
 
             bot.reload_commands()  # Needs to happen to refresh the list.
@@ -115,7 +119,6 @@ class EditCommandList(Command):
 
     def replylist(self, bot, cmd):
         """Write out the Commandlist in chat."""
-
         replylist = 'Replylist Commands: '
 
         for key in self.replies:
@@ -124,6 +127,7 @@ class EditCommandList(Command):
         bot.write(str(replylist))
 
     def match(self, bot, user, msg):
+        """Match if !addcommand, !delcommand or !replyList."""
         cmd = msg.lower().strip()
 
         if cmd.startswith("!addcommand "):
@@ -135,6 +139,7 @@ class EditCommandList(Command):
         return False
 
     def run(self, bot, user, msg):
+        """Add or delete command, or print list."""
         cmd = msg.lower().strip()
 
         if cmd.startswith("!addcommand "):
@@ -146,15 +151,16 @@ class EditCommandList(Command):
 
 
 class outputQuote(Command):
-    """Simple Class to output quotes stored in a json-file"""
+    """Simple Class to output quotes stored in a json-file."""
 
     perm = Permission.User
 
     """load quote list"""
-    with open('quotes.json') as file:
+    with open(QUOTES_FILE) as file:
         quotelist = json.load(file)
 
     def match(self, bot, user, msg):
+        """Match if command starts with !quote."""
         cmd = msg.lower().strip()
         if cmd == "!quote":
             return True
@@ -163,6 +169,7 @@ class outputQuote(Command):
         return False
 
     def run(self, bot, user, msg):
+        """Say a quote."""
         cmd = msg.lower().strip()
         if cmd == "!quote":
             quote = random.choice(self.quotelist)
@@ -181,21 +188,22 @@ class outputQuote(Command):
 
 
 class editQuoteList(Command):
-    """Add or delete quote from a json-file"""
+    """Add or delete quote from a json-file."""
 
     perm = Permission.Moderator
 
     """load quote list"""
-    with open('quotes.json') as file:
+    with open(QUOTES_FILE) as file:
         quotelist = json.load(file)
 
     def addquote(self, bot, msg):
+        """Add a quote."""
         quote = msg[len("!addquote "):]
         quote.strip()
 
         if quote not in self.quotelist:
             self.quotelist.append(quote)
-            with open('quotes.json', 'w') as file:
+            with open(QUOTES_FILE, 'w') as file:
                 json.dump(self.quotelist, file)
             bot.reload_commands()  # Needs to happen to refresh the list.
             bot.write('Quote has been added. FeelsGoodMan')
@@ -203,12 +211,13 @@ class editQuoteList(Command):
             bot.write('Quote is already in the list. :thinking:')
 
     def delquote(self, bot, msg):
+        """Delete a quote."""
         quote = msg[len("!delquote "):]
         quote.strip()
 
         if quote in self.quotelist:
             self.quotelist.remove(quote)
-            with open('quotes.json', 'w') as file:
+            with open(QUOTES_FILE, 'w') as file:
                 json.dump(self.quotelist, file)
             bot.reload_commands()  # Needs to happen to refresh the list.
             bot.write('Quote has been removed. FeelsBadMan')
@@ -216,6 +225,7 @@ class editQuoteList(Command):
             bot.write('Quote not found. :thinking:')
 
     def match(self, bot, user, msg):
+        """Match if message starts with !addquote or !delquote."""
         cmd = msg.lower().strip()
         if cmd.startswith("!addquote "):
             return True
@@ -224,6 +234,7 @@ class editQuoteList(Command):
         return False
 
     def run(self, bot, user, msg):
+        """Add or delete quote."""
         cmd = msg.lower().strip()
         if cmd.startswith("!addquote "):
             self.addquote(bot, msg)
@@ -234,7 +245,8 @@ class editQuoteList(Command):
 class Calculator(Command):
     """A chat calculator that can do some pretty advanced stuff like sqrt and trigonometry.
 
-    Example: !calc log(5^2) + sin(pi/4)"""
+    Example: !calc log(5^2) + sin(pi/4)
+    """
 
     nsp = NumericStringParser()
     perm = Permission.User
@@ -347,16 +359,15 @@ class GuessEmoteGame(Command):
 
     On Emote is randomly chosen from the list and the users
     have to guess which on it is. Give points to the winner.
-    !emotes returns the random emote-list while game is avtive."""
+    !emotes returns the random emote-list while game is active.
+    """
 
     perm = Permission.User
     active = False
     emotes = []
 
     def initGame(self, bot):
-        """Initialize GuessEmoteGame: Get all twitch- and BTTV-Emotes,
-        assemble a list of random emotes, choose the winning one."""
-
+        """Initialize GuessEmoteGame: Get all twitch- and BTTV-Emotes, assemble a list of random emotes, choose the winning one."""
         twitchemotes = bot.twitchemotes
         bttvemotes = bot.global_bttvemotes + bot.channel_bttvemotes
 
@@ -407,8 +418,7 @@ class GuessEmoteGame(Command):
 
 
 def EmoteListToString(emoteList):
-    """Converts an EmoteList to a string."""
-
+    """Convert an EmoteList to a string."""
     s = ""
 
     for i in range(0, len(emoteList)):
@@ -421,16 +431,26 @@ class GuessMinionGame(Command):
     """Play the Guess The Minion Game.
 
     One Minion is randomly chosen from the list and the users
-    have to guess which on it is. Give points to the winner."""
+    have to guess which on it is. Give points to the winner.
+    """
 
     perm = Permission.User
     active = False
 
-    def giveClue(self, bot):
-        """ Give a random clue to the chat """
+    statToSet = {
+        "EXPERT1": "CLASSIC",
+        "CORE": "CLASSIC",
+        "OG": "WotOG",
+        "GANGS": "MSoG",
+        "KARA": "OniK"
+    }
 
-        """ This stops the threading once all clues have been
-        given or the game is over """
+    def giveClue(self, bot): # noqa (let's ignore the high complexity for now)
+        """Give a random clue to the chat.
+
+        This stops the threading once all clues have been
+        given or the game is over.
+        """
         if (not self.attributes) or (not self.active):
             return
 
@@ -441,14 +461,8 @@ class GuessMinionGame(Command):
         if(stat == "cardClass"):
             bot.write("The minion is a " + str(self.minion[stat]).lower() + " card.")
         elif(stat == "set"):
-            if self.minion[stat] == "EXPERT1" or self.minion[stat] == "CORE":
-                setname = "CLASSIC"
-            elif self.minion[stat] == "OG":
-                setname = "WotOG"
-            elif self.minion[stat] == "GANGS":
-                setname = "MSoG"
-            elif self.minion[stat] == "KARA":
-                setname = "OniK"
+            if (self.statToSet[self.minion[stat]] is not None):
+                setname = self.statToSet[self.minion[stat]]
             else:
                 setname = str(self.minion[stat])
             bot.write("The card is from the " + setname + " set.")
@@ -461,17 +475,16 @@ class GuessMinionGame(Command):
         elif(stat == "cost"):
             bot.write("The card costs " + str(self.minion[stat]) + " mana.")
         elif(stat == "health"):
-            if(self.minion[stat]==1):
+            if(self.minion[stat] == 1):
                 bot.write("The minion has " + str(self.minion[stat]) + " healthpoint.")
             else:
                 bot.write("The minion has " + str(self.minion[stat]) + " healthpoints.")
 
-        """ start of threading """
-        self.t = threading.Timer(10, self.giveClue, args = (bot, )).start()
+        """Start of threading"""
+        self.t = threading.Timer(10, self.giveClue, args=[bot]).start()
 
     def initGame(self, bot):
-        """Initialize GuessMinionGame """
-
+        """Initialize GuessMinionGame."""
         self.attributes = ['cardClass', 'set', 'name', 'rarity', 'attack', 'cost', 'health']
         nominion = True
         while nominion:
@@ -486,7 +499,7 @@ class GuessMinionGame(Command):
         return self.active or msg == "!mstart"
 
     def run(self, bot, user, msg):
-        """On first run initialize game. """
+        """On first run initialize game."""
         cmd = msg.strip()
 
         if not self.active:
@@ -504,6 +517,7 @@ class GuessMinionGame(Command):
                 self.giveClue(bot)
 
     def close(self, bot):
+        """Close minion game."""
         print "TODO: CLOSE MINION GAME."
 
 
