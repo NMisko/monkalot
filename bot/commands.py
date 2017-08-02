@@ -316,8 +316,8 @@ class KappaGame(Command):
     n = 0
 
     def match(self, bot, user, msg):
-        """Match if the game is active or gets started with !kstart."""
-        return self.active or msg == "!kstart"
+        """Match if the game is active or gets started with !kstart by a user who pays 5 points."""
+        return self.active or startGame(bot, user, msg, "!kstart")
 
     def run(self, bot, user, msg):
         """Generate a random number n when game gets first started. Afterwards, check if a message contains the emote n times."""
@@ -333,6 +333,7 @@ class KappaGame(Command):
             i = self.countEmotes(cmd, "Kappa")
             if i == self.n:
                 bot.write(user.capitalize() + " got it! It was " + str(self.n) + " Kappa s!")
+                bot.incrementPoints(user, 7)
                 self.active = False
             elif i != -1:
                 bot.write("It's not " + str(i) + ". 4Head")
@@ -392,7 +393,7 @@ class GuessEmoteGame(Command):
 
     def match(self, bot, user, msg):
         """Match if the game is active or gets started with !estart."""
-        return self.active or msg == "!estart"
+        return self.active or startGame(bot, user, msg, "!estart")
 
     def run(self, bot, user, msg):
         """Generate a random number n when game gets first started. Afterwards, check if a message contains the emote n times."""
@@ -405,7 +406,8 @@ class GuessEmoteGame(Command):
             bot.write("The 'Guess The Emote Game' has started. Write one of the following emotes to start playing: " + EmoteListToString(self.emotes))
         else:
             if cmd == self.emote:
-                bot.write(user.capitalize() + " got it! It was " + self.emote + " . " + user.capitalize() + " gets 50 spam points.")
+                bot.write(user.capitalize() + " got it! It was " + self.emote + " . " + user.capitalize() + " gets 15 spam points.")
+                bot.incrementPoints(user, 15)
                 self.active = False
             elif cmd == "!emotes":
                 bot.write("Possible game emotes: " + EmoteListToString(self.emotes))
@@ -490,7 +492,7 @@ class GuessMinionGame(Command):
 
     def match(self, bot, user, msg):
         """Match if the game is active or gets started with !mstart."""
-        return self.active or msg == "!mstart"
+        return self.active or startGame(bot, user, msg, "!mstart")
 
     def run(self, bot, user, msg):
         """On first run initialize game."""
@@ -505,7 +507,8 @@ class GuessMinionGame(Command):
         else:
             name = self.minion['name'].strip()
             if cmd.strip().lower() == name.lower():
-                bot.write(user.capitalize() + " got it! It was " + name + ". " + user.capitalize() + " gets 50 spam points.")
+                bot.write(user.capitalize() + " got it! It was " + name + ". " + user.capitalize() + " gets 20 spam points.")
+                bot.incrementPoints(user, 20)
                 self.active = False
             elif cmd == ("!clue"):
                 self.giveClue(bot)
@@ -557,3 +560,19 @@ class Sleep(Command):
         elif cmd.startswith("!wakeup"):
             bot.write("Good morning everyone!")
             bot.pause = False
+
+
+def startGame(bot, user, msg, cmd):
+    """Return whether a user can start a game.
+
+    Takes off points if a non moderator wants to start a game.
+    """
+    if bot.get_permission(user) in [Permission.User, Permission.Subscriber] and msg == cmd:
+        if(bot.getPoints(user) > 5):
+            bot.incrementPoints(user, -5)
+            return True
+        else:
+            bot.write("You need at least 5 points to start a game.")
+            return False
+    else:
+        return msg == cmd
