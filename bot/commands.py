@@ -488,7 +488,7 @@ class GuessMinionGame(Command):
         if(stat == "cardClass"):
             bot.write("The minion is a " + str(self.minion[stat]).lower() + " card.")
         elif(stat == "set"):
-            if (self.statToSet[self.minion[stat]] is not None):
+            if self.minion[stat] in self.statToSet:
                 setname = self.statToSet[self.minion[stat]]
             else:
                 setname = str(self.minion[stat])
