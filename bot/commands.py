@@ -368,7 +368,7 @@ class KappaGame(Command):
         return len(arr)
 
     def close(self, bot):
-        """Close kappa game."""   
+        """Close kappa game."""
         self.active = False
         bot.gameRunning = False
 
@@ -439,7 +439,7 @@ class GuessEmoteGame(Command):
                 bot.write("Possible game emotes: " + EmoteListToString(self.emotes))
 
     def close(self, bot):
-        """Close emote game."""   
+        """Close emote game."""
         self.active = False
         bot.gameRunning = False
 
@@ -544,7 +544,7 @@ class GuessMinionGame(Command):
                 self.giveClue(bot)
 
     def close(self, bot):
-        """Close minion game."""   
+        """Close minion game."""
         self.active = False
         bot.gameRunning = False
 
@@ -565,14 +565,10 @@ class AutoGames(Command):
             return
 
         """ Start games as bot with empty msg if no active game. """
-        if all(test.active == False for test in bot.games):
+        if all(test.active == False for test in bot.games): #noqa
             user = bot.nickname
-            msg = ''
             cmd = random.choice(gamecmds)
-            #cmd.run(bot, user, msg)
             bot.process_command(user, cmd)
-
-        """ TODO: HIER SIND PROBLEME MIT DEM THREADING ODER SO """
 
         """ start of threading """
         self.t = threading.Timer(self.time, self.randomGame, args=(bot,)).start()
