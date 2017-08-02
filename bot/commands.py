@@ -133,6 +133,7 @@ class EditCommandList(Command):
 
     def run(self, bot, user, msg):
         """Add or delete command, or print list."""
+
         cmd = msg.lower().strip()
 
         if cmd.startswith("!addcommand "):
@@ -334,6 +335,7 @@ class KappaGame(Command):
             if i == self.n:
                 bot.write(user.capitalize() + " got it! It was " + str(self.n) + " Kappa s!")
                 bot.incrementPoints(user, 7)
+                bot.gameRunning = False
                 self.active = False
             elif i != -1:
                 bot.write("It's not " + str(i) + ". 4Head")
@@ -408,6 +410,7 @@ class GuessEmoteGame(Command):
             if cmd == self.emote:
                 bot.write(user.capitalize() + " got it! It was " + self.emote + " . " + user.capitalize() + " gets 15 spam points.")
                 bot.incrementPoints(user, 15)
+                bot.gameRunning = False
                 self.active = False
             elif cmd == "!emotes":
                 bot.write("Possible game emotes: " + EmoteListToString(self.emotes))
@@ -509,6 +512,7 @@ class GuessMinionGame(Command):
             if cmd.strip().lower() == name.lower():
                 bot.write(user.capitalize() + " got it! It was " + name + ". " + user.capitalize() + " gets 20 spam points.")
                 bot.incrementPoints(user, 20)
+                bot.gameRunning = False
                 self.active = False
             elif cmd == ("!clue"):
                 self.giveClue(bot)
@@ -566,13 +570,20 @@ def startGame(bot, user, msg, cmd):
     """Return whether a user can start a game.
 
     Takes off points if a non moderator wants to start a game.
+    Also makes sure only one game is running at a time.
     """
-    if bot.get_permission(user) in [Permission.User, Permission.Subscriber] and msg == cmd:
+    if bot.gameRunning:
+        return False
+    elif bot.get_permission(user) in [Permission.User, Permission.Subscriber] and msg == cmd:
+        # The calling user is not a mod, so we subtract 5 points.
         if(bot.getPoints(user) > 5):
             bot.incrementPoints(user, -5)
+            bot.gameRunning = True
             return True
         else:
             bot.write("You need at least 5 points to start a game.")
             return False
-    else:
+    else:  # The calling user is a mod, so we only check if the command is correct
+        if msg == cmd:
+            bot.gameRunning = True
         return msg == cmd

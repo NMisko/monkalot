@@ -40,6 +40,7 @@ class TwitchBot(irc.IRCClient, object):
     host_target = False
     pause = False
     commands = []
+    gameRunning = False
 
     # Set up connection to database and create tables if they do not yet exist.
     connection = sqlite3.connect("data/monkalot.db")

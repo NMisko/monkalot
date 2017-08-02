@@ -5,8 +5,6 @@ TODO:
 * Pyramid Game: level 7: more points
 * Cleverbot (Native Speech)
 * Tests (create fake irc) https://docs.pytest.org/en/latest/
-* Some way to ensure different games like 'Kappa Game' or 'Guess The Emote Game' cannot be run simultaneously while the rest of the botfunctions still work.
-
 
 DESIGN DECISIONS:
 
