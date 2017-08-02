@@ -549,6 +549,62 @@ class GuessMinionGame(Command):
         bot.gameRunning = False
 
 
+class AutoGames(Command):
+    """ Start games randomly """
+
+    perm = Permission.Moderator
+    active = False
+    time = 30  # time until a random game starts
+
+    def randomGame(self, bot):
+        """ Start a random game. """
+
+        gamecmds = ["!kstart", "!estart", "!mstart"]
+
+        if not self.active:
+            return
+
+        """ Start games as bot with empty msg if no active game. """
+        if all(test.active == False for test in bot.games):
+            user = bot.nickname
+            msg = ''
+            cmd = random.choice(gamecmds)
+            #cmd.run(bot, user, msg)
+            bot.process_command(user, cmd)
+
+        """ TODO: HIER SIND PROBLEME MIT DEM THREADING ODER SO """
+
+        """ start of threading """
+        self.t = threading.Timer(self.time, self.randomGame, args=(bot,)).start()
+
+    def match(self, bot, user, msg):
+        """ Match if message starts with !games """
+        return msg.lower().startswith("!games ")
+
+    def run(self, bot, user, msg):
+        """ Start/stop automatic games """
+
+        cmd = msg[len("!games "):]
+        cmd.strip()
+
+        if cmd == 'on':
+            if not self.active:
+                self.active = True
+                self.t = threading.Timer(self.time, self.randomGame, args=(bot,)).start()
+                bot.write('Automatic game mode activated! haHAA 7')
+            else:
+                bot.write('Automatic games already on! DansGame')
+        elif cmd == 'off':
+            if self.active:
+                self.active = False
+                bot.write('Automatic game mode deacti... ResidentSleeper')
+            else:
+                bot.write('Automatic games were not even active! EleGiggle')
+
+    def close(self, bot):
+        self.active = False
+
+
 class Active(Command):
     """Get active users."""
 
