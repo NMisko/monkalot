@@ -465,6 +465,7 @@ class GuessMinionGame(Command):
     perm = Permission.User
     active = False
     cluetime = 10   # time between clues in seconds
+    callID = None
 
     statToSet = {
         "EXPERT1": "CLASSIC",
@@ -510,7 +511,7 @@ class GuessMinionGame(Command):
                 bot.write("The minion has " + str(self.minion[stat]) + " healthpoints.")
 
         """Start of threading"""
-        reactor.callLater(self.cluetime, self.giveClue, bot)
+        self.callID = reactor.callLater(self.cluetime, self.giveClue, bot)
 
     def initGame(self, bot):
         """Initialize GuessMinionGame."""
@@ -540,6 +541,9 @@ class GuessMinionGame(Command):
             if cmd.strip().lower() == name.lower():
                 bot.write(user.capitalize() + " got it! It was " + name + ". " + user.capitalize() + " gets 20 spam points.")
                 bot.incrementPoints(user, 20)
+                if self.callID != None:
+                    self.callID.cancel()
+                    self.callID = None
                 bot.gameRunning = False
                 self.active = False
             elif cmd == ("!clue"):
@@ -547,6 +551,9 @@ class GuessMinionGame(Command):
 
     def close(self, bot):
         """Close minion game."""
+        if self.callID != None:
+            self.callID.cancel()
+            self.callID = None
         self.active = False
         bot.gameRunning = False
 
@@ -556,7 +563,8 @@ class AutoGames(Command):
 
     perm = Permission.Moderator
     active = False
-    time = 30  # time until a random game starts
+    time = 900  # time until a random game starts
+    callID = None
 
     def randomGame(self, bot):
         """ Start a random game. """
@@ -573,7 +581,7 @@ class AutoGames(Command):
             bot.process_command(user, cmd)
 
         """ start of threading """
-        reactor.callLater(self.time, self.randomGame, bot)
+        self.callID = reactor.callLater(self.time, self.randomGame, bot)
 
     def match(self, bot, user, msg):
         """ Match if message starts with !games """
@@ -588,11 +596,14 @@ class AutoGames(Command):
         if cmd == 'on':
             if not self.active:
                 self.active = True
-                self.t = threading.Timer(self.time, self.randomGame, args=(bot,)).start()
-                bot.write('Automatic game mode activated! haHAA 7')
+                self.callID = reactor.callLater(self.time, self.randomGame, bot)
+                bot.write('Automatic game mode activated! \ haHAA /')
             else:
-                bot.write('Automatic games already on! DansGame')
+                bot.write('Automatic games are already on! DansGame')
         elif cmd == 'off':
+            if self.callID != None:
+                self.callID.cancel()
+                self.callID = None
             if self.active:
                 self.active = False
                 bot.write('Automatic game mode deacti... ResidentSleeper')
@@ -600,6 +611,9 @@ class AutoGames(Command):
                 bot.write('Automatic games were not even active! EleGiggle')
 
     def close(self, bot):
+        if self.callID != None:
+            self.callID.cancel()
+            self.callID = None
         self.active = False
 
 
