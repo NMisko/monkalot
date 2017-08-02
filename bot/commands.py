@@ -115,7 +115,7 @@ class EditCommandList(Command):
             self.replies[entrycmd] = entryarg
 
             with open(REPLIES_FILE, 'w') as file:
-                json.dump(self.replies, file)
+                json.dump(self.replies, file, indent=4)
 
             bot.reload_commands()  # Needs to happen to refresh the list.
             bot.write('Command '+entrycmd+' added! FeelsGoodMan')
@@ -129,7 +129,7 @@ class EditCommandList(Command):
             del self.replies[entrycmd]
 
             with open(REPLIES_FILE, 'w') as file:
-                json.dump(self.replies, file)
+                json.dump(self.replies, file, indent=4)
 
             bot.reload_commands()  # Needs to happen to refresh the list.
             bot.write('Command '+entrycmd+' deleted. FeelsBadMan')
@@ -212,7 +212,7 @@ class editQuoteList(Command):
         if quote not in self.quotelist:
             self.quotelist.append(quote)
             with open(QUOTES_FILE, 'w') as file:
-                json.dump(self.quotelist, file)
+                json.dump(self.quotelist, file, indent=4)
             bot.reload_commands()  # Needs to happen to refresh the list.
             bot.write('Quote has been added. FeelsGoodMan')
         else:
@@ -226,7 +226,7 @@ class editQuoteList(Command):
         if quote in self.quotelist:
             self.quotelist.remove(quote)
             with open(QUOTES_FILE, 'w') as file:
-                json.dump(self.quotelist, file)
+                json.dump(self.quotelist, file, indent=4)
             bot.reload_commands()  # Needs to happen to refresh the list.
             bot.write('Quote has been removed. FeelsBadMan')
         else:
@@ -367,6 +367,11 @@ class KappaGame(Command):
                 return -1
         return len(arr)
 
+    def close(self, bot):
+        """Close kappa game."""   
+        self.active = False
+        bot.gameRunning = False
+
 
 class GuessEmoteGame(Command):
     """Play the Guess The Emote Game.
@@ -432,6 +437,11 @@ class GuessEmoteGame(Command):
                 self.active = False
             elif cmd == "!emotes":
                 bot.write("Possible game emotes: " + EmoteListToString(self.emotes))
+
+    def close(self, bot):
+        """Close emote game."""   
+        self.active = False
+        bot.gameRunning = False
 
 
 def EmoteListToString(emoteList):
@@ -509,8 +519,6 @@ class GuessMinionGame(Command):
             if self.minion['type'] == 'MINION':
                 nominion = False
 
-        self.timeractive = False
-
     def match(self, bot, user, msg):
         """Match if the game is active or gets started with !mstart."""
         return self.active or startGame(bot, user, msg, "!mstart")
@@ -536,8 +544,9 @@ class GuessMinionGame(Command):
                 self.giveClue(bot)
 
     def close(self, bot):
-        """Close minion game."""
-        print("TODO: CLOSE MINION GAME.")
+        """Close minion game."""   
+        self.active = False
+        bot.gameRunning = False
 
 
 class Active(Command):
