@@ -411,8 +411,14 @@ class TwitchBot(irc.IRCClient, object):
             cmds.KappaGame(self),
             cmds.GuessEmoteGame(self),
             cmds.GuessMinionGame(self),
+            cmds.AutoGames(self),
             cmds.SimpleReply(self),
             cmds.Smorc(self),
+        ]
+        self.games = [
+            cmds.KappaGame(self),
+            cmds.GuessEmoteGame(self),
+            cmds.GuessMinionGame(self),
         ]
 
     def reload(self):
