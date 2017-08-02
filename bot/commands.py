@@ -285,10 +285,17 @@ class Pyramid(Command):
         elif self.count > 0:
             self.count = self.count + 1
             if msg == self.pyramidLevel(self.currentEmote, self.count):
-                if(self.count == 5):
+                if(self.count == 5):  # 3 high pyramid
                     self.count = 0
-                    bot.write("Yay. " + user + " created a pyramid and gets 30 spam points.")
-                    return
+                    bot.write("Yay. " + user.capitalize() + " created a pyramid and gets 30 spam points.")
+                    bot.incrementPoints(user, 30)
+            elif self.count == 3 and msg == self.pyramidLevel(self.currentEmote, 1):  # 2 high pyramid
+                self.count = 0
+                if bot.get_permission(user) in [Permission.User, Permission.Subscriber]:
+                    bot.write("Wow, " + user.capitalize() + " created a pleb pyramid and gets a free timeout. 4Head")
+                    bot.write("/timeout " + user.capitalize() + " 60")
+                else:
+                    bot.write(user.capitalize() + " created a pleb pyramid and would get a free timeout, but is a mod. FeelsBadMan")
             else:
                 if msg in self.emotes:
                     self.count = 1
@@ -325,7 +332,7 @@ class KappaGame(Command):
         else:
             i = self.countEmotes(cmd, "Kappa")
             if i == self.n:
-                bot.write(user + " got it! It was " + str(self.n) + " Kappa s!")
+                bot.write(user.capitalize() + " got it! It was " + str(self.n) + " Kappa s!")
                 self.active = False
             elif i != -1:
                 bot.write("It's not " + str(i) + ". 4Head")
@@ -398,7 +405,7 @@ class GuessEmoteGame(Command):
             bot.write("The 'Guess The Emote Game' has started. Write one of the following emotes to start playing: " + EmoteListToString(self.emotes))
         else:
             if cmd == self.emote:
-                bot.write(user + " got it! It was " + self.emote + " . " + user + " gets 50 spam points.")
+                bot.write(user.capitalize() + " got it! It was " + self.emote + " . " + user.capitalize() + " gets 50 spam points.")
                 self.active = False
             elif cmd == "!emotes":
                 bot.write("Possible game emotes: " + EmoteListToString(self.emotes))
@@ -498,7 +505,7 @@ class GuessMinionGame(Command):
         else:
             name = self.minion['name'].strip()
             if cmd.strip().lower() == name.lower():
-                bot.write(user + " got it! It was " + name + ". " + user + " gets 50 spam points.")
+                bot.write(user.capitalize() + " got it! It was " + name + ". " + user.capitalize() + " gets 50 spam points.")
                 self.active = False
             elif cmd == ("!clue"):
                 self.giveClue(bot)
