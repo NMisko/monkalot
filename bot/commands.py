@@ -129,14 +129,7 @@ class EditCommandList(Command):
     def match(self, bot, user, msg):
         """Match if !addcommand, !delcommand or !replyList."""
         cmd = msg.lower().strip()
-
-        if cmd.startswith("!addcommand "):
-            return True
-        elif cmd.startswith("!delcommand "):
-            return True
-        elif cmd == "!replylist":
-            return True
-        return False
+        return cmd.startswith("!addcommand ") or cmd.startswith("!delcommand ") or cmd == "!replylist"
 
     def run(self, bot, user, msg):
         """Add or delete command, or print list."""
@@ -162,11 +155,7 @@ class outputQuote(Command):
     def match(self, bot, user, msg):
         """Match if command starts with !quote."""
         cmd = msg.lower().strip()
-        if cmd == "!quote":
-            return True
-        elif cmd.startswith("!quote "):
-            return True
-        return False
+        return cmd == "!quote" or cmd.startswith("!quote ")
 
     def run(self, bot, user, msg):
         """Say a quote."""
@@ -227,11 +216,7 @@ class editQuoteList(Command):
     def match(self, bot, user, msg):
         """Match if message starts with !addquote or !delquote."""
         cmd = msg.lower().strip()
-        if cmd.startswith("!addquote "):
-            return True
-        elif cmd.startswith("!delquote "):
-            return True
-        return False
+        return cmd.startswith("!addquote ") or cmd.startswith("!delquote ")
 
     def run(self, bot, user, msg):
         """Add or delete quote."""
@@ -554,12 +539,7 @@ class Sleep(Command):
     def match(self, bot, user, msg):
         """Match if message is !sleep or !wakeup."""
         cmd = msg.lower().strip()
-        if cmd.startswith("!sleep"):
-            return True
-        elif cmd.startswith("!wakeup"):
-            return True
-
-        return False
+        return cmd.startswith("!sleep") or cmd.startswith("!wakeup")
 
     def run(self, bot, user, msg):
         """Put the bot to sleep or wake it up."""
