@@ -5,6 +5,7 @@ import random
 from random import shuffle
 import json
 import threading
+from twisted.internet import reactor
 
 QUOTES_FILE = 'data/quotes.json'
 REPLIES_FILE = 'data/sreply_cmds.json'
@@ -463,6 +464,7 @@ class GuessMinionGame(Command):
 
     perm = Permission.User
     active = False
+    cluetime = 10   # time between clues in seconds
 
     statToSet = {
         "EXPERT1": "CLASSIC",
@@ -508,7 +510,7 @@ class GuessMinionGame(Command):
                 bot.write("The minion has " + str(self.minion[stat]) + " healthpoints.")
 
         """Start of threading"""
-        self.t = threading.Timer(10, self.giveClue, args=[bot]).start()
+        reactor.callLater(self.cluetime, self.giveClue, bot)
 
     def initGame(self, bot):
         """Initialize GuessMinionGame."""
@@ -571,7 +573,7 @@ class AutoGames(Command):
             bot.process_command(user, cmd)
 
         """ start of threading """
-        self.t = threading.Timer(self.time, self.randomGame, args=(bot,)).start()
+        reactor.callLater(self.time, self.randomGame, bot)
 
     def match(self, bot, user, msg):
         """ Match if message starts with !games """
