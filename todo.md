@@ -1,13 +1,12 @@
 TODO:
 
-* Save scores to database: + Commands to access userscores from chat.
+* Modify scores if user gets something correct.
 * Save chat statistics: E.g. 'How many Kappa's per minute', etc.
 * Synchronize commands with themselves
 * Pyramid Game: Add different pyramid levels: level 3: pleb pyramid -> small timout (60s), level 5: normal points, level 7: more points
 * Cleverbot (Native Speech)
 * Capitalize usernames for output
 * Tests (create fake irc) https://docs.pytest.org/en/latest/
-* Port entire thing to python3
 * Some way to ensure different games like 'Kappa Game' or 'Guess The Emote Game' cannot be run simultaneously while the rest of the botfunctions still work.
 
 

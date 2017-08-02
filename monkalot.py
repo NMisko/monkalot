@@ -1,4 +1,4 @@
-#!/usr/local/bin/python2.7
+#!/usr/local/bin/python3.6
 """Use this to start the bot."""
 
 from twisted.internet import protocol, reactor
@@ -8,6 +8,9 @@ import bot.bot
 import time
 import logging
 import logging.config
+from importlib import reload
+
+
 logging.config.fileConfig('configs/logging.conf')
 
 
@@ -24,7 +27,7 @@ class BotFactory(protocol.ClientFactory):
         """Log and reload bot."""
         logging.error("Lost connection, reconnecting")
 
-        self.protocol = reload(bot.bot).TwitchBot  # noqa
+        self.protocol = reload(bot.bot).TwitchBot
 
         connector.connect()
 

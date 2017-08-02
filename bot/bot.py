@@ -3,17 +3,18 @@
 from twisted.words.protocols import irc
 from twisted.internet import reactor
 from collections import defaultdict
-from commands import Permission
+from bot.commands import Permission
 from threading import Thread
 import traceback
 import requests
 import logging
-import commands
+import bot.commands
 import signal
 import json
 import time
 from six.moves import input
 import sqlite3
+from importlib import reload
 
 
 USERLIST_API = "http://tmi.twitch.tv/group/user/{}/chatters"
@@ -100,9 +101,9 @@ class TwitchBot(irc.IRCClient, object):
         emotelist = data['emoticon_sets']['0']
 
         self.twitchemotes = []
-        for i in xrange(0, len(emotelist)):
-            emote = emotelist[i]['code'].encode("utf-8").strip()
-            if ("\\") not in emote:
+        for i in range(0, len(emotelist)):
+            emote = emotelist[i]['code'].strip()
+            if ('\\') not in emote:
                 self.twitchemotes.append(emote)
 
         """ When first start, get global_BTTV-emotelist """
@@ -111,8 +112,8 @@ class TwitchBot(irc.IRCClient, object):
         emotelist = data['emotes']
 
         self.global_bttvemotes = []
-        for i in xrange(0, len(emotelist)):
-            emote = emotelist[i]['code'].encode("utf-8").strip()
+        for i in range(0, len(emotelist)):
+            emote = emotelist[i]['code'].strip()
             self.global_bttvemotes.append(emote)
 
         """ When first start, get channel_BTTV-emotelist """
@@ -122,8 +123,8 @@ class TwitchBot(irc.IRCClient, object):
         emotelist = data['emotes']
 
         self.channel_bttvemotes = []
-        for i in xrange(0, len(emotelist)):
-            emote = emotelist[i]['code'].encode("utf-8").strip()
+        for i in range(0, len(emotelist)):
+            emote = emotelist[i]['code'].strip()
             self.channel_bttvemotes.append(emote)
 
         """All available emotes in one list"""
@@ -226,8 +227,10 @@ class TwitchBot(irc.IRCClient, object):
 
     def lineReceived(self, line):
         """Parse IRC line."""
+        line = line.decode("utf-8")
         # First, we check for any custom twitch commands
         tags, prefix, cmd, args = self.parsemsg(line)
+
         if cmd == "hosttarget":
             self.hostTarget(*args)
         elif cmd == "clearchat":
@@ -242,7 +245,7 @@ class TwitchBot(irc.IRCClient, object):
             line = line.split(' ', 1)[1]
 
         # Then we let IRCClient handle the rest
-        super(TwitchBot, self).lineReceived(line)
+        super().lineReceived(line)
 
     def hostTarget(self, channel, target):
         """Track and update hosting status."""
@@ -395,8 +398,7 @@ class TwitchBot(irc.IRCClient, object):
         # Reload commands
         self.close_commands()
 
-        # Black magic?
-        cmds = reload(commands)  # noqa
+        cmds = reload(bot.commands)
 
         self.commands = [
             cmds.Sleep(self),

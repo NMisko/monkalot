@@ -1,6 +1,6 @@
 """Module containing commands which can be used by the bot."""
 
-from math_parser import NumericStringParser
+from bot.math_parser import NumericStringParser
 import random
 from random import shuffle
 import json
@@ -173,14 +173,14 @@ class outputQuote(Command):
         cmd = msg.lower().strip()
         if cmd == "!quote":
             quote = random.choice(self.quotelist)
-            bot.write(quote.encode("utf-8"))
+            bot.write(quote)
         elif cmd.startswith("!quote "):
             arg = cmd[len("!quote "):]
             try:
                 arg = int(arg.strip()) - 1      # -1: So list for users goes from 1 to len + 1
                 if arg >= 0 and arg < len(self.quotelist):
                     quote = self.quotelist[arg]
-                    bot.write(quote.encode("utf-8"))
+                    bot.write(quote)
                 else:
                     bot.write('Quote not found. Try: !quote [1 - ' + str(len(self.quotelist)) + ']')
             except ValueError:
@@ -334,6 +334,7 @@ class KappaGame(Command):
         if not self.active:
             self.active = True
             self.n = random.randint(1, 25)
+            print("Kappas: " + str(self.n))
             bot.write("Kappa game has started. Guess the right amount of Kappa s between 1 and 25! PogChamp")
 
         else:
@@ -365,6 +366,7 @@ class GuessEmoteGame(Command):
     perm = Permission.User
     active = False
     emotes = []
+    emote = ""
 
     def initGame(self, bot):
         """Initialize GuessEmoteGame: Get all twitch- and BTTV-Emotes, assemble a list of random emotes, choose the winning one."""
@@ -393,8 +395,8 @@ class GuessEmoteGame(Command):
                 i += 1
 
         shuffle(emotelist)
-        emote = random.choice(emotelist)
-        return emotelist, emote
+        self.emotes = emotelist
+        self.emote = random.choice(emotelist)
 
     def match(self, bot, user, msg):
         """Match if the game is active or gets started with !estart."""
@@ -406,22 +408,22 @@ class GuessEmoteGame(Command):
 
         if not self.active:
             self.active = True
-            self.emotes = self.initGame(bot)
-            print ("Right emote: " + self.emotes[1])
-            bot.write("The 'Guess The Emote Game' has started. Write one of the following emotes to start playing: " + EmoteListToString(self.emotes[0]))
+            self.initGame(bot)
+            print("Right emote: " + self.emote)
+            bot.write("The 'Guess The Emote Game' has started. Write one of the following emotes to start playing: " + EmoteListToString(self.emotes))
         else:
-            if cmd == self.emotes[1]:
-                bot.write(user + " got it! It was " + self.emotes[1] + " . " + user + " gets 50 spam points.")
+            if cmd == self.emote:
+                bot.write(user + " got it! It was " + self.emote + " . " + user + " gets 50 spam points.")
                 self.active = False
-            elif cmd == ("!emotes"):
-                bot.write("Possible game emotes: " + EmoteListToString(self.emotes[0]))
+            elif cmd == "!emotes":
+                bot.write("Possible game emotes: " + EmoteListToString(self.emotes))
 
 
 def EmoteListToString(emoteList):
     """Convert an EmoteList to a string."""
     s = ""
 
-    for i in range(0, len(emoteList)):
+    for i in range(0, len(emoteList)-1):
         s = s + emoteList[i] + " "
 
     return s
@@ -505,11 +507,11 @@ class GuessMinionGame(Command):
         if not self.active:
             self.active = True
             self.initGame(bot)
-            print ("Right Minion: " + self.minion['name'])
+            print("Right Minion: " + self.minion['name'])
             bot.write("The 'Guess The Minion Game' has started. Type minion names to play.")
             self.giveClue(bot)
         else:
-            name = self.minion['name'].encode("utf-8").strip()
+            name = self.minion['name'].strip()
             if cmd.strip().lower() == name.lower():
                 bot.write(user + " got it! It was " + name + ". " + user + " gets 50 spam points.")
                 self.active = False
@@ -518,7 +520,7 @@ class GuessMinionGame(Command):
 
     def close(self, bot):
         """Close minion game."""
-        print "TODO: CLOSE MINION GAME."
+        print("TODO: CLOSE MINION GAME.")
 
 
 class Active(Command):
