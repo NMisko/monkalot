@@ -155,7 +155,7 @@ class TwitchBot(irc.IRCClient, object):
     def privmsg(self, user, channel, msg):
         """React to messages in the channel."""
         # Extract twitch name
-        name = user.split('!', 1)[0].lower()
+        name = user.split('!', 1)[0]
 
         # Catch twitch specific commands
         if name in ["jtv", "twitchnotify"]:
@@ -412,6 +412,7 @@ class TwitchBot(irc.IRCClient, object):
             cmds.GuessEmoteGame(self),
             cmds.GuessMinionGame(self),
             cmds.SimpleReply(self),
+            cmds.Smorc(self),
         ]
 
     def reload(self):

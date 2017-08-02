@@ -8,6 +8,7 @@ import threading
 
 QUOTES_FILE = 'data/quotes.json'
 REPLIES_FILE = 'data/sreply_cmds.json'
+SMORC_FILE = 'data/smorc.json'
 
 
 class Permission:
@@ -37,6 +38,24 @@ class Command(object):
     def close(self, bot):
         """Clean up."""
         pass
+
+
+class Smorc(Command):
+    """Send a random SMOrc message."""
+
+    perm = Permission.User
+
+    """load command list"""
+    with open(SMORC_FILE) as fp:
+        replies = json.load(fp)
+
+    def match(self, bot, user, msg):
+        """Match if command is !smorc."""
+        return msg.lower().strip() == "!smorc"
+
+    def run(self, bot, user, msg):
+        """Answer with random smorc."""
+        bot.write(random.choice(self.replies))
 
 
 class SimpleReply(Command):
@@ -133,7 +152,6 @@ class EditCommandList(Command):
 
     def run(self, bot, user, msg):
         """Add or delete command, or print list."""
-
         cmd = msg.lower().strip()
 
         if cmd.startswith("!addcommand "):
