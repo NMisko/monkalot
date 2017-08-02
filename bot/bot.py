@@ -52,35 +52,41 @@ class TwitchBot(irc.IRCClient, object):
         """
     cursor = connection.cursor()
     cursor.execute(sql_create_command)
+    cursor.close()
     connection.commit()
+    connection.close()
 
     def getPoints(self, username):
         """Get the points of a user."""
-        cursor = self.connection.cursor()
+        connection = sqlite3.connect("data/monkalot.db")
+        cursor = connection.cursor()
         sql_command = "SELECT amount FROM points WHERE username = ?;"
         cursor.execute(sql_command, [username])
-        self.connection.commit()
+        connection.commit()
         one = cursor.fetchone()
 
         if(one is None):
             sql_command = "INSERT INTO points (username, amount) VALUES (?, 0);"
             cursor.execute(sql_command, [username])
-            self.connection.commit()
+            connection.commit()
             output = 0
         else:
             output = one[0]
 
         cursor.close()
+        connection.close()
         return output
 
     def incrementPoints(self, username, amount):
         """Increment points of a user by a certain value."""
+        connection = sqlite3.connect("data/monkalot.db")
         points = int(self.getPoints(username)) + amount
         sql_command = "UPDATE points SET amount = ? WHERE username = ?;"
-        cursor = self.connection.cursor()
+        cursor = connection.cursor()
         cursor.execute(sql_command, [points, username])
-        self.connection.commit()
+        connection.commit()
         cursor.close()
+        connection.close()
 
     def signedOn(self):
         """Call when first signed on."""
