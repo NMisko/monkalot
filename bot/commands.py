@@ -337,15 +337,15 @@ class Pyramid(Command):
             if msg == self.pyramidLevel(self.currentEmote, self.count):
                 if(self.count == 5):  # 3 high pyramid
                     self.count = 0
-                    bot.write(bot.displayName(user) + " built a pyramid and gets 30 spam points. PogChamp")
+                    bot.write(bot.displayName(user) + " built a pyramid and " + bot.pronoun(user)[0] + " gets 30 spam points. PogChamp")
                     bot.ranking.incrementPoints(user, 30)
             elif self.count == 3 and msg == self.pyramidLevel(self.currentEmote, 1):  # 2 high pyramid
                 self.count = 0
                 if bot.get_permission(user) in [Permission.User, Permission.Subscriber]:
-                    bot.write("Wow, " + bot.displayName(user) + " built a pleb pyramid and gets a free timeout. 4Head")
+                    bot.write("Wow, " + bot.displayName(user) + " built a pleb pyramid and " + bot.pronoun(user)[0] + " gets a free timeout. 4Head")
                     bot.write("/timeout " + bot.displayName(user) + " 60")
                 else:
-                    bot.write(bot.displayName(user) + " created a pleb pyramid and would get a free timeout, but is a mod. FeelsBadMan")
+                    bot.write(bot.displayName(user) + " created a pleb pyramid and would get a free timeout, but " + bot.pronoun(user)[0] + " is a mod. FeelsBadMan")
             else:
                 if msg in self.emotes:
                     self.count = 1
@@ -472,7 +472,7 @@ class GuessEmoteGame(Command):
                 return
 
             if cmd == self.emote:
-                bot.write(bot.displayName(user) + " got it! It was " + self.emote + " . " + bot.displayName(user) + " gets 15 spam points.")
+                bot.write(bot.displayName(user) + " got it! It was " + self.emote + " . " + bot.pronoun(user)[0] + " gets 15 spam points.")
                 bot.ranking.incrementPoints(user, 20)
                 bot.gameRunning = False
                 self.active = False
@@ -584,7 +584,7 @@ class GuessMinionGame(Command):
 
             name = self.minion['name'].strip()
             if cmd.strip().lower() == name.lower():
-                bot.write(bot.displayName(user) + " got it! It was " + name + ". " + bot.displayName(user) + " gets 20 spam points.")
+                bot.write(bot.displayName(user) + " got it! It was " + name + ". " + bot.pronoun(user)[0] + " gets 20 spam points.")
                 bot.ranking.incrementPoints(user, 20)
                 if self.callID is not None:
                     self.callID.cancel()
@@ -682,6 +682,29 @@ class Active(Command):
 
         reply = reply.format(user, active)
         bot.write(reply)
+
+
+class Pronouns(Command):
+    """Allows changing gender pronouns for a user.
+
+    Usage: !g igetnokick she her hers
+    """
+
+    perm = Permission.Admin
+
+    def match(self, bot, user, msg):
+        """Match if message starts with !rank and has one argument."""
+        return msg.startswith("!g ") and len(msg.split(' ')) == 5
+
+    def run(self, bot, user, msg):
+        """Add custom pronouns."""
+        args = msg.lower().split(' ')
+
+        bot.pronouns[args[1]] = [args[2], args[3], args[4]]
+        with open(bot.pronouns_path, 'w') as file:
+            json.dump(bot.pronouns, file, indent=4)
+
+        bot.write("Successfully added pronouns monkaS .")
 
 
 class Rank(Command):

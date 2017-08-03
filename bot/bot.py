@@ -24,6 +24,7 @@ CHANNEL_BTTVEMOTES_API = "http://api.betterttv.net/2/channels/{}"
 HEARTHSTONE_CARD_API = "http://api.hearthstonejson.com/v1/18336/enUS/cards.collectible.json"
 
 TRUSTED_MODS_PATH = 'data/trusted_mods.json'
+PRONOUNS_PATH = 'data/pronouns.json'
 
 with open('configs/bot_config.json') as fp:
     CONFIG = json.load(fp)
@@ -41,6 +42,7 @@ class TwitchBot(irc.IRCClient, object):
     channel = "#" + str(CONFIG['channel'])
 
     trusted_mods_path = TRUSTED_MODS_PATH
+    pronouns_path = PRONOUNS_PATH
 
     host_target = False
     pause = False
@@ -51,6 +53,9 @@ class TwitchBot(irc.IRCClient, object):
 
     with open(TRUSTED_MODS_PATH) as fp:
         trusted_mods = json.load(fp)
+
+    with open(PRONOUNS_PATH) as fp:
+        pronouns = json.load(fp)
 
     def signedOn(self):
         """Call when first signed on."""
@@ -194,6 +199,13 @@ class TwitchBot(irc.IRCClient, object):
             args = s.split()
         command = args.pop(0).lower()
         return tags, prefix, command, args
+
+    def pronoun(self, user):
+        """Get the proper pronouns for a user."""
+        if user in self.pronouns:
+            return self.pronouns[user]
+        else:
+            return ["he", "him", "his"]
 
     def lineReceived(self, line):
         """Parse IRC line."""
@@ -385,7 +397,8 @@ class TwitchBot(irc.IRCClient, object):
             cmds.Smorc(self),
             cmds.Rank(self),
             cmds.EditCommandMods(self),
-            cmds.Speech(self)
+            cmds.Speech(self),
+            cmds.Pronouns(self)
         ]
         self.games = [
             cmds.KappaGame(self),
