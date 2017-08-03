@@ -380,6 +380,10 @@ class KappaGame(Command):
             bot.write("Kappa game has started. Guess the right amount of Kappa s between 1 and 25! PogChamp")
 
         else:
+            if msg == "!kstop":
+                self.close(bot)
+                return
+
             i = self.countEmotes(cmd, "Kappa")
             if i == self.n:
                 bot.write(bot.displayName(user) + " got it! It was " + str(self.n) + " Kappa s!")
@@ -461,6 +465,10 @@ class GuessEmoteGame(Command):
             print("Right emote: " + self.emote)
             bot.write("The 'Guess The Emote Game' has started. Write one of the following emotes to start playing: " + EmoteListToString(self.emotes))
         else:
+            if cmd == "!estop":
+                bot.write("Stopping game.")
+                self.close(bot)
+                return
             if cmd == self.emote:
                 bot.write(bot.displayName(user) + " got it! It was " + self.emote + " . " + bot.displayName(user) + " gets 15 spam points.")
                 bot.ranking.incrementPoints(user, 20)
@@ -567,6 +575,11 @@ class GuessMinionGame(Command):
             bot.write("The 'Guess The Minion Game' has started. Type minion names to play.")
             self.giveClue(bot)
         else:
+            if cmd == "!mstop":
+                self.close(bot)
+                bot.write("Stopping game.")
+                return
+
             name = self.minion['name'].strip()
             if cmd.strip().lower() == name.lower():
                 bot.write(bot.displayName(user) + " got it! It was " + name + ". " + bot.displayName(user) + " gets 20 spam points.")

@@ -2,3 +2,5 @@ cleverwrap
 requests
 twisted
 six
+pyparsing
+colorlog
