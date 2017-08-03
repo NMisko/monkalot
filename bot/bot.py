@@ -10,6 +10,7 @@ import requests
 import logging
 import bot.commands
 import bot.ranking
+import bot.emotecounter
 import signal
 import json
 import time
@@ -105,9 +106,13 @@ class TwitchBot(irc.IRCClient, object):
         """All available emotes in one list"""
         self.emotes = self.twitchemotes + self.global_bttvemotes + self.channel_bttvemotes
 
-        """ When first start, get all hearthstone cards """
+        """When first start, get all hearthstone cards"""
         url = HEARTHSTONE_CARD_API
         self.cards = requests.get(url).json()
+
+        """Initialize emotecounter"""
+        self.ecount = bot.emotecounter.EmoteCounter(self)
+        self.ecount.startCPM()
 
         # Get data structures stored in factory
         self.activity = self.factory.activity
@@ -303,6 +308,9 @@ class TwitchBot(irc.IRCClient, object):
         perm = self.get_permission(user)
         msg = msg.strip()
 
+        """Emote Count Function"""
+        self.ecount.process_msg(msg)
+
         # Flip through commands and execute everyone that matches.
         # Check if user has permission to execute command.
         # Also reduce warning message spam by limiting it to one per minute.
@@ -387,6 +395,7 @@ class TwitchBot(irc.IRCClient, object):
             cmds.EditCommandList(self),
             cmds.editQuoteList(self),
             cmds.outputQuote(self),
+            cmds.outputStats(self),
             cmds.Calculator(self),
             cmds.Pyramid(self),
             cmds.KappaGame(self),

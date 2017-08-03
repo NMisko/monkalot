@@ -193,6 +193,51 @@ class EditCommandList(Command):
             self.replylist(bot, msg.strip())
 
 
+class outputStats(Command):
+    """Reply total emote stats or stats/per minute"""
+
+    perm = Permission.User
+
+    def match(self, bot, user, msg):
+        """Match if msg = !total <emote> or !minute <emote>"""
+        cmd = msg.strip().lower()
+
+        if cmd.startswith('!total ') or cmd.startswith('!minute '):
+            cmd = msg.strip()   # now without .lower()
+            cmd = cmd.split(' ', 1)
+
+            return cmd[1].strip() in bot.emotes
+        elif cmd == '!kpm':
+            return True
+        elif cmd == '!tkp':
+            return True
+
+    def run(self, bot, user, msg):
+        """On first run initialize game."""
+        cmd = msg.strip().lower()
+
+        if cmd.startswith('!total '):
+            cmd = msg.strip()
+            cmd = cmd.split(' ', 1)
+            emote = cmd[1]
+            count = bot.ecount.returnTotalcount(emote)
+            bot.write('Total ' + str(emote) + ' \'s on this channel: ' + str(count))
+        elif cmd.startswith('!minute '):
+            cmd = msg.strip()
+            cmd = cmd.split(' ', 1)
+            emote = cmd[1]
+            count = bot.ecount.returnMinutecount(emote)
+            bot.write(str(emote) + ' \'s per minute: ' + str(count))
+        elif cmd == '!tkp':
+            emote = 'Kappa'
+            count = bot.ecount.returnTotalcount(emote)
+            bot.write('Total ' + str(emote) + ' \'s on this channel: ' + str(count))
+        elif cmd == '!kpm':
+            emote = 'Kappa'
+            count = bot.ecount.returnMinutecount(emote)
+            bot.write(str(emote) + ' \'s per minute: ' + str(count))
+
+
 class outputQuote(Command):
     """Simple Class to output quotes stored in a json-file."""
 
