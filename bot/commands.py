@@ -4,8 +4,8 @@ from bot.math_parser import NumericStringParser
 import random
 from random import shuffle
 import json
-import threading
 from twisted.internet import reactor
+import math
 
 QUOTES_FILE = 'data/quotes.json'
 REPLIES_FILE = 'data/sreply_cmds.json'
@@ -308,7 +308,7 @@ class Pyramid(Command):
                 if(self.count == 5):  # 3 high pyramid
                     self.count = 0
                     bot.write("Yay. " + user.capitalize() + " created a pyramid and gets 30 spam points.")
-                    bot.incrementPoints(user, 30)
+                    bot.ranking.incrementPoints(user, 30)
             elif self.count == 3 and msg == self.pyramidLevel(self.currentEmote, 1):  # 2 high pyramid
                 self.count = 0
                 if bot.get_permission(user) in [Permission.User, Permission.Subscriber]:
@@ -353,7 +353,7 @@ class KappaGame(Command):
             i = self.countEmotes(cmd, "Kappa")
             if i == self.n:
                 bot.write(user.capitalize() + " got it! It was " + str(self.n) + " Kappa s!")
-                bot.incrementPoints(user, 7)
+                bot.ranking.incrementPoints(user, 20)
                 bot.gameRunning = False
                 self.active = False
             elif i != -1:
@@ -433,7 +433,7 @@ class GuessEmoteGame(Command):
         else:
             if cmd == self.emote:
                 bot.write(user.capitalize() + " got it! It was " + self.emote + " . " + user.capitalize() + " gets 15 spam points.")
-                bot.incrementPoints(user, 15)
+                bot.ranking.incrementPoints(user, 20)
                 bot.gameRunning = False
                 self.active = False
             elif cmd == "!emotes":
@@ -540,8 +540,8 @@ class GuessMinionGame(Command):
             name = self.minion['name'].strip()
             if cmd.strip().lower() == name.lower():
                 bot.write(user.capitalize() + " got it! It was " + name + ". " + user.capitalize() + " gets 20 spam points.")
-                bot.incrementPoints(user, 20)
-                if self.callID != None:
+                bot.ranking.incrementPoints(user, 20)
+                if self.callID is not None:
                     self.callID.cancel()
                     self.callID = None
                 bot.gameRunning = False
@@ -551,7 +551,7 @@ class GuessMinionGame(Command):
 
     def close(self, bot):
         """Close minion game."""
-        if self.callID != None:
+        if self.callID is not None:
             self.callID.cancel()
             self.callID = None
         self.active = False
@@ -559,7 +559,7 @@ class GuessMinionGame(Command):
 
 
 class AutoGames(Command):
-    """ Start games randomly """
+    """Start games randomly."""
 
     perm = Permission.Moderator
     active = False
@@ -567,14 +567,13 @@ class AutoGames(Command):
     callID = None
 
     def randomGame(self, bot):
-        """ Start a random game. """
-
+        """Start a random game."""
         gamecmds = ["!kstart", "!estart", "!mstart"]
 
         if not self.active:
             return
 
-        """ Start games as bot with empty msg if no active game. """
+        """Start games as bot with empty msg if no active game."""
         if all(test.active == False for test in bot.games): #noqa
             user = bot.nickname
             cmd = random.choice(gamecmds)
@@ -584,12 +583,11 @@ class AutoGames(Command):
         self.callID = reactor.callLater(self.time, self.randomGame, bot)
 
     def match(self, bot, user, msg):
-        """ Match if message starts with !games """
+        """Match if message starts with !games."""
         return msg.lower().startswith("!games ")
 
     def run(self, bot, user, msg):
-        """ Start/stop automatic games """
-
+        """Start/stop automatic games."""
         cmd = msg[len("!games "):]
         cmd.strip()
 
@@ -601,7 +599,7 @@ class AutoGames(Command):
             else:
                 bot.write('Automatic games are already on! DansGame')
         elif cmd == 'off':
-            if self.callID != None:
+            if self.callID is not None:
                 self.callID.cancel()
                 self.callID = None
             if self.active:
@@ -611,7 +609,8 @@ class AutoGames(Command):
                 bot.write('Automatic games were not even active! EleGiggle')
 
     def close(self, bot):
-        if self.callID != None:
+        """Close the game."""
+        if self.callID is not None:
             self.callID.cancel()
             self.callID = None
         self.active = False
@@ -638,6 +637,32 @@ class Active(Command):
 
         reply = reply.format(user, active)
         bot.write(reply)
+
+
+class Rank(Command):
+    """Get rank of a user."""
+
+    perm = Permission.User
+
+    def match(self, bot, user, msg):
+        """Match if message starts with !rank and has one argument."""
+        return msg.startswith("!rank ") and len(msg.split(' ')) == 2
+
+    def run(self, bot, user, msg):
+        """Calculate rank of user.
+
+        0-19: Rank 25, 20-39: Rank 24,..., 480-499: Rank 1
+        >= 500: Legend
+        """
+        user = msg.split(' ')[1]
+        points = bot.ranking.getPoints(user)
+        print(points)
+        if points < 500:
+            rank = str(math.ceil(25 - (points * 25 / 500))) + "."
+        else:
+            rank = str(bot.ranking.getRank(points)) + " Legend! PogChamp"
+
+        bot.write(user.capitalize() + " is rank " + rank)
 
 
 class Sleep(Command):
@@ -671,12 +696,12 @@ def startGame(bot, user, msg, cmd):
         return False
     elif bot.get_permission(user) in [Permission.User, Permission.Subscriber] and msg == cmd:
         # The calling user is not a mod, so we subtract 5 points.
-        if(bot.getPoints(user) > 5):
-            bot.incrementPoints(user, -5)
+        if(bot.ranking.getPoints(user) > 5):
+            bot.ranking.incrementPoints(user, -5)
             bot.gameRunning = True
             return True
         else:
-            bot.write("You need at least 5 points to start a game.")
+            bot.write("You need 5 points to start a game.")
             return False
     else:  # The calling user is a mod, so we only check if the command is correct
         if msg == cmd:

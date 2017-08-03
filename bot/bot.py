@@ -9,11 +9,11 @@ import traceback
 import requests
 import logging
 import bot.commands
+import bot.ranking
 import signal
 import json
 import time
 from six.moves import input
-import sqlite3
 from importlib import reload
 
 
@@ -42,51 +42,7 @@ class TwitchBot(irc.IRCClient, object):
     commands = []
     gameRunning = False
 
-    # Set up connection to database and create tables if they do not yet exist.
-    connection = sqlite3.connect("data/monkalot.db")
-    sql_create_command = """
-        CREATE TABLE IF NOT EXISTS points (
-        username TEXT PRIMARY_KEY,
-        amount INTEGER
-        );
-        """
-    cursor = connection.cursor()
-    cursor.execute(sql_create_command)
-    cursor.close()
-    connection.commit()
-    connection.close()
-
-    def getPoints(self, username):
-        """Get the points of a user."""
-        connection = sqlite3.connect("data/monkalot.db")
-        cursor = connection.cursor()
-        sql_command = "SELECT amount FROM points WHERE username = ?;"
-        cursor.execute(sql_command, [username])
-        connection.commit()
-        one = cursor.fetchone()
-
-        if(one is None):
-            sql_command = "INSERT INTO points (username, amount) VALUES (?, 0);"
-            cursor.execute(sql_command, [username])
-            connection.commit()
-            output = 0
-        else:
-            output = one[0]
-
-        cursor.close()
-        connection.close()
-        return output
-
-    def incrementPoints(self, username, amount):
-        """Increment points of a user by a certain value."""
-        connection = sqlite3.connect("data/monkalot.db")
-        points = int(self.getPoints(username)) + amount
-        sql_command = "UPDATE points SET amount = ? WHERE username = ?;"
-        cursor = connection.cursor()
-        cursor.execute(sql_command, [points, username])
-        connection.commit()
-        cursor.close()
-        connection.close()
+    ranking = bot.ranking.Ranking()
 
     def signedOn(self):
         """Call when first signed on."""
@@ -420,6 +376,7 @@ class TwitchBot(irc.IRCClient, object):
             cmds.AutoGames(self),
             cmds.SimpleReply(self),
             cmds.Smorc(self),
+            cmds.Rank(self),
         ]
         self.games = [
             cmds.KappaGame(self),
@@ -436,7 +393,6 @@ class TwitchBot(irc.IRCClient, object):
     def terminate(self):
         """Terminate bot."""
         self.close_commands()
-        self.connection.close()
         reactor.stop()
 
 
