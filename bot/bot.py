@@ -37,6 +37,7 @@ class TwitchBot(irc.IRCClient, object):
     ignore_list = CONFIG['ignore_list']
     nickname = str(CONFIG['username'])
     password = str(CONFIG['oauth_key'])
+    cleverbot_key = str(CONFIG['cleverbot_key'])
     channel = "#" + str(CONFIG['channel'])
 
     trusted_mods_path = TRUSTED_MODS_PATH
@@ -385,6 +386,7 @@ class TwitchBot(irc.IRCClient, object):
             cmds.Smorc(self),
             cmds.Rank(self),
             cmds.EditCommandMods(self),
+            cmds.Speech(self)
         ]
         self.games = [
             cmds.KappaGame(self),

@@ -6,6 +6,7 @@ from random import shuffle
 import json
 from twisted.internet import reactor
 import math
+from cleverwrap import CleverWrap
 
 QUOTES_FILE = 'data/quotes.json'
 REPLIES_FILE = 'data/sreply_cmds.json'
@@ -713,6 +714,29 @@ class Sleep(Command):
         elif cmd.startswith("!wakeup"):
             bot.write("Good morning everyone!")
             bot.pause = False
+
+
+class Speech(Command):
+    """Natural language by using cleverbot."""
+
+    perm = Permission.User
+    cw = ""
+
+    def __init__(self, bot):
+        """Initialize the command."""
+        self.cw = CleverWrap(bot.cleverbot_key)
+
+    def match(self, bot, user, msg):
+        """Match if the bot is tagged."""
+        return "@" + bot.nickname in msg.lower()
+
+    def run(self, bot, user, msg):
+        """Send message to cleverbot."""
+        msg = msg.lower()
+        msg = msg.replace("@" + bot.nickname, '')
+        print(msg)
+        output = self.cw.say(msg)
+        bot.write("@" + user + " " + output)
 
 
 def startGame(bot, user, msg, cmd):
