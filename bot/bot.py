@@ -23,6 +23,8 @@ GLOBAL_BTTVEMOTES_API = "http://api.betterttv.net/2/emotes"
 CHANNEL_BTTVEMOTES_API = "http://api.betterttv.net/2/channels/{}"
 HEARTHSTONE_CARD_API = "http://api.hearthstonejson.com/v1/18336/enUS/cards.collectible.json"
 
+TRUSTED_MODS_PATH = 'data/trusted_mods.json'
+
 with open('configs/bot_config.json') as fp:
     CONFIG = json.load(fp)
 
@@ -37,12 +39,17 @@ class TwitchBot(irc.IRCClient, object):
     password = str(CONFIG['oauth_key'])
     channel = "#" + str(CONFIG['channel'])
 
+    trusted_mods_path = TRUSTED_MODS_PATH
+
     host_target = False
     pause = False
     commands = []
     gameRunning = False
 
     ranking = bot.ranking.Ranking()
+
+    with open(TRUSTED_MODS_PATH) as fp:
+        trusted_mods = json.load(fp)
 
     def signedOn(self):
         """Call when first signed on."""
@@ -377,6 +384,7 @@ class TwitchBot(irc.IRCClient, object):
             cmds.SimpleReply(self),
             cmds.Smorc(self),
             cmds.Rank(self),
+            cmds.EditCommandMods(self),
         ]
         self.games = [
             cmds.KappaGame(self),

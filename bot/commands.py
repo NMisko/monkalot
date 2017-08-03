@@ -86,6 +86,35 @@ class SimpleReply(Command):
             bot.write(reply)
 
 
+class EditCommandMods(Command):
+    """Command for owners to add or delete mods to list of trusted mods."""
+
+    perm = Permission.Admin
+
+    def match(self, bot, user, msg):
+        """Match if !addmod or !delmod."""
+        return (msg.startswith("!addmod ") or msg.startswith("!delmod ")) and len(msg.split(' ')) == 2
+
+    def run(self, bot, user, msg):
+        """Add or delete a mod."""
+        mod = msg.split(' ')[1].lower()
+        if msg.startswith("!addmod "):
+            if mod not in bot.trusted_mods:
+                bot.trusted_mods.append(mod)
+                bot.write("Mod added. SeemsGood")
+            else:
+                bot.write(mod + " is already a mod. monkaS")
+        elif msg.startswith("!delmod "):
+            if mod in bot.trusted_mods:
+                bot.trusted_mods.remove(mod)
+                bot.write("Mod removed. SeemsGood")
+            else:
+                bot.write(mod + " isn't a mod. monkaS")
+
+        with open(bot.trusted_mods_path, 'w') as file:
+            json.dump(bot.trusted_mods, file, indent=4)
+
+
 class EditCommandList(Command):
     """Command to add or remove entries from the command-list.
 
@@ -149,7 +178,7 @@ class EditCommandList(Command):
     def match(self, bot, user, msg):
         """Match if !addcommand, !delcommand or !replyList."""
         cmd = msg.lower().strip()
-        return cmd.startswith("!addcommand ") or cmd.startswith("!delcommand ") or cmd == "!replylist"
+        return (cmd.startswith("!addcommand ") or cmd.startswith("!delcommand ") or cmd == "!replylist") and user in bot.trusted_mods
 
     def run(self, bot, user, msg):
         """Add or delete command, or print list."""
