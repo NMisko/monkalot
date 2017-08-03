@@ -88,8 +88,7 @@ class TwitchBot(irc.IRCClient, object):
             self.global_bttvemotes.append(emote)
 
         """ When first start, get channel_BTTV-emotelist """
-        # url = CHANNEL_BTTVEMOTES_API.format(self.channel[1:]) # TODO: This command gets BTTV-emotes for the current channel
-        url = CHANNEL_BTTVEMOTES_API.format("Zetalot")          # TODO: For testing hardcoded channel: Zetalot
+        url = CHANNEL_BTTVEMOTES_API.format(self.channel[1:])
         data = requests.get(url).json()
         emotelist = data['emotes']
 

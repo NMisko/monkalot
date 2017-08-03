@@ -337,12 +337,12 @@ class Pyramid(Command):
             if msg == self.pyramidLevel(self.currentEmote, self.count):
                 if(self.count == 5):  # 3 high pyramid
                     self.count = 0
-                    bot.write("Yay. " + bot.displayName(user) + " created a pyramid and gets 30 spam points.")
+                    bot.write(bot.displayName(user) + " built a pyramid and gets 30 spam points. PogChamp")
                     bot.ranking.incrementPoints(user, 30)
             elif self.count == 3 and msg == self.pyramidLevel(self.currentEmote, 1):  # 2 high pyramid
                 self.count = 0
                 if bot.get_permission(user) in [Permission.User, Permission.Subscriber]:
-                    bot.write("Wow, " + bot.displayName(user) + " created a pleb pyramid and gets a free timeout. 4Head")
+                    bot.write("Wow, " + bot.displayName(user) + " built a pleb pyramid and gets a free timeout. 4Head")
                     bot.write("/timeout " + bot.displayName(user) + " 60")
                 else:
                     bot.write(bot.displayName(user) + " created a pleb pyramid and would get a free timeout, but is a mod. FeelsBadMan")
@@ -625,7 +625,7 @@ class AutoGames(Command):
             if not self.active:
                 self.active = True
                 self.callID = reactor.callLater(self.time, self.randomGame, bot)
-                bot.write('Automatic game mode activated! \ haHAA /')
+                bot.write('Automatic game mode activated! monkaS')
             else:
                 bot.write('Automatic games are already on! DansGame')
         elif cmd == 'off':
@@ -686,7 +686,6 @@ class Rank(Command):
         """
         user = msg.split(' ')[1]
         points = bot.ranking.getPoints(user)
-        print(points)
         if points < 500:
             rank = str(math.ceil(25 - (points * 25 / 500))) + "."
         else:
@@ -734,7 +733,6 @@ class Speech(Command):
         """Send message to cleverbot."""
         msg = msg.lower()
         msg = msg.replace("@" + bot.nickname, '')
-        print(msg)
         output = self.cw.say(msg)
         bot.write("@" + user + " " + output)
 

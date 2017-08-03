@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3.6
+#!/usr/bin/env python3
 """Use this to start the bot."""
 
 from twisted.internet import protocol, reactor
@@ -27,7 +27,7 @@ class BotFactory(protocol.ClientFactory):
         """Log and reload bot."""
         logging.error("Lost connection, reconnecting")
 
-        self.protocol = reload(bot.bot).TwitchBot
+        self.protocol = reload(bot.bot).TwitchBot  # noqa
 
         connector.connect()
 
