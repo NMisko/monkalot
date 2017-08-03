@@ -382,6 +382,7 @@ class KappaGame(Command):
         else:
             if msg == "!kstop":
                 self.close(bot)
+                bot.write("Stopping game.")
                 return
 
             i = self.countEmotes(cmd, "Kappa")
@@ -469,6 +470,7 @@ class GuessEmoteGame(Command):
                 bot.write("Stopping game.")
                 self.close(bot)
                 return
+
             if cmd == self.emote:
                 bot.write(bot.displayName(user) + " got it! It was " + self.emote + " . " + bot.displayName(user) + " gets 15 spam points.")
                 bot.ranking.incrementPoints(user, 20)
