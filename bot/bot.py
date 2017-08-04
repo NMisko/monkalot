@@ -402,6 +402,7 @@ class TwitchBot(irc.IRCClient, object):
             cmds.GuessEmoteGame(self),
             cmds.GuessMinionGame(self),
             cmds.AutoGames(self),
+            cmds.PyramidReply(self),
             cmds.SimpleReply(self),
             cmds.Smorc(self),
             cmds.Rank(self),

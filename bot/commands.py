@@ -97,6 +97,36 @@ class SimpleReply(Command):
             bot.write(reply)
 
 
+class PyramidReply(Command):
+    '''Simple meta-command to output a reply with a pyramid given
+        a specific command. Basic key to value mapping.'''
+
+    perm = Permission.User
+
+    replies = {
+        "!pjsalt": "PJSalt",
+    }
+
+    def match(self, bot, user, msg):
+        cmd = msg.lower().strip()
+        for key in self.replies:
+            if cmd == key:
+                return True
+        return False
+
+    def run(self, bot, user, msg):
+        cmd = msg.lower().strip()
+
+        for key, reply in self.replies.items():
+            if cmd == key:
+                bot.write(reply)
+                bot.write(reply + ' ' + reply)
+                bot.write(reply + ' ' + reply + ' ' + reply)
+                bot.write(reply + ' ' + reply)
+                bot.write(reply)
+                break
+
+
 class EditCommandMods(Command):
     """Command for owners to add or delete mods to list of trusted mods."""
 
@@ -797,10 +827,11 @@ class Sleep(Command):
         """Put the bot to sleep or wake it up."""
         cmd = msg.lower().replace(' ', '')
         if cmd.startswith("!sleep"):
-            bot.write("Going to sleep... bye!")
+            bot.write("Going to sleep... bye! ResidentSleeper")
+            bot.close_commands()
             bot.pause = True
         elif cmd.startswith("!wakeup"):
-            bot.write("Good morning everyone!")
+            bot.write("Good morning everyone! FeelsGoodMan /")
             bot.pause = False
 
 
