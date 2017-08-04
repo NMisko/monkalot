@@ -1,10 +1,17 @@
 TODO:
 
-* Save chat statistics: E.g. 'How many Kappa's per minute', etc.
 * Synchronize commands with themselves
 * Pyramid Game: level 7: more points
-* Cleverbot (Native Speech)
 * Tests (create fake irc) https://docs.pytest.org/en/latest/
+* What's 2Head + 2Head 
+* oralpleasure !on / !off
+* limit ability for native speech
+* pyramid block 
+* no spam points for mod 
+* capitalize pronouns where they should be 
+* !rank without arguments
+* !sleep mode should stop commands
+
 
 DESIGN DECISIONS:
 
