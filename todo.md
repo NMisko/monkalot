@@ -10,7 +10,13 @@ TODO:
 * no spam points for mod 
 * capitalize pronouns where they should be 
 * !rank without arguments
-* !sleep mode should stop commands
+* Answer to mentions of name without @ 
+* Colored Text on game start and end 
+* timeout 'ban me' messages 
+* more points for pyramid 
+* give multiple people points for pyramids 
+* more random monkaS 
+* join in on spam (when there's a spam of something, copy the message)
 
 
 DESIGN DECISIONS:
