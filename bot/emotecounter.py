@@ -4,6 +4,7 @@ import time
 import json
 from twisted.internet import reactor
 
+
 STATISTIC_FILE = 'data/emote_stats.json'
 
 
@@ -30,7 +31,8 @@ class EmoteCounter(object):
     def addCountDicts(self, dict1, dict2):
         """Adds the emote counts of dict1 to dict2."""
         for key in dict2:
-            dict2[key] += dict1[key]
+            if key in dict1:
+                dict2[key] += dict1[key]
 
     def countEmotes(self, msg):
         """Count the Emotes of the message.
@@ -83,6 +85,26 @@ class EmoteCounter(object):
 
         return count
 
+    def initTotalcount(self):
+        """Check for TotalCountFile, else create one."""
+
+        try:
+            with open(STATISTIC_FILE) as file:
+                try:
+                    totalcount = json.load(file)
+                except ValueError:
+                    totalcount = {}
+                    print("Broken EmoteCountFile found, creating new one.")
+        except FileNotFoundError:   #noqa
+            totalcount = {}
+            print("No EmoteCountFile found, creating new one.")
+
+        emptylist = self.EmptyStatList()
+        self.addCountDicts(totalcount, emptylist)
+
+        with open(STATISTIC_FILE, 'w+') as file:
+            json.dump(emptylist, file, indent=4)
+
     def returnTotalcount(self, emote):
         """Returns the Total count of an emote"""
         with open(STATISTIC_FILE) as file:
@@ -93,18 +115,23 @@ class EmoteCounter(object):
         else:
             return
 
-    def process_msg(self, msg):
-        """Process an incoming chatmessage"""
-        emotecount = self.countEmotes(msg)
-
+    def updateTotalcount(self, emotecount):
         """Updates the total emote count."""
         with open(STATISTIC_FILE) as file:
             totalcount = json.load(file)
 
-        self.addCountDicts(emotecount, totalcount)
+        newtotal = emotecount.copy()
+
+        self.addCountDicts(totalcount, newtotal)
 
         with open(STATISTIC_FILE, 'w') as file:
-            json.dump(totalcount, file, indent=4)
+            json.dump(newtotal, file, indent=4)
+
+    def process_msg(self, msg):
+        """Process an incoming chatmessage"""
+        emotecount = self.countEmotes(msg)
+
+        self.updateTotalcount(emotecount)
 
         """Update EmotesPerMinute dummydictionary"""
         self.addCountDicts(emotecount, self.dummycounter)
@@ -115,6 +142,9 @@ class EmoteCounter(object):
         self.emotelist = self.bot.emotes
 
         emptylist = self.EmptyStatList()
+
+        """If there is no EmoteStatList, one will be created."""
+        self.initTotalcount()
 
         """Create empty EmotePerMinuteDictionaryMatrix #Titlegore"""
         for i in range(self.freq):
