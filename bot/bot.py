@@ -23,6 +23,7 @@ TWITCHEMOTES_API = "http://api.twitch.tv/kraken/chat/emoticon_images?emotesets=0
 GLOBAL_BTTVEMOTES_API = "http://api.betterttv.net/2/emotes"
 CHANNEL_BTTVEMOTES_API = "http://api.betterttv.net/2/channels/{}"
 HEARTHSTONE_CARD_API = "http://api.hearthstonejson.com/v1/18336/enUS/cards.collectible.json"
+EMOJI_API = "https://raw.githubusercontent.com/github/gemoji/master/db/emoji.json"
 
 TRUSTED_MODS_PATH = 'data/trusted_mods.json'
 PRONOUNS_PATH = 'data/pronouns.json'
@@ -72,7 +73,7 @@ class TwitchBot(irc.IRCClient, object):
         self.mods = set()
         self.subs = set()
 
-        """ When first start, get twitchtv-emotelist """
+        """On first start, get twitchtv-emotelist"""
         url = TWITCHEMOTES_API
         data = requests.get(url).json()
         emotelist = data['emoticon_sets']['0']
@@ -83,7 +84,7 @@ class TwitchBot(irc.IRCClient, object):
             if ('\\') not in emote:
                 self.twitchemotes.append(emote)
 
-        """ When first start, get global_BTTV-emotelist """
+        """On first start, get global_BTTV-emotelist"""
         url = GLOBAL_BTTVEMOTES_API
         data = requests.get(url).json()
         emotelist = data['emotes']
@@ -93,7 +94,7 @@ class TwitchBot(irc.IRCClient, object):
             emote = emotelist[i]['code'].strip()
             self.global_bttvemotes.append(emote)
 
-        """ When first start, get channel_BTTV-emotelist """
+        """On first start, get channel_BTTV-emotelist"""
         url = CHANNEL_BTTVEMOTES_API.format(self.channel[1:])
         data = requests.get(url).json()
         emotelist = data['emotes']
@@ -106,9 +107,19 @@ class TwitchBot(irc.IRCClient, object):
         """All available emotes in one list"""
         self.emotes = self.twitchemotes + self.global_bttvemotes + self.channel_bttvemotes
 
-        """When first start, get all hearthstone cards"""
+        """On first start, get all hearthstone cards"""
         url = HEARTHSTONE_CARD_API
         self.cards = requests.get(url).json()
+
+        """On first start get all emojis"""
+        url = EMOJI_API
+        self.emojilist = requests.get(url).json()
+        self.emojis = []
+        for i in range(0, len(self.emojilist)):
+            try:
+                self.emojis.append(self.emojilist[i]['emoji'])
+            except KeyError:
+                pass    # No Emoji found.
 
         """Initialize emotecounter"""
         self.ecount = bot.emotecounter.EmoteCounter(self)

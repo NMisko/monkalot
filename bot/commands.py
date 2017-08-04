@@ -396,6 +396,7 @@ class Pyramid(Command):
     count = 0
     currentEmote = ""
     emotes = []
+    emojis = []
 
     def match(self, bot, user, msg):
         """Match always."""
@@ -413,8 +414,9 @@ class Pyramid(Command):
     def run(self, bot, user, msg):
         """Check whether a pyramid was successfully built or a new one was started."""
         self.emotes = bot.emotes
+        self.emojis = bot.emojis
         if self.count == 0:
-            if msg in self.emotes:
+            if (msg in self.emotes or msg in self.emojis):
                 self.currentEmote = msg
                 self.count = 1
         elif self.count > 0:
@@ -432,7 +434,7 @@ class Pyramid(Command):
                 else:
                     bot.write(bot.displayName(user) + " created a pleb pyramid and would get a free timeout, but " + bot.pronoun(user)[0] + " is a mod. FeelsBadMan")
             else:
-                if msg in self.emotes:
+                if (msg in self.emotes or msg in self.emojis):
                     self.count = 1
                     self.currentEmote = msg
                 else:
