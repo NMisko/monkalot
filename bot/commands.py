@@ -42,6 +42,16 @@ class Command(object):
         pass
 
 
+def is_callID_active(callID):
+    """Check if reactor.callLater() from callID is active."""
+    if callID is None:
+        return False
+    elif ((callID.called == 0) and (callID.cancelled == 0)):
+        return True
+    else:
+        return False
+
+
 class Smorc(Command):
     """Send a random SMOrc message."""
 
@@ -631,9 +641,8 @@ class GuessMinionGame(Command):
             if cmd.strip().lower() == name.lower():
                 bot.write(bot.displayName(user) + " got it! It was " + name + ". " + bot.pronoun(user)[0] + " gets 20 spam points.")
                 bot.ranking.incrementPoints(user, 20)
-                if self.callID is not None:
+                if is_callID_active(self.callID):
                     self.callID.cancel()
-                    self.callID = None
                 bot.gameRunning = False
                 self.active = False
             elif cmd == ("!clue"):
@@ -641,9 +650,8 @@ class GuessMinionGame(Command):
 
     def close(self, bot):
         """Close minion game."""
-        if self.callID is not None:
+        if is_callID_active(self.callID):
             self.callID.cancel()
-            self.callID = None
         self.active = False
         bot.gameRunning = False
 
@@ -685,13 +693,12 @@ class AutoGames(Command):
             if not self.active:
                 self.active = True
                 self.callID = reactor.callLater(self.time, self.randomGame, bot)
-                bot.write('Automatic game mode activated! monkaS')
+                bot.write('AUTOMATIC GAME MODE ACTIVATED! MrDestructoid')
             else:
                 bot.write('Automatic games are already on! DansGame')
         elif cmd == 'off':
-            if self.callID is not None:
+            if is_callID_active(self.callID):
                 self.callID.cancel()
-                self.callID = None
             if self.active:
                 self.active = False
                 bot.write('Automatic game mode deacti... ResidentSleeper')
@@ -700,9 +707,8 @@ class AutoGames(Command):
 
     def close(self, bot):
         """Close the game."""
-        if self.callID is not None:
+        if is_callID_active(self.callID):
             self.callID.cancel()
-            self.callID = None
         self.active = False
 
 
