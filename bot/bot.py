@@ -461,6 +461,7 @@ class TwitchBot(irc.IRCClient, object):
             cmds.SimpleReply(self),
             cmds.PyramidBlock(self),
             cmds.Spam(self),
+            cmds.TopSpammers(self)
         ]
 
         for i in range(0, ngames):

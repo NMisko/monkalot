@@ -1,8 +1,10 @@
 """Stores points and ranking for games using a database."""
 
 import sqlite3
+import math
 
 DATABASE_PATH = "data/monkalot.db"
+LEGENDP = 750
 
 
 class Ranking():
@@ -59,6 +61,21 @@ class Ranking():
         cursor.close()
         connection.close()
         return len(all) + 1
+
+    def getTopSpammers(self, n):
+        """Get the n top spammers."""
+        sql_command = "SELECT * FROM points ORDER BY amount DESC;"
+        cursor, connection = self.executeCommandGetConnection(sql_command, [])
+        all = cursor.fetchall()
+
+        return all
+
+    def getHSRank(self, points):
+        """Return spam rank of a user in hearthstone units."""
+        if points < LEGENDP:
+            return str(math.ceil(25 - (points * 25 / LEGENDP)))
+        else:
+            return "Legend " + str(self.getRank(points))
 
     def executeCommandGetConnection(self, sql_command, args):
         """Execute a command and return the cursor and connection.
