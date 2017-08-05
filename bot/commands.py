@@ -986,7 +986,7 @@ class Speech(Command):
 
     def run(self, bot, user, msg):
         """Send message to cleverbot only if no other command got triggered."""
-        if bot.cmdExecuted is not True:
+        if bot.antispeech is not True:
             msg = msg.lower()
             msg = msg.replace("@" + bot.nickname, '')
             output = self.cw.say(msg)
@@ -1058,7 +1058,9 @@ class Questions(Command):
 
     def match(self, bot, user, msg):
         """Match if the bot is tagged."""
-        return bot.nickname.lower() in msg.lower()
+        if (bot.nickname.lower() in msg.lower() and self.wordInMsg(self.whatis, msg) and self.wordInMsg(self.twohead, msg)):
+            bot.antispeech = True
+            return True
 
     def run(self, bot, user, msg):
         """Define answers based on pieces in the message."""
