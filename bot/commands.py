@@ -1000,8 +1000,13 @@ class Rank(Command):
     perm = Permission.User
 
     def match(self, bot, user, msg):
-        """Match if message starts with !rank and has one argument."""
-        return msg.startswith("!rank ") and len(msg.split(' ')) == 2
+        """Match if message is !rank or starts with !rank and has one argument."""
+        if msg.lower() == '!rank':
+            return True
+        elif msg.startswith('!rank ') and len(msg.split(' ')) == 2:
+            return True
+        else:
+            return False
 
     def run(self, bot, user, msg):
         """Calculate rank of user.
@@ -1009,9 +1014,10 @@ class Rank(Command):
         0-19: Rank 25, 20-39: Rank 24,..., 480-499: Rank 1
         >= LEGENDP: Legend
         """
-        user = msg.split(' ')[1]
+        if msg.startswith('!rank '):
+            user = msg.split(' ')[1]
         points = bot.ranking.getPoints(user)
-        bot.write(bot.displayName(user) + " is rank " + bot.ranking.getHSRank(points) + ".")
+        bot.write(bot.displayName(user) + " is rank " + bot.ranking.getHSRank(points) + " with " + str(points) + " spampoints. monkaS")
 
 
 class TopSpammers(Command):
