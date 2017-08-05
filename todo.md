@@ -9,7 +9,6 @@ TODO:
 * Answer to mentions of name without @
 * timeout 'ban me' messages
 * more random monkaS
-* join in on spam (when there's a spam of something, copy the message)
 
 
 DESIGN DECISIONS:

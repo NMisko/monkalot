@@ -425,7 +425,8 @@ class TwitchBot(irc.IRCClient, object):
             cmds.Questions(self),
             cmds.Speech(self),
             cmds.SimpleReply(self),
-            cmds.PyramidBlock(self)
+            cmds.PyramidBlock(self),
+            cmds.Spam(self),
         ]
         self.games = [
             cmds.KappaGame(self),
