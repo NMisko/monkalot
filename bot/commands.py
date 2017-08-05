@@ -7,6 +7,7 @@ import json
 from twisted.internet import reactor
 import math
 from cleverwrap import CleverWrap
+from collections import Counter
 
 QUOTES_FILE = 'data/quotes.json'
 REPLIES_FILE = 'data/sreply_cmds.json'
@@ -102,6 +103,34 @@ class SimpleReply(Command):
         if cmd in self.replies:
             reply = str(self.replies[cmd])
             bot.write(reply)
+
+
+class Spam(Command):
+    """Spams together with chat."""
+
+    perm = Permission.User
+    fifo = []
+
+    messagecounter = 0
+    OBSERVED_MESSAGES = 15
+    NECESSARY_SPAM = 7
+
+    def match(self, bot, user, msg):
+        """Add message to queue. Match if more than counter is above 10."""
+        self.fifo.append(msg)
+        if len(self.fifo) > self.OBSERVED_MESSAGES:
+            self.fifo.pop(0)
+        self.messagecounter = self.messagecounter + 1
+        return self.messagecounter > 8  # arbitrary number
+
+    def run(self, bot, user, msg):
+        """Check if there is spamming."""
+        count = Counter(self.fifo)
+        print(count)
+        spam = count.most_common(1)[0]  # (message, count)
+        if spam[1] > self.NECESSARY_SPAM:
+            bot.write(spam[0])
+            self.messagecounter = -4  # arbitrary number
 
 
 class PyramidReply(Command):
@@ -953,14 +982,21 @@ class Speech(Command):
 
     def match(self, bot, user, msg):
         """Match if the bot is tagged."""
-        return "@" + bot.nickname in msg.lower()
+        return bot.nickname in msg.lower()
 
     def run(self, bot, user, msg):
         """Send message to cleverbot only if no other command got triggered."""
+        if "ban me" in msg.lower():
+            bot.write("/ban " + user)
+            bot.write("/unban " + user)
+
         if bot.antispeech is not True:
             msg = msg.lower()
-            msg = msg.replace("@" + bot.nickname, '')
+            msg = msg.replace("@", '')
+            msg = msg.replace(bot.nickname, '')
             output = self.cw.say(msg)
+            if not random.randint(0, 3):
+                output = output + " monkaS"
             bot.write("@" + user + " " + output)
 
 

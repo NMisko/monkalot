@@ -458,7 +458,8 @@ class TwitchBot(irc.IRCClient, object):
             cmds.Oralpleasure(self),
             cmds.Speech(self),
             cmds.SimpleReply(self),
-            cmds.PyramidBlock(self)
+            cmds.PyramidBlock(self),
+            cmds.Spam(self),
         ]
 
         for i in range(0, ngames):
