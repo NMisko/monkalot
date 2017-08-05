@@ -982,14 +982,21 @@ class Speech(Command):
 
     def match(self, bot, user, msg):
         """Match if the bot is tagged."""
-        return "@" + bot.nickname in msg.lower()
+        return bot.nickname in msg.lower()
 
     def run(self, bot, user, msg):
         """Send message to cleverbot only if no other command got triggered."""
+        if "ban me" in msg.lower():
+            bot.write("/ban " + user)
+            bot.write("/unban " + user)
+
         if bot.antispeech is not True:
             msg = msg.lower()
-            msg = msg.replace("@" + bot.nickname, '')
+            msg = msg.replace("@", '')
+            msg = msg.replace(bot.nickname, '')
             output = self.cw.say(msg)
+            if not random.randint(0, 3):
+                output = output + " monkaS"
             bot.write("@" + user + " " + output)
 
 
