@@ -3,7 +3,6 @@ TODO:
 * Synchronize commands with themselves
 * Pyramid Game: level 7: more points
 * Tests (create fake irc) https://docs.pytest.org/en/latest/
-* What's 2Head + 2Head 
 * oralpleasure !on / !off
 * limit ability for native speech
 * pyramid block 
@@ -11,7 +10,6 @@ TODO:
 * capitalize pronouns where they should be 
 * !rank without arguments
 * Answer to mentions of name without @ 
-* Colored Text on game start and end 
 * timeout 'ban me' messages 
 * more points for pyramid 
 * give multiple people points for pyramids 
@@ -24,6 +22,7 @@ DESIGN DECISIONS:
 * All commands in lowercase, but accept commandcalls in upper- and lowercase (cast '.lower()' on all commands, not the args though) ?
 * There could be a combined list for both twitch- and BTTV-emotes to chose from for the 'Guess The Emote'-Game. Would be even more random but BTTV-emotes might fall short.
 * Save all the data in one json-file with multiple objects or different json-files? (For now different json-files.)
+* Native speech is lowest in the order of execution and gets only triggered if no custom command is executed beforehand.
 
 
 IMPORTANT ISSUES / QUESTIONS:
