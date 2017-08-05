@@ -5,7 +5,6 @@ import random
 from random import shuffle
 import json
 from twisted.internet import reactor
-import math
 from cleverwrap import CleverWrap
 from collections import Counter
 
@@ -188,9 +187,7 @@ class EmoteReply(Command):
 
     def match(self, bot, user, msg):
         """Msg has to have the structure !cmd <EMOTE> <TEXT>"""
-        if msg.lower().startswith('!call ') \
-        or msg.lower().startswith('!any ') \
-        or msg.lower().startswith('!word '):
+        if msg.lower().startswith('!call ') or msg.lower().startswith('!any ') or msg.lower().startswith('!word '):
             parse = msg.split(' ', 2)
             self.cmd = parse[0].strip()
             self.emote = parse[1].strip()
@@ -209,8 +206,7 @@ class EmoteReply(Command):
         """Output emote message if cmd matches."""
         if self.cmd == '!call':
             parsetext = self.text.split(' ')
-            s = self.emote + ' NOW ' + self.emote + ' THIS ' + self.emote + ' IS ' + self.emote \
-            + ' WHAT ' + self.emote + ' I ' + self.emote + ' CALL ' + self.emote
+            s = self.emote + ' NOW ' + self.emote + ' THIS ' + self.emote + ' IS ' + self.emote + ' WHAT ' + self.emote + ' I ' + self.emote + ' CALL ' + self.emote
             for i in range(0, len(parsetext)):
                 s += ' ' + parsetext[i].upper() + ' ' + self.emote
         elif self.cmd == '!any':
