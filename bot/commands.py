@@ -5,9 +5,11 @@ import random
 from random import shuffle
 import json
 from twisted.internet import reactor
-import math
 from cleverwrap import CleverWrap
 from collections import Counter
+import pyparsing
+
+import re
 
 QUOTES_FILE = 'data/quotes.json'
 REPLIES_FILE = 'data/sreply_cmds.json'
@@ -419,8 +421,14 @@ class Calculator(Command):
                 result = int(result)
             reply = "{} = {}".format(expr, result)
             bot.write(reply)
+        except ZeroDivisionError:
+            bot.write('@' + bot.displayName(user) + " AjhHdjsTmab beep boop can_not-Calcuasdjnasjd---SHUTTING DOWN....... Just kidding 4Head")
+        except OverflowError:
+            bot.write('@' + bot.displayName(user) + " It's too big Kreygasm")
+        except pyparsing.ParseException:
+            bot.write('@' + bot.displayName(user) + " ??? 4Head")
         except TypeError or ValueError:  # Not sure which Errors might happen here.
-            bot.write("{} = ???".format(expr))
+            bot.write('@' + bot.displayName(user) + " {} = ???".format(expr))
 
 
 class PyramidBlock(Command):
@@ -957,9 +965,8 @@ class TopSpammers(Command):
         out = "Top spammers: "
         if len(ranking) > 0:
             for i in range(0, len(ranking)-1):
-                out = out + bot.displayName(ranking[i][0]) + ": Rank " + bot.ranking.getHSRank(ranking[i][0]) + ", "
-            out = out + bot.displayName(ranking[len(ranking)-1][0]) + ": Rank " + bot.ranking.getHSRank(ranking[len(ranking)-1][0]) + "."
-
+                out = out + bot.displayName(ranking[i][0]) + ": Rank " + bot.ranking.getHSRank(ranking[i][1]) + ", "
+            out = out + bot.displayName(ranking[len(ranking)-1][0]) + ": Rank " + bot.ranking.getHSRank(ranking[len(ranking)-1][1]) + "."
         bot.write(out)
 
 
@@ -1060,6 +1067,8 @@ class Questions(Command):
 
     perm = Permission.User
 
+    calc = None
+
     whatis = [
         'what\'s',
         'whats',
@@ -1072,22 +1081,31 @@ class Questions(Command):
         '2head and 2head'
     ]
 
+    def __init__(self, bot):
+        """Initialize the command."""
+        self.calc = Calculator(bot)
+
     def wordInMsg(self, wordlist, msg):
-        """Check if one of the words is in the string."""
+        """Check if one of the words is in the string. Returns index + 1, can be used as boolean."""
         for i in range(0, len(wordlist)):
             if wordlist[i] in msg.lower():
-                return True
+                return i + 1
 
     def match(self, bot, user, msg):
         """Match if the bot is tagged."""
-        if (bot.nickname.lower() in msg.lower() and self.wordInMsg(self.whatis, msg) and self.wordInMsg(self.twohead, msg)):
+        if (bot.nickname.lower() in msg.lower() and self.wordInMsg(self.whatis, msg)):
             bot.antispeech = True
             return True
 
     def run(self, bot, user, msg):
         """Define answers based on pieces in the message."""
-        if self.wordInMsg(self.whatis, msg) and self.wordInMsg(self.twohead, msg):
+        index = self.wordInMsg(self.whatis, msg)
+        if index and self.wordInMsg(self.twohead, msg):
             bot.write('@' + bot.displayName(user) + ' It\'s 4Head')
+        elif index:
+            cmd = msg.lower().replace(self.whatis[index-1], '').replace('@', '').replace(bot.nickname, '').replace('?', '')
+            if re.search('[a-zA-Z]', cmd) is None:  # Doesn't contain any letters.
+                self.calc.run(bot, user, "!calc " + cmd)
 
 
 class Oralpleasure(Command):
