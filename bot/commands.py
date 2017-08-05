@@ -1088,3 +1088,36 @@ class Questions(Command):
         """Define answers based on pieces in the message."""
         if self.wordInMsg(self.whatis, msg) and self.wordInMsg(self.twohead, msg):
             bot.write('@' + bot.displayName(user) + ' It\'s 4Head')
+
+
+class Oralpleasure(Command):
+    """Turn oral pleasure on and off."""
+
+    perm = Permission.User
+    active = False
+
+    def match(self, bot, user, msg):
+        """Match if the bot is tagged."""
+        cmd = msg.lower()
+        return (cmd.startswith('!oralpleasure on') or cmd.startswith('!oralpleasure off'))
+
+    def run(self, bot, user, msg):
+        """Define answers based on pieces in the message."""
+        cmd = msg.lower()
+
+        if cmd.startswith('!oralpleasure on'):
+            if self.active:
+                bot.write('Oralpleasure is already on! Jebaited')
+            else:
+                self.active = True
+                bot.write('Oralpleasure is now on! Kreygasm')
+        elif cmd.startswith('!oralpleasure off'):
+            if self.active:
+                self.active = False
+                bot.write('Oralpleasure is now off! FeelsBadMan')
+            else:
+                bot.write('Oralpleasure was already off! monkaS')
+
+    def close(self, bot):
+        """Turn off on shotdown or reload."""
+        self.active = False

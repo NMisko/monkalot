@@ -455,6 +455,7 @@ class TwitchBot(irc.IRCClient, object):
             cmds.EditCommandMods(self),
             cmds.Pronouns(self),
             cmds.Questions(self),
+            cmds.Oralpleasure(self),
             cmds.Speech(self),
             cmds.SimpleReply(self),
             cmds.PyramidBlock(self),
