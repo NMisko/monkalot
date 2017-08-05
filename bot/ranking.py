@@ -31,7 +31,6 @@ class Ranking():
 
         cursor, connection = self.executeCommandGetConnection(sql_command, [username])
         one = cursor.fetchone()
-        print("One: " + str(one))
 
         if(one is None):
             sql_command = "INSERT INTO points (username, amount) VALUES (?, 0);"
