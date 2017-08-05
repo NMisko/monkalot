@@ -51,6 +51,7 @@ class TwitchBot(irc.IRCClient, object):
     commands = []
     gameRunning = False
     cmdExecuted = False
+    pyramidBlock = False
 
     ranking = bot.ranking.Ranking()
 
@@ -423,7 +424,8 @@ class TwitchBot(irc.IRCClient, object):
             cmds.Pronouns(self),
             cmds.Questions(self),
             cmds.Speech(self),
-            cmds.SimpleReply(self)
+            cmds.SimpleReply(self),
+            cmds.PyramidBlock(self)
         ]
         self.games = [
             cmds.KappaGame(self),

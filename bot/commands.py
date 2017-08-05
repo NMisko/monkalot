@@ -388,6 +388,31 @@ class Calculator(Command):
             bot.write("{} = ???".format(expr))
 
 
+class PyramidBlock(Command):
+    """Send a random SMOrc message."""
+
+    perm = Permission.Moderator
+
+    def match(self, bot, user, msg):
+        """Match if command is !block on or !block off."""
+        return msg == "!block on" or msg == "!block off"
+
+    def run(self, bot, user, msg):
+        """Set block."""
+        if msg == "!block on":
+            if not bot.pyramidBlock:
+                bot.pyramidBlock = True
+                bot.write("Blocking pyramids now. monkaS")
+            else:
+                bot.write("I'm already blocking pyramids. DansGame")
+        elif msg == "!block off":
+            if bot.pyramidBlock:
+                bot.pyramidBlock = False
+                bot.write("No longer blocking pyramids. FeelsBadMan")
+            else:
+                bot.write("I wasn't blocking pyramids. DansGame")
+
+
 class Pyramid(Command):
     """Recognizes pyramids of emotes."""
 
@@ -397,6 +422,8 @@ class Pyramid(Command):
     currentEmote = ""
     emotes = []
     emojis = []
+    pyramidBlocks = ["A pyramid (from Greek: πυραμίς pyramis)[1][2] is a structure whose outer surfaces are triangular and converge to a single point at the top, making the shape roughly a pyramid in the geometric sense.",
+                     "no 4Head", "Almost a pyramid PogChamp", "Not on my watch OpieOP", "Sorry, did I interrupt you? monkaS", "(⌐■_■)–︻╦╤─ TheIlluminati", "LUL"]
 
     def match(self, bot, user, msg):
         """Match always."""
@@ -426,6 +453,8 @@ class Pyramid(Command):
                     self.count = 0
                     bot.write(bot.displayName(user) + " built a pyramid and " + bot.pronoun(user)[0] + " gets 30 spam points. PogChamp")
                     bot.ranking.incrementPoints(user, 30)
+                elif self.count == 3 and bot.pyramidBlock:  # block pyramid
+                    self.blockPyramid(bot)
             elif self.count == 3 and msg == self.pyramidLevel(self.currentEmote, 1):  # 2 high pyramid
                 self.count = 0
                 if bot.get_permission(user) in [Permission.User, Permission.Subscriber]:
@@ -439,6 +468,16 @@ class Pyramid(Command):
                     self.currentEmote = msg
                 else:
                     self.count = 0
+
+    def blockPyramid(self, bot):
+        """Block a pyramid."""
+        if random.randint(0, 3):
+            bot.write(random.choice(self.pyramidBlocks))
+            self.count = 0
+        else:
+            self.count = 0
+            bot.write(self.pyramidLevel(self.currentEmote, 4))
+            bot.write(self.pyramidLevel(self.currentEmote, 5))
 
 
 class KappaGame(Command):
