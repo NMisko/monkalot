@@ -6,9 +6,6 @@ TODO:
 * oralpleasure !on / !off
 * limit ability for native speech
 * !rank without arguments
-* Answer to mentions of name without @
-* timeout 'ban me' messages
-* more random monkaS
 
 
 DESIGN DECISIONS:
