@@ -18,7 +18,6 @@ EMOTEGAMEP = 30
 MINIONGAMEP = 30
 GAMESTARTP = 15
 PYRAMIDP = {1: 10, 2: 20, 3: 30, 4: 20, 5: 10}
-LEGENDP = 750
 
 
 class Permission:
@@ -940,12 +939,28 @@ class Rank(Command):
         """
         user = msg.split(' ')[1]
         points = bot.ranking.getPoints(user)
-        if points < LEGENDP:
-            rank = str(math.ceil(25 - (points * 25 / LEGENDP))) + "."
-        else:
-            rank = str(bot.ranking.getRank(points)) + " Legend! PogChamp"
+        bot.write(bot.displayName(user) + " is rank " + bot.ranking.getHSRank(points) + ".")
 
-        bot.write(bot.displayName(user) + " is rank " + rank)
+
+class TopSpammers(Command):
+    """Write top spammers."""
+
+    perm = Permission.User
+
+    def match(self, bot, user, msg):
+        """Match if message is !topspammers."""
+        return msg.lower() == "!topspammers"
+
+    def run(self, bot, user, msg):
+        """Return the top spammers."""
+        ranking = bot.ranking.getTopSpammers(5)
+        out = "Top spammers: "
+        if len(ranking) > 0:
+            for i in range(0, len(ranking)-1):
+                out = out + bot.displayName(ranking[i][0]) + ": Rank " + bot.ranking.getHSRank(ranking[i][0]) + ", "
+            out = out + bot.displayName(ranking[len(ranking)-1][0]) + ": Rank " + bot.ranking.getHSRank(ranking[len(ranking)-1][0]) + "."
+
+        bot.write(out)
 
 
 class Sleep(Command):
