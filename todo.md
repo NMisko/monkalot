@@ -3,8 +3,6 @@ TODO:
 * Synchronize commands with themselves
 * Pyramid Game: level 7: more points
 * Tests (create fake irc) https://docs.pytest.org/en/latest/
-* oralpleasure !on / !off
-* limit ability for native speech
 * !rank without arguments
 
 
