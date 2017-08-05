@@ -50,8 +50,10 @@ class TwitchBot(irc.IRCClient, object):
     pause = False
     commands = []
     gameRunning = False
-    cmdExecuted = False
+    antispeech = False   # if a command gets executed which conflicts with native speech
     pyramidBlock = False
+    pleb_cooldowntime = 15  # time between non-sub commands
+    last_plebcmd = time.time() - pleb_cooldowntime
 
     ranking = bot.ranking.Ranking()
 
@@ -315,6 +317,21 @@ class TwitchBot(irc.IRCClient, object):
             return Permission.Subscriber
         return Permission.User
 
+    def select_commands(self, perm):
+        """If a game is active and plebcommands on colldown, only iterate through game list.
+        If no game is active only allow 'passive games' a.k.a PyramidGame
+        """
+        if perm is 0:
+            if (time.time() - self.last_plebcmd < self.pleb_cooldowntime):
+                if self.gameRunning:
+                    return self.games
+                else:
+                    return self.passivegames
+            else:
+                return self.commands
+        else:
+            return self.commands
+
     def process_command(self, user, msg):
         """Process messages and call commands."""
         perm_levels = ['User', 'Subscriber', 'Moderator', 'Owner']
@@ -325,10 +342,13 @@ class TwitchBot(irc.IRCClient, object):
         """Emote Count Function"""
         self.ecount.process_msg(msg)
 
+        """Limit pleb bot spam. Only allow certain commands to be processed by plebs, if plebcmds on cooldown."""
+        cmdlist = self.select_commands(perm)
+
         # Flip through commands and execute everyone that matches.
         # Check if user has permission to execute command.
         # Also reduce warning message spam by limiting it to one per minute.
-        for cmd in self.commands:
+        for cmd in cmdlist:
             try:
                 match = cmd.match(self, user, msg)
                 if not match:
@@ -341,10 +361,13 @@ class TwitchBot(irc.IRCClient, object):
                     reply = "{}: You don't have access to that command. Minimum level is {}."
                     self.write(reply.format(user, perm_levels[cmd.perm]))
                 else:
-                    self.cmdExecuted = True
+                    if (perm is 0 and cmd not in self.games):   # Only reset plebtimer if no game was played
+                        self.last_plebcmd = time.time()
                     cmd.run(self, user, msg)
             except ValueError or TypeError:  # Not sure which Errors might happen here.
                 logging.error(traceback.format_exc())
+        """Reset antispeech for next command"""
+        self.antispeech = False
 
     def manual_action(self, *args):
         """Allow manual command input."""
@@ -405,17 +428,26 @@ class TwitchBot(irc.IRCClient, object):
 
         cmds = reload(bot.commands)
 
+        """Number of games.
+        Games have to be on the top of the list!!!
+        Passive Games have to be on the very top!!! -> Maybe we need Game-classes
+        """
+        ngames = 4          # first ngames are 'games'
+        self.games = []
+        npassivegames = 1   # first npassivegames are 'always active games' (e.g. PyramidGame)
+        self.passivegames = []
+
         self.commands = [
+            cmds.Pyramid(self),
+            cmds.KappaGame(self),
+            cmds.GuessEmoteGame(self),
+            cmds.GuessMinionGame(self),
             cmds.Sleep(self),
             cmds.EditCommandList(self),
             cmds.editQuoteList(self),
             cmds.outputQuote(self),
             cmds.outputStats(self),
             cmds.Calculator(self),
-            cmds.Pyramid(self),
-            cmds.KappaGame(self),
-            cmds.GuessEmoteGame(self),
-            cmds.GuessMinionGame(self),
             cmds.AutoGames(self),
             cmds.PyramidReply(self),
             cmds.Smorc(self),
@@ -427,11 +459,12 @@ class TwitchBot(irc.IRCClient, object):
             cmds.SimpleReply(self),
             cmds.PyramidBlock(self)
         ]
-        self.games = [
-            cmds.KappaGame(self),
-            cmds.GuessEmoteGame(self),
-            cmds.GuessMinionGame(self),
-        ]
+
+        for i in range(0, ngames):
+            self.games.append(self.commands[i])
+
+        for i in range(0, npassivegames):
+            self.passivegames.append(self.commands[i])
 
     def reload(self):
         """Reload bot."""
