@@ -5,15 +5,10 @@ TODO:
 * Tests (create fake irc) https://docs.pytest.org/en/latest/
 * oralpleasure !on / !off
 * limit ability for native speech
-* pyramid block 
-* no spam points for mod 
-* capitalize pronouns where they should be 
 * !rank without arguments
-* Answer to mentions of name without @ 
-* timeout 'ban me' messages 
-* more points for pyramid 
-* give multiple people points for pyramids 
-* more random monkaS 
+* Answer to mentions of name without @
+* timeout 'ban me' messages
+* more random monkaS
 * join in on spam (when there's a spam of something, copy the message)
 
 

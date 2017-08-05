@@ -12,6 +12,13 @@ QUOTES_FILE = 'data/quotes.json'
 REPLIES_FILE = 'data/sreply_cmds.json'
 SMORC_FILE = 'data/smorc.json'
 
+KAPPAGAMEP = 30
+EMOTEGAMEP = 30
+MINIONGAMEP = 30
+GAMESTARTP = 15
+PYRAMIDP = {1: 10, 2: 20, 3: 30, 4: 20, 5: 10}
+LEGENDP = 750
+
 
 class Permission:
     """Twitch permissions."""
@@ -422,6 +429,7 @@ class Pyramid(Command):
     currentEmote = ""
     emotes = []
     emojis = []
+    users = []
     pyramidBlocks = ["A pyramid (from Greek: πυραμίς pyramis)[1][2] is a structure whose outer surfaces are triangular and converge to a single point at the top, making the shape roughly a pyramid in the geometric sense.",
                      "no 4Head", "Almost a pyramid PogChamp", "Not on my watch OpieOP", "Sorry, did I interrupt you? monkaS", "(⌐■_■)–︻╦╤─ TheIlluminati", "LUL"]
 
@@ -446,28 +454,29 @@ class Pyramid(Command):
             if (msg in self.emotes or msg in self.emojis):
                 self.currentEmote = msg
                 self.count = 1
+                self.users.append(user)
         elif self.count > 0:
             self.count = self.count + 1
             if msg == self.pyramidLevel(self.currentEmote, self.count):
+                self.users.append(user)
                 if(self.count == 5):  # 3 high pyramid
+                    self.sendSuccessMessage(bot)
+                    self.users = []
                     self.count = 0
-                    bot.write(bot.displayName(user) + " built a pyramid and " + bot.pronoun(user)[0] + " gets 30 spam points. PogChamp")
-                    bot.ranking.incrementPoints(user, 30)
                 elif self.count == 3 and bot.pyramidBlock:  # block pyramid
                     self.blockPyramid(bot)
-            elif self.count == 3 and msg == self.pyramidLevel(self.currentEmote, 1):  # 2 high pyramid
+            elif self.count == 3 and msg == self.pyramidLevel(self.currentEmote, 1):  # 2 high pyramid (pleb pyramid)
+                self.users.append(user)
+                self.successfulPlebPyramid(bot)
                 self.count = 0
-                if bot.get_permission(user) in [Permission.User, Permission.Subscriber]:
-                    bot.write("Wow, " + bot.displayName(user) + " built a pleb pyramid and " + bot.pronoun(user)[0] + " gets a free timeout. 4Head")
-                    bot.write("/timeout " + bot.displayName(user) + " 60")
-                else:
-                    bot.write(bot.displayName(user) + " created a pleb pyramid and would get a free timeout, but " + bot.pronoun(user)[0] + " is a mod. FeelsBadMan")
+                self.users = []
             else:
                 if (msg in self.emotes or msg in self.emojis):
                     self.count = 1
                     self.currentEmote = msg
                 else:
                     self.count = 0
+                    self.users = []
 
     def blockPyramid(self, bot):
         """Block a pyramid."""
@@ -478,6 +487,59 @@ class Pyramid(Command):
             self.count = 0
             bot.write(self.pyramidLevel(self.currentEmote, 4))
             bot.write(self.pyramidLevel(self.currentEmote, 5))
+
+    def successfulPlebPyramid(self, bot):
+        """Write messages and time out people on pleb pyramid."""
+        uniqueUsers = list(set(self.users))
+        if len(uniqueUsers) == 1:
+            user = uniqueUsers[0]
+            if bot.get_permission(user) in [Permission.User, Permission.Subscriber]:
+                bot.write("Wow, " + bot.displayName(user) + " built a pleb pyramid and " + bot.pronoun(user)[0] + " gets a free timeout. 4Head")
+                bot.write("/timeout " + bot.displayName(user) + " 60")
+            else:
+                bot.write(bot.displayName(user) + " created a pleb pyramid and would get a free timeout, but " + bot.pronoun(user)[0] + " is a mod. FeelsBadMan")
+        else:
+            s = formatList(list(map(lambda x: bot.displayName(x), uniqueUsers)))
+            bot.write("Wow, " + s + " built a pleb pyramid and they all get a free timeout. 4Head")
+            for u in uniqueUsers:
+                if bot.get_permission(u) in [Permission.User, Permission.Subscriber]:
+                    bot.write("/timeout " + bot.displayName(u) + " 60")
+
+    def sendSuccessMessage(self, bot):
+        """Send a message for a successful pyramid."""
+        print(str(self.users))
+        points = self.calculatePoints(bot)
+        print(str(points))
+        if len(points) == 1:
+            u = self.users[0]
+            bot.write(bot.displayName(u) + " built a pyramid and " + bot.pronoun(u)[0] + " gets " + str(points[u]) + " spam points. PogChamp")
+            bot.ranking.incrementPoints(u, points[u])
+        else:
+            s = formatList(list(map(lambda x: bot.displayName(x), list(points.keys()))))  # calls bot.displayName on every user
+            p = formatList(list(points.values()))
+            bot.write("Teamwork! PogChamp " + s + " built a pyramid. They get " + p + " spam points. KappaClaus")
+            for u in list(points.keys()):
+                bot.ranking.incrementPoints(u, points[u])
+
+    def calculatePoints(self, bot):
+        """Calculate the points users get for a pyramid."""
+        m = {}
+        points = PYRAMIDP
+        for i in range(1, 6):
+            user = self.users[i-1]
+
+            if user not in m:
+                if bot.get_permission(user) not in [Permission.Admin, Permission.Moderator]:  # moderators get one tenth of the points
+                    m[user] = points[i]
+                else:
+                    m[user] = int(points[i]/10)
+            else:
+                if bot.get_permission(user) not in [Permission.Admin, Permission.Moderator]:  # moderators get one tenth of the points
+                    m[user] = m[user] + points[i]
+                else:
+                    m[user] = m[user] + int(points[i]/10)
+
+        return m
 
 
 class KappaGame(Command):
@@ -515,7 +577,7 @@ class KappaGame(Command):
             i = self.countEmotes(cmd, "Kappa")
             if i == self.n:
                 bot.write("/me " + bot.displayName(user) + " got it! It was " + str(self.n) + " Kappa s!")
-                bot.ranking.incrementPoints(user, 20)
+                bot.ranking.incrementPoints(user, KAPPAGAMEP)
                 bot.gameRunning = False
                 self.active = False
             elif i != -1:
@@ -599,8 +661,8 @@ class GuessEmoteGame(Command):
                 return
 
             if cmd == self.emote:
-                bot.write("/me " + bot.displayName(user) + " got it! It was " + self.emote + " . " + bot.pronoun(user)[0] + " gets 15 spam points.")
-                bot.ranking.incrementPoints(user, 20)
+                bot.write("/me " + bot.displayName(user) + " got it! It was " + self.emote + " . " + bot.pronoun(user)[0].capitalize() + " gets " + str(EMOTEGAMEP) + " spam points.")
+                bot.ranking.incrementPoints(user, EMOTEGAMEP)
                 bot.gameRunning = False
                 self.active = False
             elif cmd == "!emotes":
@@ -713,8 +775,8 @@ class GuessMinionGame(Command):
 
             name = self.minion['name'].strip()
             if cmd.strip().lower() == name.lower():
-                bot.write("/me " + bot.displayName(user) + " got it! It was " + name + ". " + bot.pronoun(user)[0] + " gets 20 spam points.")
-                bot.ranking.incrementPoints(user, 20)
+                bot.write("/me " + bot.displayName(user) + " got it! It was " + name + ". " + bot.pronoun(user)[0].capitalize() + " gets " + str(MINIONGAMEP) + " spam points.")
+                bot.ranking.incrementPoints(user, MINIONGAMEP)
                 if is_callID_active(self.callID):
                     self.callID.cancel()
                 bot.gameRunning = False
@@ -818,7 +880,7 @@ class Pronouns(Command):
     perm = Permission.Admin
 
     def match(self, bot, user, msg):
-        """Match if message starts with !rank and has one argument."""
+        """Match if message starts with !g and has one argument."""
         return msg.startswith("!g ") and len(msg.split(' ')) == 5
 
     def run(self, bot, user, msg):
@@ -845,12 +907,12 @@ class Rank(Command):
         """Calculate rank of user.
 
         0-19: Rank 25, 20-39: Rank 24,..., 480-499: Rank 1
-        >= 500: Legend
+        >= LEGENDP: Legend
         """
         user = msg.split(' ')[1]
         points = bot.ranking.getPoints(user)
-        if points < 500:
-            rank = str(math.ceil(25 - (points * 25 / 500))) + "."
+        if points < LEGENDP:
+            rank = str(math.ceil(25 - (points * 25 / LEGENDP))) + "."
         else:
             rank = str(bot.ranking.getRank(points)) + " Legend! PogChamp"
 
@@ -912,17 +974,34 @@ def startGame(bot, user, msg, cmd):
         return False
     elif bot.get_permission(user) in [Permission.User, Permission.Subscriber] and msg == cmd:
         # The calling user is not a mod, so we subtract 5 points.
-        if(bot.ranking.getPoints(user) > 5):
-            bot.ranking.incrementPoints(user, -5)
+        if(bot.ranking.getPoints(user) > GAMESTARTP):
+            bot.ranking.incrementPoints(user, -GAMESTARTP)
             bot.gameRunning = True
             return True
         else:
-            bot.write("You need 5 points to start a game.")
+            bot.write("You need " + GAMESTARTP + " points to start a game.")
             return False
     else:  # The calling user is a mod, so we only check if the command is correct
         if msg == cmd:
             bot.gameRunning = True
         return msg == cmd
+
+
+def formatList(list):
+    """Format a list to an enumeration.
+
+    e.g.: [a,b,c,d] -> a, b, c and d
+    """
+    if len(list) == 0:
+        return "no one"
+    elif len(list) == 1:
+        return list[0]
+    else:
+        s = ""
+        for e in list[:len(list) - 2]:
+            s = s + str(e) + ", "
+        s = s + str(list[len(list) - 2]) + " and " + str(list[len(list) - 1])
+        return s
 
 
 class Questions(Command):
