@@ -50,6 +50,7 @@ class TwitchBot(irc.IRCClient, object):
     pause = False
     commands = []
     gameRunning = False
+    cmdExecuted = False
 
     ranking = bot.ranking.Ranking()
 
@@ -318,6 +319,7 @@ class TwitchBot(irc.IRCClient, object):
         perm_levels = ['User', 'Subscriber', 'Moderator', 'Owner']
         perm = self.get_permission(user)
         msg = msg.strip()
+        self.cmdExecuted = False
 
         """Emote Count Function"""
         self.ecount.process_msg(msg)
@@ -338,6 +340,7 @@ class TwitchBot(irc.IRCClient, object):
                     reply = "{}: You don't have access to that command. Minimum level is {}."
                     self.write(reply.format(user, perm_levels[cmd.perm]))
                 else:
+                    self.cmdExecuted = True
                     cmd.run(self, user, msg)
             except ValueError or TypeError:  # Not sure which Errors might happen here.
                 logging.error(traceback.format_exc())
@@ -414,12 +417,13 @@ class TwitchBot(irc.IRCClient, object):
             cmds.GuessMinionGame(self),
             cmds.AutoGames(self),
             cmds.PyramidReply(self),
-            cmds.SimpleReply(self),
             cmds.Smorc(self),
             cmds.Rank(self),
             cmds.EditCommandMods(self),
+            cmds.Pronouns(self),
+            cmds.Questions(self),
             cmds.Speech(self),
-            cmds.Pronouns(self)
+            cmds.SimpleReply(self)
         ]
         self.games = [
             cmds.KappaGame(self),

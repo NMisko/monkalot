@@ -464,8 +464,9 @@ class KappaGame(Command):
             self.active = True
             self.n = random.randint(1, 25)
             print("Kappas: " + str(self.n))
-            bot.write("Kappa game has started. Guess the right amount of Kappa s between 1 and 25! PogChamp")
-
+            bot.write("/me ▬▬▬▬▬▬▬▬▬▬▬ஜ۩۞۩ஜ▬▬▬▬▬▬▬▬▬▬▬ \
+                Kappa game has started. Guess the right amount of Kappa s between 1 and 25! PogChamp \
+                ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬")
         else:
             if msg == "!kstop":
                 self.close(bot)
@@ -474,7 +475,7 @@ class KappaGame(Command):
 
             i = self.countEmotes(cmd, "Kappa")
             if i == self.n:
-                bot.write(bot.displayName(user) + " got it! It was " + str(self.n) + " Kappa s!")
+                bot.write("/me " + bot.displayName(user) + " got it! It was " + str(self.n) + " Kappa s!")
                 bot.ranking.incrementPoints(user, 20)
                 bot.gameRunning = False
                 self.active = False
@@ -551,7 +552,7 @@ class GuessEmoteGame(Command):
             self.active = True
             self.initGame(bot)
             print("Right emote: " + self.emote)
-            bot.write("The 'Guess The Emote Game' has started. Write one of the following emotes to start playing: " + EmoteListToString(self.emotes))
+            bot.write("/me The 'Guess The Emote Game' has started. Write one of the following emotes to start playing: " + EmoteListToString(self.emotes))
         else:
             if cmd == "!estop":
                 bot.write("Stopping game.")
@@ -559,7 +560,7 @@ class GuessEmoteGame(Command):
                 return
 
             if cmd == self.emote:
-                bot.write(bot.displayName(user) + " got it! It was " + self.emote + " . " + bot.pronoun(user)[0] + " gets 15 spam points.")
+                bot.write("/me " + bot.displayName(user) + " got it! It was " + self.emote + " . " + bot.pronoun(user)[0] + " gets 15 spam points.")
                 bot.ranking.incrementPoints(user, 20)
                 bot.gameRunning = False
                 self.active = False
@@ -661,7 +662,9 @@ class GuessMinionGame(Command):
             self.active = True
             self.initGame(bot)
             print("Right Minion: " + self.minion['name'])
-            bot.write("The 'Guess The Minion Game' has started. Type minion names to play.")
+            bot.write("/me ▬▬▬▬▬▬▬▬▬▬▬ஜ۩۞۩ஜ▬▬▬▬▬▬▬▬▬▬▬ \
+                The 'Guess The Minion Game' has started. Type minion names to play. monkaS \
+                ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬")
             self.giveClue(bot)
         else:
             if cmd == "!mstop":
@@ -671,7 +674,7 @@ class GuessMinionGame(Command):
 
             name = self.minion['name'].strip()
             if cmd.strip().lower() == name.lower():
-                bot.write(bot.displayName(user) + " got it! It was " + name + ". " + bot.pronoun(user)[0] + " gets 20 spam points.")
+                bot.write("/me " + bot.displayName(user) + " got it! It was " + name + ". " + bot.pronoun(user)[0] + " gets 20 spam points.")
                 bot.ranking.incrementPoints(user, 20)
                 if is_callID_active(self.callID):
                     self.callID.cancel()
@@ -852,11 +855,12 @@ class Speech(Command):
         return "@" + bot.nickname in msg.lower()
 
     def run(self, bot, user, msg):
-        """Send message to cleverbot."""
-        msg = msg.lower()
-        msg = msg.replace("@" + bot.nickname, '')
-        output = self.cw.say(msg)
-        bot.write("@" + user + " " + output)
+        """Send message to cleverbot only if no other command got triggered."""
+        if bot.cmdExecuted is not True:
+            msg = msg.lower()
+            msg = msg.replace("@" + bot.nickname, '')
+            output = self.cw.say(msg)
+            bot.write("@" + user + " " + output)
 
 
 def startGame(bot, user, msg, cmd):
@@ -880,3 +884,36 @@ def startGame(bot, user, msg, cmd):
         if msg == cmd:
             bot.gameRunning = True
         return msg == cmd
+
+
+class Questions(Command):
+    """Answer a set of questions directed at the bot."""
+
+    perm = Permission.User
+
+    whatis = [
+        'what\'s',
+        'whats',
+        'what is'
+    ]
+
+    twohead = [
+        '2head + 2head',
+        '2head+2head',
+        '2head and 2head'
+    ]
+
+    def wordInMsg(self, wordlist, msg):
+        """Check if one of the words is in the string."""
+        for i in range(0, len(wordlist)):
+            if wordlist[i] in msg.lower():
+                return True
+
+    def match(self, bot, user, msg):
+        """Match if the bot is tagged."""
+        return bot.nickname.lower() in msg.lower()
+
+    def run(self, bot, user, msg):
+        """Define answers based on pieces in the message."""
+        if self.wordInMsg(self.whatis, msg) and self.wordInMsg(self.twohead, msg):
+            bot.write('@' + bot.displayName(user) + ' It\'s 4Head')
