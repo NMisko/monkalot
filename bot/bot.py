@@ -371,6 +371,10 @@ class TwitchBot(irc.IRCClient, object):
 
     def manual_action(self, *args):
         """Allow manual command input."""
+        self.terminate()
+        return
+
+        # Always terminate. For now this won't be used.
         cmd = input("Command: ").strip()
         if cmd == "q":  # Stop bot
             self.terminate()
@@ -450,7 +454,6 @@ class TwitchBot(irc.IRCClient, object):
             cmds.Calculator(self),
             cmds.AutoGames(self),
             cmds.PyramidReply(self),
-            cmds.EmoteReply(self),
             cmds.Smorc(self),
             cmds.Rank(self),
             cmds.EditCommandMods(self),
