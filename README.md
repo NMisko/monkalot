@@ -8,7 +8,7 @@ Uses [SimpleTwitchBot](https://github.com/EhsanKia/SimpleTwitchBot) by [EhsanKia
 
 # Installation and usage
 All you should need is Python 3.6+ with [Twisted](https://twistedmatrix.com/trac/) installed.
-You then copy this project in a folder, configure the bot and run `twitch_irc.py`.
+You then copy this project in a folder, configure the bot and run `monkalot.py`.
 
 #### Configuration:
 Make sure to modify the following values in `bot_config.json`:
@@ -19,20 +19,6 @@ Make sure to modify the following values in `bot_config.json`:
 - `ignore_list`: List of Twitch users which will be ignored by the bot
 
 **Warning**: Make sure all channel and user names above are in lowercase.
-
-#### Usage:
-The main command-line window will show chat log and other extra messsages.
-You can enter commands by pressing CTRL+C on the command line:
-- `q`: Closes the bot
-- `r`: Reloads the code in `bot.py` and reconnects
-- `ra`: reloads the code in `commands.py` and reloads commands
-- `p`: Pauses bot, ignoring commands from non-admins
-- `t <msg>`: Runs a test command with the bot's reply not being sent to the channel
-- `s <msg>`: Say something as the bot in the channel
-
-As you can see, the bot was made to be easy to modify live.
-You can simply modify most of the code and quickly reload it.
-The bot will also auto-reconnect if the connection is lost.
 
 # Code Overview
 
@@ -88,7 +74,7 @@ All commands that can be called from chat via different calls. Note that some co
 | `!kstart`             | Start the *KappaGame*. Guess the right amount of Kappas to win. Type Kappas to start playing. | - |
 | `!estart`, `[!emotes]`| Start the *GuessEmoteGame*. Guess the right emote from the list. Type emotes to start playing. While the game is active `!emotes` shows all possible emotes. | - |
 | `!mstart`             | Start the *GuessMinionGame*. Guess the right minion card. Type minion names to play. After a short time the game will give clues to the chat. | - |
-| `<emote>-pyramids`    | Build emote pyramids to gain spampoints. All Twitch- and BTTV-emotes and emojis are supported. | `Kappa` <br><nobr>`Kappa Kappa`</nobr> <br>`Kappa` |
+| `<emote>-pyramids`    | Build emote pyramids to gain spampoints. All Twitch- and BTTV-emotes and emojis are supported. | `Kappa`<br/>`Kappa`&nbsp;`Kappa`<br/>`Kappa` |
 
 ### Moderator commands:
 
