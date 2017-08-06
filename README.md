@@ -77,8 +77,8 @@ All commands that can be called from chat via different calls. Note that some co
 | `!tkp`                | Send out the total amount of Kappas in channel. | - |
 | `!minute <emote>`     | Send out the amount of a specific emote per minute in channel. All Twitch- and BTTV-emotes and emojis are supported. | `!minute BabyRage` |
 | `!total <emote>`      | Send out the total amount of a specific emote in channel. All Twitch- and BTTV-emotes and emojis are supported. | `!total EleGiggle` |
-| `!oralpleasure on / off`  | Turn oralpleasure on or off. | - |
-| `!calc <formula>`       | A chat calculator that can do some pretty advanced stuff like sqrt and trigonometry. | `!calc (5+7)/2` , `!calc log(5^2) + sin(pi/4)` |
+| `!oralpleasure on/off`  | Turn oralpleasure on or off. | - |
+| `!calc <formula>`       | A chat calculator that can do some pretty advanced stuff like sqrt and trigonometry. | `!calc (5+7)/2` , <br>`!calc log(5^2) + sin(pi/4)` |
 | `<botname> <text>`      | Talk to the bot. Questions can be asked or a conversation can be started with the native speech engine. | `Hey Monkalot, how are you doing?`, `What's 2Head + 2Head? @Monkalot` |
 
 ### Chat games:
@@ -88,7 +88,7 @@ All commands that can be called from chat via different calls. Note that some co
 | `!kstart`             | Start the *KappaGame*. Guess the right amount of Kappas to win. Type Kappas to start playing. | - |
 | `!estart`, `[!emotes]`| Start the *GuessEmoteGame*. Guess the right emote from the list. Type emotes to start playing. While the game is active `!emotes` shows all possible emotes. | - |
 | `!mstart`             | Start the *GuessMinionGame*. Guess the right minion card. Type minion names to play. After a short time the game will give clues to the chat. | - |
-| `<emote>-pyramids`    | Build emote pyramids to gain spampoints. All Twitch- and BTTV-emotes and emojis are supported. | `Kappa` <br> `Kappa Kappa` <br> `Kappa` |
+| `<emote>-pyramids`    | Build emote pyramids to gain spampoints. All Twitch- and BTTV-emotes and emojis are supported. | `Kappa` <br><nobr>`Kappa Kappa`</nobr> <br>`Kappa` |
 
 ### Moderator commands:
 
@@ -96,8 +96,8 @@ All commands that can be called from chat via different calls. Note that some co
 | --------------------- | --------------------- | --------- |
 | `!addquote <quote>`   | Add a quote to the *quotelist*. | `!addquote "Priest in 2k17 LUL"` |
 | `!delquote <quote>`   | Delete a quote from the *quotelist*. | `!delquote "Priest in 2k17 LUL"` |
-| `!block on / off`     | Turn pyramidblock on or off. If on, pyramids will be interupted by the bot. | - |
-| `!games on / off`     | Turn automatic games on or off. If on, *chatgames* will start automaticly after a certain amount of time. | - |
+| <nobr>`!block on/off`</nobr>     | Turn pyramidblock on or off. If on, pyramids will be interupted by the bot. | - |
+| <nobr>`!games on/off`</nobr>     | Turn automatic games on or off. If on, *chatgames* will start automaticly after a certain amount of time. | - |
 
 ### Trusted-Moderator commands:
 
