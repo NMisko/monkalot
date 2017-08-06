@@ -64,58 +64,58 @@ All commands that can be called from chat via different calls. Note that some co
 
 | Command               | Description           | Examples  |
 | --------------------- | --------------------- | --------- |
-| !active               | Return the amount of active viewers in chat. | - |
-| !smorc                | Send a random SMOrc quote. | - |
-| !quote [<number>]     | Send a random quote. Optional a number can be given to call a specific quote. | !quote , !quote 2 |
-| !pjsalt               | Send a pjsalt pyramid in chat.      | - |
-| !call <emote> <text>  | Sends a call interlaced by an emote. All Twitch- and BTTV-emotes and emojis are supported. | !call Kappa a nice stream |
-| !any <emote> <text>   | Sends any sentence interlaced by an emote. All Twitch- and BTTV-emotes and emojis are supported. | !any Jebaited Long have we waited, now we Jebaited |
-| !word <emote> <text>  | Sends a word with an emote interlaced between letters. All Twitch- and BTTV-emotes and emojis are supported. | !word monkaS dragons |
-| !rank [<username>]    | Return the current spam-rank and -points for the chatter or optional for a specific <username>. | !rank , !rank monkalot |
-| !topspammers          | Return the five highest ranked spammers. | - |
-| !kpm                  | Send out the amount of Kappas per minute in channel. | - |
-| !tkp                  | Send out the total amount of Kappas in channel. | - |
-| !minute <emote>       | Send out the amount of a specific emote per minute in channel. All Twitch- and BTTV-emotes and emojis are supported. | !minute BabyRage |
-| !total <emote>        | Send out the total amount of a specific emote in channel. All Twitch- and BTTV-emotes and emojis are supported. | !total EleGiggle |
-| !oralpleasure on / off  | Turn oralpleasure on or off. | - |
-| !calc <formula>       | A chat calculator that can do some pretty advanced stuff like sqrt and trigonometry. | !calc (5+7)/2 , !calc log(5^2) + sin(pi/4) |
-| <botname> <text>      | Talk to the bot. Questions can be asked or a conversation can be started with the native speech engine. | Hey Monkalot, how are you doing?, What's 2Head + 2Head? @Monkalot |
+| `!active`             | Return the amount of active viewers in chat. | - |
+| `!smorc`              | Send a random SMOrc quote. | - |
+| `!quote [<number>]`   | Send a random quote. Optional a number can be given to call a specific quote. | `!quote` , `!quote 2` |
+| `!pjsalt`             | Send a pjsalt pyramid in chat.      | - |
+| `!call <emote> <text>`| Sends a call interlaced by an emote. All Twitch- and BTTV-emotes and emojis are supported. | `!call Kappa a nice stream` |
+| `!any <emote> <text>` | Sends any sentence interlaced by an emote. All Twitch- and BTTV-emotes and emojis are supported. | `!any Jebaited Long have we waited, now we Jebaited` |
+| `!word <emote> <text>`| Sends a word with an emote interlaced between letters. All Twitch- and BTTV-emotes and emojis are supported. | `!word monkaS dragons` |
+| `!rank [<username>]`  | Return the current spam-rank and -points for the chatter or optional for a specific <username>. | `!rank` , `!rank monkalot` |
+| `!topspammers`        | Return the five highest ranked spammers. | - |
+| `!kpm`                | Send out the amount of Kappas per minute in channel. | - |
+| `!tkp`                | Send out the total amount of Kappas in channel. | - |
+| `!minute <emote>`     | Send out the amount of a specific emote per minute in channel. All Twitch- and BTTV-emotes and emojis are supported. | `!minute BabyRage` |
+| `!total <emote>`      | Send out the total amount of a specific emote in channel. All Twitch- and BTTV-emotes and emojis are supported. | `!total EleGiggle` |
+| `!oralpleasure on / off`  | Turn oralpleasure on or off. | - |
+| `!calc <formula>`       | A chat calculator that can do some pretty advanced stuff like sqrt and trigonometry. | `!calc (5+7)/2` , `!calc log(5^2) + sin(pi/4)` |
+| `<botname> <text>`      | Talk to the bot. Questions can be asked or a conversation can be started with the native speech engine. | `Hey Monkalot, how are you doing?`, `What's 2Head + 2Head? @Monkalot` |
 
 ### Chat games:
 
 | Command               | Description           | Examples  |
 | --------------------- | --------------------- | --------- |
-| !kstart               | Start the *KappaGame*. Guess the right amount of Kappa's to win. Type Kappas to start playing. | - |
-| !estart, [!emotes]    | Start the *GuessEmoteGame*. Guess the right emote from the list. Type emotes to start playing. While the game is active !emotes shows all possible emotes. | - |
-| !mstart               | Start the *GuessMinionGame*. Guess the right minion card. Type minion names to play. After a short time the game will give clues to the chat. | - |
-| <emote>-pyramids      | Build emote pyramids to gain spampoints. All Twitch- and BTTV-emotes and emojis are supported. | Kappa <br> Kappa Kappa <br> Kappa |
+| `!kstart`             | Start the *KappaGame*. Guess the right amount of Kappas to win. Type Kappas to start playing. | - |
+| `!estart`, `[!emotes]`| Start the *GuessEmoteGame*. Guess the right emote from the list. Type emotes to start playing. While the game is active `!emotes` shows all possible emotes. | - |
+| `!mstart`             | Start the *GuessMinionGame*. Guess the right minion card. Type minion names to play. After a short time the game will give clues to the chat. | - |
+| `<emote>-pyramids`    | Build emote pyramids to gain spampoints. All Twitch- and BTTV-emotes and emojis are supported. | `Kappa` <br> `Kappa Kappa` <br> `Kappa` |
 
 ### Moderator commands:
 
 | Command               | Description           | Examples  |
 | --------------------- | --------------------- | --------- |
-| !addquote <quote>     | Add a quote to the *quotelist*. | !addquote "Priest in 2k17 LUL" |
-| !delquote <quote>     | Delete a quote from the *quotelist*. | !delquote "Priest in 2k17 LUL" |
-| !block on / off       | Turn pyramidblock on or off. If on, pyramids will be interupted by the bot. | - |
-| !games on / off       | Turn automatic games on or off. If on, *chatgames* will start automaticly after a certain amount of time. | - |
+| `!addquote <quote>`   | Add a quote to the *quotelist*. | `!addquote "Priest in 2k17 LUL"` |
+| `!delquote <quote>`   | Delete a quote from the *quotelist*. | `!delquote "Priest in 2k17 LUL"` |
+| `!block on / off`     | Turn pyramidblock on or off. If on, pyramids will be interupted by the bot. | - |
+| `!games on / off`     | Turn automatic games on or off. If on, *chatgames* will start automaticly after a certain amount of time. | - |
 
 ### Trusted-Moderator commands:
 
 | Command               | Description           | Examples  |
 | --------------------- | --------------------- | --------- |
-| !addmod <username>    | Add a mod to the list of *trusted mods*. | !addmod Monkalot |
-| !delmod <username>    | Delete a mod from the list of *trusted mods*. | !delmod Monkalot |
-| !addcommand <command> <response> | Add a command to the *simplereply*-list. | !addcommand !ping pong |
-| !delcommand <command> | Delete a command from the *simplereply*-list. | !delcommand !ping |
-| !replylist            | Return all available commands from the *simplereply*-list. | - |
+| `!addmod <username>`  | Add a mod to the list of *trusted mods*. | `!addmod Monkalot` |
+| `!delmod <username>`  | Delete a mod from the list of *trusted mods*. | `!delmod Monkalot` |
+| `!addcommand <command> <response>` | Add a command to the *simplereply*-list. | `!addcommand !ping pong` |
+| `!delcommand <command>`| Delete a command from the *simplereply*-list. | `!delcommand !ping` |
+| `!replylist`          | Return all available commands from the *simplereply*-list. | - |
 
 ### Admin commands:
 
 | Command               | Description           | Examples  |
 | --------------------- | --------------------- | --------- |
-| !sleep    			| Puts the bot in *sleepmode*. All games will be disabled and the bot only responses to admins | - |
-| !wakeup    			| Puts the in normal mode again. | - |
-| !g <username> <pronouns> | Allows changing gender pronouns for a user. Three pronouns have to be given. | !g monkalot she her hers |
+| `!sleep`    			| Puts the bot in *sleepmode*. All games will be disabled and the bot only responses to admins | - |
+| `!wakeup`    			| Puts the in normal mode again. | - |
+| `!g <username> <pronouns>` | Allows changing gender pronouns for a user. Three pronouns have to be given. | `!g monkalot she her hers` |
 
 
 
