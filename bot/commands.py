@@ -472,6 +472,8 @@ class Calculator(Command):
     nsp = NumericStringParser()
     perm = Permission.User
 
+    symbols = ["e", "pi", "sin", "cos", "tan", "abs", "trunc", "round", "sgn"]
+
     def match(self, bot, user, msg):
         """Match if the message starts with !calc."""
         return msg.lower().startswith("!calc ")
@@ -481,8 +483,8 @@ class Calculator(Command):
         expr = msg.split(' ', 1)[1]
         try:
             result = self.nsp.eval(expr)
-            if result.is_integer():
-                result = int(result)
+            # if result.is_integer():
+            #     result = int(result)
             reply = "{} = {}".format(expr, result)
             bot.write(reply)
         except ZeroDivisionError:
@@ -493,6 +495,13 @@ class Calculator(Command):
             bot.write('@' + bot.displayName(user) + " ??? 4Head")
         except TypeError or ValueError:  # Not sure which Errors might happen here.
             bot.write('@' + bot.displayName(user) + " {} = ???".format(expr))
+
+    def checkSymbols(self, msg):
+        """Check whether s contains no letters, except e, pi, sin, cos, tan, abs, trunc, round, sgn."""
+        msg = msg.lower()
+        for s in self.symbols:
+            msg = msg.lower().replace(s, '')
+        return re.search('[a-zA-Z]', msg) is None
 
 
 class PyramidBlock(Command):
@@ -1162,20 +1171,22 @@ class Questions(Command):
                 return i + 1
 
     def match(self, bot, user, msg):
-        """Match if the bot is tagged."""
+        """Match if the bot is tagged, the sentence contains 'what is' (in various forms) or proper math syntax."""
         if (bot.nickname.lower() in msg.lower() and self.wordInMsg(self.whatis, msg)):
-            bot.antispeech = True
-            return True
+            index = self.wordInMsg(self.whatis, msg)
+            cmd = msg.lower().replace(self.whatis[index-1], '').replace('@', '').replace(bot.nickname, '').replace('?', '')
+            if self.wordInMsg(self.twohead, msg) or self.calc.checkSymbols(cmd):
+                bot.antispeech = True
+                return True
 
     def run(self, bot, user, msg):
         """Define answers based on pieces in the message."""
         index = self.wordInMsg(self.whatis, msg)
-        if index and self.wordInMsg(self.twohead, msg):
+        if self.wordInMsg(self.twohead, msg):
             bot.write('@' + bot.displayName(user) + ' It\'s 4Head')
-        elif index:
+        else:
             cmd = msg.lower().replace(self.whatis[index-1], '').replace('@', '').replace(bot.nickname, '').replace('?', '')
-            if re.search('[a-zA-Z]', cmd) is None:  # Doesn't contain any letters.
-                self.calc.run(bot, user, "!calc " + cmd)
+            self.calc.run(bot, user, "!calc " + cmd)
 
 
 class Oralpleasure(Command):
