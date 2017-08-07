@@ -52,7 +52,7 @@ class TwitchBot(irc.IRCClient, object):
     gameRunning = False
     antispeech = False   # if a command gets executed which conflicts with native speech
     pyramidBlock = False
-    pleb_cooldowntime = 15  # time between non-sub commands
+    pleb_cooldowntime = 3  # time between non-sub commands
     last_plebcmd = time.time() - pleb_cooldowntime
 
     ranking = bot.ranking.Ranking()
