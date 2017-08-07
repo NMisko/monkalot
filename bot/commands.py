@@ -114,7 +114,7 @@ class Spam(Command):
 
     messagecounter = 0
     OBSERVED_MESSAGES = 15
-    NECESSARY_SPAM = 7
+    NECESSARY_SPAM = 5
 
     def match(self, bot, user, msg):
         """Add message to queue. Match if more than counter is above 10."""
