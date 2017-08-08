@@ -3,6 +3,9 @@ TODO:
 * Synchronize commands with themselves
 * Pyramid Game: level 7: more points
 * Tests (create fake irc) https://docs.pytest.org/en/latest/
+* !slap command
+* Spam points for each message (IGetNo wants to find out, how many points per msg/word)
+* username / displayname / userID: userID should be the only thing calling function inside the bot. Using username/displayname only for output.
 
 
 DESIGN DECISIONS:
