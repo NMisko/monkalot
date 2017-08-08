@@ -5,6 +5,8 @@ import math
 
 DATABASE_PATH = "data/monkalot.db"
 LEGENDP = 750
+BASE = 10  # points from rank 25 to rank 24
+FACTOR = 1.2
 
 
 class Ranking():
@@ -71,8 +73,14 @@ class Ranking():
 
     def getHSRank(self, points):
         """Return spam rank of a user in hearthstone units."""
-        if points < LEGENDP:
-            return str(math.ceil(25 - (points * 25 / LEGENDP)))
+        p = points
+        rank = 25
+        while p > 0 and rank > 0:
+            p = p - BASE * math.pow(FACTOR, (25 - rank))
+            rank = rank - 1
+
+        if rank > 0:
+            return str(rank)
         else:
             return "Legend " + str(self.getRank(points))
 
