@@ -111,27 +111,39 @@ class Spam(Command):
 
     perm = Permission.User
     fifo = []
+    counter = {}
+    maxC = 0
+    maxMsg = ""
 
-    messagecounter = 0
     OBSERVED_MESSAGES = 15
-    NECESSARY_SPAM = 5
+    NECESSARY_SPAM = 6
 
     def match(self, bot, user, msg):
-        """Add message to queue. Match if more than counter is above 10."""
+        """Add message to queue. Match if a message was spammed more than NECESSARY_SPAM."""
         self.fifo.append(msg)
+        if (msg not in self.counter):
+            self.counter[msg] = 1
+        else:
+            self.counter[msg] = self.counter[msg] + 1
+            if self.counter[msg] > self.maxC:
+                self.maxC = self.counter[msg]
+                self.maxMsg = msg
+
         if len(self.fifo) > self.OBSERVED_MESSAGES:
-            self.fifo.pop(0)
-        self.messagecounter = self.messagecounter + 1
-        return self.messagecounter > 8  # arbitrary number
+            delmsg = self.fifo.pop(0)
+            self.counter[delmsg] = self.counter[delmsg] - 1
+            if self.counter[delmsg] == 0:
+                self.counter.pop(delmsg, None)
+
+        return self.maxC >= self.NECESSARY_SPAM
 
     def run(self, bot, user, msg):
         """Check if there is spamming."""
-        count = Counter(self.fifo)
-        print(count)
-        spam = count.most_common(1)[0]  # (message, count)
-        if spam[1] > self.NECESSARY_SPAM:
-            bot.write(spam[0])
-            self.messagecounter = -4  # arbitrary number
+        self.fifo = []
+        self.counter = {}
+        self.maxC = 0
+        bot.write(self.maxMsg)
+        self.maxMsg = ""
 
 
 class PyramidReply(Command):
@@ -604,7 +616,7 @@ class Pyramid(Command):
             user = uniqueUsers[0]
             if bot.get_permission(user) in [Permission.User, Permission.Subscriber]:
                 bot.write("Wow, " + bot.displayName(user) + " built a pleb pyramid and " + bot.pronoun(user)[0] + " gets a free timeout. 4Head")
-                bot.write("/timeout " + bot.displayName(user) + " 60")
+                bot.write("/timeout " + user + " 60")
             else:
                 bot.write(bot.displayName(user) + " created a pleb pyramid and would get a free timeout, but " + bot.pronoun(user)[0] + " is a mod. FeelsBadMan")
         else:
@@ -612,7 +624,7 @@ class Pyramid(Command):
             bot.write("Wow, " + s + " built a pleb pyramid and they all get a free timeout. 4Head")
             for u in uniqueUsers:
                 if bot.get_permission(u) in [Permission.User, Permission.Subscriber]:
-                    bot.write("/timeout " + bot.displayName(u) + " 60")
+                    bot.write("/timeout " + u + " 60")
 
     def sendSuccessMessage(self, bot):
         """Send a message for a successful pyramid."""

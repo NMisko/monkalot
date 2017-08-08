@@ -489,7 +489,11 @@ class TwitchBot(irc.IRCClient, object):
         """Get the proper capitalization of a twitch user."""
         url = "https://api.twitch.tv/kraken/users?login=" + user
         headers = {'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': self.password}
-        return requests.get(url, headers=headers).json()["users"][0]["display_name"]
+
+        try:
+            return requests.get(url, headers=headers).json()["users"][0]["display_name"]
+        except IndexError:
+            return user
 
 
 class IPythonThread(Thread):
