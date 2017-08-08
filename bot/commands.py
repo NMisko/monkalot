@@ -917,7 +917,7 @@ class AutoGames(Command):
             return
 
         """Start games as bot with empty msg if no active game."""
-        if all(test.active == False for test in bot.games): #noqa
+        if not bot.gameRunning:
             user = bot.nickname
             cmd = random.choice(gamecmds)
             bot.process_command(user, cmd)
@@ -1050,14 +1050,16 @@ class TopSpammers(Command):
 
 
 class Sleep(Command):
-    """Allows admins to pause the bot."""
+    """Allows admins and trusted mods to pause the bot."""
 
-    perm = Permission.Admin
+    perm = Permission.Moderator
 
     def match(self, bot, user, msg):
         """Match if message is !sleep or !wakeup."""
         cmd = msg.lower().strip()
-        return cmd.startswith("!sleep") or cmd.startswith("!wakeup")
+
+        if (user in bot.trusted_mods or bot.get_permission(user) == 3):
+            return cmd.startswith("!sleep") or cmd.startswith("!wakeup")
 
     def run(self, bot, user, msg):
         """Put the bot to sleep or wake it up."""
