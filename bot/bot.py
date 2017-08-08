@@ -52,7 +52,7 @@ class TwitchBot(irc.IRCClient, object):
     gameRunning = False
     antispeech = False   # if a command gets executed which conflicts with native speech
     pyramidBlock = False
-    pleb_cooldowntime = 3  # time between non-sub commands
+    pleb_cooldowntime = 6  # time between non-sub commands
     last_plebcmd = time.time() - pleb_cooldowntime
 
     ranking = bot.ranking.Ranking()
@@ -492,7 +492,7 @@ class TwitchBot(irc.IRCClient, object):
 
         try:
             return requests.get(url, headers=headers).json()["users"][0]["display_name"]
-        except IndexError:
+        except IndexError or KeyError:
             return user
 
 
