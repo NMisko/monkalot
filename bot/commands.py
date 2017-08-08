@@ -691,7 +691,7 @@ class KappaGame(Command):
                 Kappa game has started. Guess the right amount of Kappa s between 1 and 25! PogChamp \
                 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬")
         else:
-            if msg == "!kstop":
+            if msg == "!kstop" and bot.get_permission(user) not in [Permission.User, Permission.Subscriber]:
                 self.close(bot)
                 bot.write("Stopping game.")
                 return
@@ -777,7 +777,7 @@ class GuessEmoteGame(Command):
             print("Right emote: " + self.emote)
             bot.write("/me The 'Guess The Emote Game' has started. Write one of the following emotes to start playing: " + EmoteListToString(self.emotes))
         else:
-            if cmd == "!estop":
+            if cmd == "!estop" and bot.get_permission(user) not in [Permission.User, Permission.Subscriber]:
                 bot.write("Stopping game.")
                 self.close(bot)
                 return
@@ -890,7 +890,7 @@ class GuessMinionGame(Command):
                 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬")
             self.giveClue(bot)
         else:
-            if cmd == "!mstop":
+            if cmd == "!mstop" and bot.get_permission(user) not in [Permission.User, Permission.Subscriber]:
                 self.close(bot)
                 bot.write("Stopping game.")
                 return
