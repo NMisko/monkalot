@@ -67,7 +67,7 @@ class Ranking():
         cursor, connection = self.executeCommandGetConnection(sql_command, [])
         all = cursor.fetchall()
 
-        return all
+        return all[:5]
 
     def getHSRank(self, points):
         """Return spam rank of a user in hearthstone units."""
