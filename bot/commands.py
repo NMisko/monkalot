@@ -584,7 +584,7 @@ class Pyramid(Command):
                     self.sendSuccessMessage(bot)
                     self.users = []
                     self.count = 0
-                elif self.count == 3 and bot.pyramidBlock:  # block pyramid
+                elif self.count == 2 and bot.pyramidBlock:  # block pyramid
                     self.blockPyramid(bot)
             elif self.count == 3 and msg == self.pyramidLevel(self.currentEmote, 1):  # 2 high pyramid (pleb pyramid)
                 self.users.append(user)
@@ -595,6 +595,7 @@ class Pyramid(Command):
                 if (msg in self.emotes or msg in self.emojis):
                     self.count = 1
                     self.currentEmote = msg
+                    self.users = [user]
                 else:
                     self.count = 0
                     self.users = []
