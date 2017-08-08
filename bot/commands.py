@@ -1130,7 +1130,7 @@ def startGame(bot, user, msg, cmd):
             bot.gameRunning = True
             return True
         else:
-            bot.write("You need " + GAMESTARTP + " points to start a game.")
+            bot.write("You need " + str(GAMESTARTP) + " points to start a game.")
             return False
     else:  # The calling user is a mod, so we only check if the command is correct
         if msg == cmd:
