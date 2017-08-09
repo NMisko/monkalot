@@ -943,6 +943,11 @@ class AutoGames(Command):
         if not bot.gameRunning:
             user = bot.nickname
             cmd = random.choice(gamecmds)
+
+            """33% of !estart in rng-mode."""
+            if cmd == "!estart" and random.randrange(100) < 33:
+                cmd = "!estart rng"
+
             bot.process_command(user, cmd)
 
         """ start of threading """
