@@ -18,6 +18,7 @@ with open('configs/bot_config.json') as fp:
     CONFIG = json.load(fp)
 
 KAPPAGAMEP = CONFIG["points"]["kappa_game"]
+EMOTEGAMEEMOTES = CONFIG["EmoteGame"]
 EMOTEGAMEP = CONFIG["points"]["emote_game"]
 MINIONGAMEP = CONFIG["points"]["minion_game"]
 PYRAMIDP = CONFIG["points"]["pyramid"]
@@ -736,47 +737,53 @@ class GuessEmoteGame(Command):
     emotes = []
     emote = ""
 
-    def initGame(self, bot):
-        """Initialize GuessEmoteGame: Get all twitch- and BTTV-Emotes, assemble a list of random emotes, choose the winning one."""
-        twitchemotes = bot.twitchemotes
-        bttvemotes = bot.global_bttvemotes + bot.channel_bttvemotes
-
+    def initGame(self, bot, msg):
+        """Initialize GuessEmoteGame"""
         emotelist = []
 
-        n_total = 25
-        n_bttv = 10
+        if 'rng' in msg.lower():
+            """Get all twitch- and BTTV-Emotes, assemble a list of random emotes."""
+            twitchemotes = bot.twitchemotes
+            bttvemotes = bot.global_bttvemotes + bot.channel_bttvemotes
 
-        i = 0
-        while i < (n_total-n_bttv):
-            rng_emote = random.choice(twitchemotes)
+            n_total = 25
+            n_bttv = 10
 
-            if rng_emote not in emotelist:
-                emotelist.append(rng_emote)
-                i += 1
+            i = 0
+            while i < (n_total-n_bttv):
+                rng_emote = random.choice(twitchemotes)
 
-        i = 0
-        while i < n_bttv:
-            rng_emote = random.choice(bttvemotes)
+                if rng_emote not in emotelist:
+                    emotelist.append(rng_emote)
+                    i += 1
 
-            if rng_emote not in emotelist:
-                emotelist.append(rng_emote)
-                i += 1
+            i = 0
+            while i < n_bttv:
+                rng_emote = random.choice(bttvemotes)
 
+                if rng_emote not in emotelist:
+                    emotelist.append(rng_emote)
+                    i += 1
+        else:
+            """Get emotes from config-file."""
+            emotelist = EMOTEGAMEEMOTES
+
+        """Shuffle list and choose a winning emote."""
         shuffle(emotelist)
         self.emotes = emotelist
         self.emote = random.choice(emotelist)
 
     def match(self, bot, user, msg):
         """Match if the game is active or gets started with !estart."""
-        return self.active or startGame(bot, user, msg, "!estart")
+        return self.active or startGame(bot, user, msg, "!estart") or startGame(bot, user, msg, "!estart rng")
 
     def run(self, bot, user, msg):
-        """Generate a random number n when game gets first started. Afterwards, check if a message contains the emote n times."""
+        """Initalize the command on first run. Check for right emote for each new msg."""
         cmd = msg.strip()
 
         if not self.active:
             self.active = True
-            self.initGame(bot)
+            self.initGame(bot, msg)
             print("Right emote: " + self.emote)
             bot.write("/me The 'Guess The Emote Game' has started. Write one of the following emotes to start playing: " + EmoteListToString(self.emotes))
         else:
