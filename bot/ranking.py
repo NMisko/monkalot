@@ -2,11 +2,16 @@
 
 import sqlite3
 import math
+import json
 
 DATABASE_PATH = "data/monkalot.db"
-LEGENDP = 750
-BASE = 10  # points from rank 25 to rank 24
-FACTOR = 1.2
+
+with open('configs/bot_config.json') as fp:
+    CONFIG = json.load(fp)
+
+BASE = CONFIG["ranking"]["base"]  # points from min rank to second min rank
+FACTOR = CONFIG["ranking"]["factor"]
+RANKS = CONFIG["ranking"]["ranks"]
 
 
 class Ranking():
@@ -74,9 +79,9 @@ class Ranking():
     def getHSRank(self, points):
         """Return spam rank of a user in hearthstone units."""
         p = points
-        rank = 25
+        rank = RANKS
         while p > 0 and rank > 0:
-            p = p - BASE * math.pow(FACTOR, (25 - rank))
+            p = p - BASE * math.pow(FACTOR, (RANKS - rank))
             rank = rank - 1
 
         if rank > 0:

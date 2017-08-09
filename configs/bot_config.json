@@ -3,6 +3,20 @@
 	"username": "",
 	"oauth_key": "",
 	"ignore_list": [],
-	"owner_list": [],
-	"cleverbot_key": ""
+	"owner_list": [""],
+	"cleverbot_key": "",
+	"points": {
+		"points_per_message": 1,
+		"kappa_game": 30,
+		"emote_game": 30,
+		"minion_game": 30,
+		"pyramid": [10, 20, 30, 20, 10],
+		"game_start": 15
+	},
+	"ranking": {
+		"base": 10,
+		"factor": 1.2,
+		"ranks": 25
+	},
+	"auto_game_interval": 10
 }

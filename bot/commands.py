@@ -6,7 +6,6 @@ from random import shuffle
 import json
 from twisted.internet import reactor
 from cleverwrap import CleverWrap
-from collections import Counter
 import pyparsing
 
 import re
@@ -15,11 +14,15 @@ QUOTES_FILE = 'data/quotes.json'
 REPLIES_FILE = 'data/sreply_cmds.json'
 SMORC_FILE = 'data/smorc.json'
 
-KAPPAGAMEP = 30
-EMOTEGAMEP = 30
-MINIONGAMEP = 30
-GAMESTARTP = 15
-PYRAMIDP = {1: 10, 2: 20, 3: 30, 4: 20, 5: 10}
+with open('configs/bot_config.json') as fp:
+    CONFIG = json.load(fp)
+
+KAPPAGAMEP = CONFIG["points"]["kappa_game"]
+EMOTEGAMEP = CONFIG["points"]["emote_game"]
+MINIONGAMEP = CONFIG["points"]["minion_game"]
+PYRAMIDP = CONFIG["points"]["pyramid"]
+GAMESTARTP = CONFIG["points"]["game_start"]
+AUTO_GAME_INTERVAL = CONFIG["auto_game_interval"]
 
 
 class Permission:
@@ -652,14 +655,14 @@ class Pyramid(Command):
 
             if user not in m:
                 if bot.get_permission(user) not in [Permission.Admin, Permission.Moderator]:  # moderators get one tenth of the points
-                    m[user] = points[i]
+                    m[user] = points[i-1]
                 else:
-                    m[user] = int(points[i]/10)
+                    m[user] = int(points[i-1]/10)
             else:
                 if bot.get_permission(user) not in [Permission.Admin, Permission.Moderator]:  # moderators get one tenth of the points
-                    m[user] = m[user] + points[i]
+                    m[user] = m[user] + points[i-1]
                 else:
-                    m[user] = m[user] + int(points[i]/10)
+                    m[user] = m[user] + int(points[i-1]/10)
 
         return m
 
@@ -919,7 +922,7 @@ class AutoGames(Command):
 
     perm = Permission.Moderator
     active = False
-    time = 900  # time until a random game starts
+    time = AUTO_GAME_INTERVAL  # time until a random game starts
     callID = None
 
     def randomGame(self, bot):
