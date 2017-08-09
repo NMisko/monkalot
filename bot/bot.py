@@ -25,11 +25,12 @@ CHANNEL_BTTVEMOTES_API = "http://api.betterttv.net/2/channels/{}"
 HEARTHSTONE_CARD_API = "http://api.hearthstonejson.com/v1/18336/enUS/cards.collectible.json"
 EMOJI_API = "https://raw.githubusercontent.com/github/gemoji/master/db/emoji.json"
 
-TRUSTED_MODS_PATH = 'data/trusted_mods.json'
-PRONOUNS_PATH = 'data/pronouns.json'
-
 with open('configs/bot_config.json') as fp:
     CONFIG = json.load(fp)
+
+TRUSTED_MODS_PATH = 'data/trusted_mods.json'
+PRONOUNS_PATH = 'data/pronouns.json'
+PLEB_COOLDOWN = CONFIG["pleb_cooldown"]
 
 
 class TwitchBot(irc.IRCClient, object):
@@ -52,7 +53,7 @@ class TwitchBot(irc.IRCClient, object):
     gameRunning = False
     antispeech = False   # if a command gets executed which conflicts with native speech
     pyramidBlock = False
-    pleb_cooldowntime = 6  # time between non-sub commands
+    pleb_cooldowntime = PLEB_COOLDOWN  # time between non-sub commands
     last_plebcmd = time.time() - pleb_cooldowntime
 
     ranking = bot.ranking.Ranking()

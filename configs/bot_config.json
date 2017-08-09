@@ -18,5 +18,6 @@
 		"factor": 1.2,
 		"ranks": 25
 	},
-	"auto_game_interval": 10
+	"auto_game_interval": 10,
+	"pleb_cooldown": 6
 }
