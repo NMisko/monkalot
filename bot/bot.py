@@ -173,8 +173,6 @@ class TwitchBot(irc.IRCClient, object):
         # Check if bot is paused
         if not self.pause or name in self.owner_list:
             self.process_command(name, msg)
-        else:
-            self.process_command("__USER__", "__UPDATE__")
 
         # Log user activity
         self.activity[name] = time.time()
