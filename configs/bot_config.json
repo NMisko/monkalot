@@ -1,6 +1,7 @@
 {
 	"channel": "",
 	"username": "",
+	"clientID": "",
 	"oauth_key": "",
 	"ignore_list": [],
 	"owner_list": [""],
