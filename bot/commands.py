@@ -576,7 +576,7 @@ class Pyramid(Command):
         self.emotes = bot.emotes
         self.emojis = bot.emojis
         if self.count == 0:
-            if (msg in self.emotes or msg in self.emojis):
+            if (msg in self.emotes or msg in self.emojis or bot.accessToEmote(user, msg)):
                 self.currentEmote = msg
                 self.count = 1
                 self.users.append(user)
@@ -775,7 +775,7 @@ class GuessEmoteGame(Command):
 
     def match(self, bot, user, msg):
         """Match if the game is active or gets started with !estart."""
-        return self.active or startGame(bot, user, msg, "!estart") or startGame(bot, user, msg, "!estart rng")
+        return self.active or startGame(bot, user, msg, "!estart") or startGame(bot, user, msg, "!rngestart")
 
     def run(self, bot, user, msg):
         """Initalize the command on first run. Check for right emote for each new msg."""
@@ -946,7 +946,7 @@ class AutoGames(Command):
 
             """33% of !estart in rng-mode."""
             if cmd == "!estart" and random.randrange(100) < 33:
-                cmd = "!estart rng"
+                cmd = "!rngestart"
 
             bot.process_command(user, cmd)
 

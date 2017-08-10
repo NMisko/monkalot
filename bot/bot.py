@@ -40,6 +40,7 @@ class TwitchBot(irc.IRCClient, object):
     owner_list = CONFIG['owner_list']
     ignore_list = CONFIG['ignore_list']
     nickname = str(CONFIG['username'])
+    clientID = str(CONFIG['clientID'])
     password = str(CONFIG['oauth_key'])
     cleverbot_key = str(CONFIG['cleverbot_key'])
     channel = "#" + str(CONFIG['channel'])
@@ -495,6 +496,56 @@ class TwitchBot(irc.IRCClient, object):
             return requests.get(url, headers=headers).json()["users"][0]["display_name"]
         except IndexError or KeyError:
             return user
+
+    def getuserTag(self, username):
+        """Get the twitch-userTag from username."""
+        url = "https://api.twitch.tv/kraken/users?login=" + username
+        headers = {'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': self.clientID, 'Authorization': self.password}
+
+        try:
+            return requests.get(url, headers=headers).json()
+        except IndexError or KeyError:
+            pass
+
+    def getuserID(self, username):
+        """Get the twitch-userTag from username."""
+
+        return self.getuserTag(username)["users"][0]["_id"]
+
+    def getuserEmotes(self, userID):
+        """Get the emotes a user can use from userID without the global emoticons."""
+        url = "https://api.twitch.tv/kraken/users/{}/emotes".format(userID)
+        headers = {'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': self.clientID, 'Authorization': self.password}
+
+        try:
+            emotelist = requests.get(url, headers=headers).json()['emoticon_sets']
+        except IndexError or KeyError:
+            print("Error in getting emotes from userID")
+
+        emotelist.pop('0', None)
+        return emotelist
+
+    def accessToEmote(self, username, emote):
+        """Check if user has access to a certain emote"""
+
+        userID = self.getuserID(username)
+        emotelist = self.getuserEmotes(userID)
+        for sets in emotelist:
+            for key in range(0, len(emotelist[sets])):
+                print(emotelist[sets][key])
+                if emote == emotelist[sets][key]['code']:
+                    return True
+        return False
+
+    def getChannel(self, channelID):
+        """Get the subscriberemotes from channelID."""
+        url = "https://api.twitch.tv/kraken/channels/" + channelID
+        headers = {'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': self.clientID, 'Authorization': self.password}
+
+        try:
+            return requests.get(url, headers=headers).json()
+        except IndexError or KeyError:
+            print("Channel object could not be fetched.")
 
 
 class IPythonThread(Thread):
