@@ -532,7 +532,6 @@ class TwitchBot(irc.IRCClient, object):
         emotelist = self.getuserEmotes(userID)
         for sets in emotelist:
             for key in range(0, len(emotelist[sets])):
-                print(emotelist[sets][key])
                 if emote == emotelist[sets][key]['code']:
                     return True
         return False
