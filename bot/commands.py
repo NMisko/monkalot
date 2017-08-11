@@ -576,10 +576,11 @@ class Pyramid(Command):
         self.emotes = bot.emotes
         self.emojis = bot.emojis
         if self.count == 0:
-            if (msg in self.emotes or msg in self.emojis or bot.accessToEmote(user, msg)):
-                self.currentEmote = msg
-                self.count = 1
-                self.users.append(user)
+            if len(msg.split(' ', 1)) == 1:     # Only let messages with one word through.
+                if (msg in self.emotes or msg in self.emojis or bot.accessToEmote(user, msg)):
+                    self.currentEmote = msg
+                    self.count = 1
+                    self.users.append(user)
         elif self.count > 0:
             self.count = self.count + 1
             if msg == self.pyramidLevel(self.currentEmote, self.count):
@@ -633,9 +634,7 @@ class Pyramid(Command):
 
     def sendSuccessMessage(self, bot):
         """Send a message for a successful pyramid."""
-        print(str(self.users))
         points = self.calculatePoints(bot)
-        print(str(points))
         if len(points) == 1:
             u = self.users[0]
             bot.write(bot.displayName(u) + " built a pyramid and " + bot.pronoun(u)[0] + " gets " + str(points[u]) + " spam points. PogChamp")
@@ -831,9 +830,17 @@ class GuessMinionGame(Command):
     statToSet = {
         "EXPERT1": "CLASSIC",
         "CORE": "CLASSIC",
-        "OG": "WotOG",
-        "GANGS": "MSoG",
-        "KARA": "OniK"
+        "HOF": "CLASSIC",
+        "OG": "Whispers of the Old Gods",
+        "GANGS": "Mean Streets of Gadgetzan",
+        "KARA": "One Night in Karazhan",
+        "ICECROWN": "Knights of the Frozen Throne",
+        "TGT": "The Grand Tournament",
+        "BRM": "Blackrock Mountain",
+        "UNGORO": "Journey to Un'Goro",
+        "NAXX": "Curse of Naxxramas",
+        "GVG": "Goblins vs Gnomes",
+        "LOE": "The League of Explorers"
     }
 
     def giveClue(self, bot): # noqa (let's ignore the high complexity for now)
@@ -856,7 +863,7 @@ class GuessMinionGame(Command):
                 setname = self.statToSet[self.minion[stat]]
             else:
                 setname = str(self.minion[stat])
-            bot.write("The card is from the " + setname + " set.")
+            bot.write("The card is from the '" + setname + "' set.")
         elif(stat == "name"):
             bot.write("The name of the card starts with \'" + str(self.minion[stat][0]) + "\'.")
         elif(stat == "rarity"):
