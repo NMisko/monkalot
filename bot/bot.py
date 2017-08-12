@@ -49,7 +49,7 @@ class TwitchBot(irc.IRCClient, object):
     pronouns_path = PRONOUNS_PATH
 
     host_target = False
-    pause = False
+    pause = True
     commands = []
     gameRunning = False
     antispeech = False   # if a command gets executed which conflicts with native speech
