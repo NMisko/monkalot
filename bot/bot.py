@@ -448,6 +448,7 @@ class TwitchBot(irc.IRCClient, object):
             cmds.KappaGame(self),
             cmds.GuessEmoteGame(self),
             cmds.GuessMinionGame(self),
+            cmds.MonkalotParty(self),
             cmds.Sleep(self),
             cmds.EditCommandList(self),
             cmds.editQuoteList(self),

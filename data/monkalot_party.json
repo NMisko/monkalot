@@ -1,0 +1,75 @@
+{
+    "oppositeof": {
+        "light": "dark",
+        "up": "down",
+        "left": "right",
+        "slow": "fast",
+        "hot": "cold",
+        "rich": "poor",
+        "strong": "weak",
+        "late": "early",
+        "black": "white"
+    },
+    "capitalof": {
+        "London": "England",
+        "Paris": "France",
+        "Berlin": "Germany",
+        "Rome": "Italy",
+        "Madrid": "Spain",
+        "Warsaw": "Poland",
+        "Prague": "Czech Republic",
+        "Amsterdam": "Netherlands",
+        "Lisbon": "Portugal",
+        "Copenhagen": "Denmark",
+        "Edinburgh": "Scotland",
+        "Athens": "Greece",
+        "Vienna": "Austria",
+        "Stockholm": "Sweden"
+    },
+    "colorof": {
+        "banana": ["yellow", "a "],
+        "lemon": ["yellow", "a "],
+        "grass": ["green", ""],
+        "orange": ["orange", "an "],
+        "paper": ["white", ""],
+        "coal": ["black", ""],
+        "fire": ["red", ""],
+        "whole grain bread": ["brown", ""],
+        "coffee": ["black", ""],
+        "elephant": ["grey", "an "],
+        "water": ["none", ""]
+    },
+    "completelyric": {
+        "Always look on the bright side of ____!": "life",
+        "The show must go __!": "on",
+        "Yesterday, all my troubles seemed so far ____!": "away",
+        "All you need is love, love. Love is all you ____!": "need",
+        "Welcome to the hotel __________!": "california",
+        "I fell into a burning ring of ____!": "fire",
+        "Ain't no sunshine when she's ____!": "gone"
+    },
+    "completewithemote": {
+        "Long have we waited / now we ___": "Jebaited",
+        "You thought it was sarcasm / but I said: \"Come here I want me some. ____\"": "Kreygasm",
+        "He saw him lying on the floor and wriggle / but all he did was stand there and ____.": "EleGiggle",
+        "The other day i was listening to FRANK ZAPPA / on one of his covers he looks like ____.": "Kappa",
+        "Oh look, we play against another mage! / Nice arena balance blizzard! ____": "BabyRage",
+        "full wool bull pull ____": "LUL"
+    },
+    "similars": {
+        "colors":["blue", "red", "green", "yellow", "purple", "pink", "cyan"],
+        "vehicles":["car", "plane", "train", "ship", "helicopter", "bicycle", "bus"],
+        "fruits":["apple", "kiwi", "banana", "pineapple", "cherry", "strawberry", "melon"],
+        "metals":["iron", "aluminum", "titanium", "copper", "zinc", "magnesium", "lead"],
+        "animals":["cow", "pig", "chicken", "sheep", "goat", "horse", "dog", "cat"],
+        "classes":["priest", "warlock", "warrior", "paladin", "rogue", "hunter", "mage", "druid", "shaman"]
+    },
+    "write": ["LUL", "Kappa", "EZ", "Jebaited", "OMEGALUL", "monkaS", "4Head", "EleGiggle", "PogChamp", "FeelsBadMan", "FeelsBirthdayMan"],
+    "relative": ["grandson", "son", "brother", "cousin", "friend", "father", "uncle", "grandfather"],
+    "archetype": ["face", "control", "deathrattle", "patron", "zoo", "concede", "tempo", "big"],
+    "device": ["cellphone", "laptop", "Game Boy", "Sega Game Gear", "Nintendo Switch", "toaster", "calculator", "Neo Geo Pocket Color"]
+}
+
+
+
+
