@@ -1261,7 +1261,7 @@ class Oralpleasure(Command):
 
 
 class MonkalotParty(Command):
-
+    """Play the MonkalotParty!"""
     perm = Permission.User
     active = False
 
@@ -1324,22 +1324,24 @@ class MonkalotParty(Command):
             """Start of threading"""
             self.callID = reactor.callLater(5, self.selectGame, bot)
         else:
-            if cmd == "!pstop" and (bot.get_permission(user) == 3 or user in bot.trusted_mods):
+            if cmd.lower() == "!pstop" and (bot.get_permission(user) == 3 or user in bot.trusted_mods):
                 self.close(bot)
                 bot.write("Stopping Monkalot Party. FeelsBadMan")
                 return
-            if self.answer not in bot.emotes:   # If not an emote compare in lowercase.
-                self.answer = self.answer.lower()
-                cmd = cmd.lower()
-            if cmd == self.answer:
-                bot.write("/me " + bot.displayName(user) + " got it first and gets 5 points. The answer was: " + self.answer)
-                bot.ranking.incrementPoints(user, 5)
-                self.mp.uprank(user)
-                if len(self.mp.games) > 0:
-                    self.callID = reactor.callLater(3, self.selectGame, bot)
-                else:
-                    self.gameWinners(bot)
-                    self.close(bot)
+            if self.answer != "":    # If we are not between games.
+                if self.answer not in bot.emotes:   # If not an emote compare in lowercase.
+                    self.answer = self.answer.lower()
+                    cmd = cmd.lower()
+                if cmd == self.answer:
+                    bot.write("/me " + bot.displayName(user) + " got it first and gets 5 points. The answer was: " + self.answer)
+                    self.answer = ""
+                    bot.ranking.incrementPoints(user, 5)
+                    self.mp.uprank(user)
+                    if len(self.mp.games) > 0:
+                        self.callID = reactor.callLater(3, self.selectGame, bot)
+                    else:
+                        self.gameWinners(bot)
+                        self.close(bot)
 
     def close(self, bot):
         """Turn off on shutdown or reload."""

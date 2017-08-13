@@ -438,7 +438,7 @@ class TwitchBot(irc.IRCClient, object):
         Games have to be on the top of the list!!!
         Passive Games have to be on the very top!!! -> Maybe we need Game-classes
         """
-        ngames = 4          # first ngames are 'games'
+        ngames = 5          # first ngames are 'games'
         self.games = []
         npassivegames = 1   # first npassivegames are 'always active games' (e.g. PyramidGame)
         self.passivegames = []
