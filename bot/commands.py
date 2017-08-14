@@ -1337,8 +1337,8 @@ class MonkalotParty(Command):
                     self.answer = ""
                     bot.ranking.incrementPoints(user, 5)
                     self.mp.uprank(user)
-                    if len(self.mp.games) > 0:
-                        self.callID = reactor.callLater(3, self.selectGame, bot)
+                    if len(self.mp.games) > 3:
+                        self.callID = reactor.callLater(6, self.selectGame, bot)
                     else:
                         self.gameWinners(bot)
                         self.close(bot)
