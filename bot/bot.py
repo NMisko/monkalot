@@ -31,6 +31,7 @@ with open('configs/bot_config.json') as fp:
 TRUSTED_MODS_PATH = 'data/trusted_mods.json'
 PRONOUNS_PATH = 'data/pronouns.json'
 PLEB_COOLDOWN = CONFIG["pleb_cooldown"]
+PLEB_GAMETIMER = CONFIG["pleb_gametimer"]
 
 
 class TwitchBot(irc.IRCClient, object):
@@ -55,7 +56,9 @@ class TwitchBot(irc.IRCClient, object):
     antispeech = False   # if a command gets executed which conflicts with native speech
     pyramidBlock = False
     pleb_cooldowntime = PLEB_COOLDOWN  # time between non-sub commands
+    pleb_gametimer = PLEB_GAMETIMER    # time between pleb games
     last_plebcmd = time.time() - pleb_cooldowntime
+    last_plebgame = time.time() - pleb_gametimer
 
     ranking = bot.ranking.Ranking()
 
@@ -546,6 +549,10 @@ class TwitchBot(irc.IRCClient, object):
             return requests.get(url, headers=headers).json()
         except IndexError or KeyError:
             print("Channel object could not be fetched.")
+
+    def setlast_plebgame(self, last_plebgame):
+        """Set timer of last_plebgame"""
+        self.last_plebgame = last_plebgame
 
 
 class IPythonThread(Thread):
