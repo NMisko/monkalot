@@ -8,7 +8,6 @@ from twisted.internet import reactor
 from cleverwrap import CleverWrap
 import pyparsing
 from bot.minigames import MiniGames
-import time
 
 import re
 
@@ -153,9 +152,11 @@ class Spam(Command):
 
 
 class PyramidReply(Command):
-    """Simple meta-command to output a reply with a pyramid given
-    a specific command. Basic key to value mapping.
+    """Simple meta-command to output a reply with a pyramid given a specific command.
+
+    Basic key to value mapping.
     """
+
     perm = Permission.User
 
     replies = {
@@ -163,6 +164,7 @@ class PyramidReply(Command):
     }
 
     def match(self, bot, user, msg):
+        """Match if message is a possible command."""
         cmd = msg.lower().strip()
         for key in self.replies:
             if cmd == key:
@@ -170,6 +172,7 @@ class PyramidReply(Command):
         return False
 
     def run(self, bot, user, msg):
+        """Print out a pyramid of emotes."""
         cmd = msg.lower().strip()
 
         for key, reply in self.replies.items():
@@ -183,9 +186,12 @@ class PyramidReply(Command):
 
 
 class EmoteReply(Command):
-    """Output a msg with a specific emote. E.g.:
+    """Output a msg with a specific emote.
+
+    E.g.:
     'Kappa NOW Kappa THATS Kappa A Kappa NICE Kappa COMMAND Kappa'
     """
+
     perm = Permission.User
     cmd = ''
     emote = ''
@@ -196,7 +202,6 @@ class EmoteReply(Command):
 
     def checkmaxvalues(self, cmd, text):
         """Check if messages are in bounds."""
-
         if cmd == '!call':
             i = 0
         elif cmd == '!any':
@@ -207,7 +212,7 @@ class EmoteReply(Command):
         return (len(self.text) <= self.maxchars[i] and len(self.text.split(' ')) <= self.maxwords[i])
 
     def match(self, bot, user, msg):
-        """Msg has to have the structure !cmd <EMOTE> <TEXT>"""
+        """Msg has to have the structure !cmd <EMOTE> <TEXT>."""
         if msg.lower().startswith('!call ') or msg.lower().startswith('!any ') or msg.lower().startswith('!word '):
             parse = msg.split(' ', 2)
             self.cmd = parse[0].strip()
@@ -353,12 +358,12 @@ class EditCommandList(Command):
 
 
 class outputStats(Command):
-    """Reply total emote stats or stats/per minute"""
+    """Reply total emote stats or stats/per minute."""
 
     perm = Permission.User
 
     def match(self, bot, user, msg):
-        """Match if msg = !total <emote> or !minute <emote>"""
+        """Match if msg = !total <emote> or !minute <emote>."""
         cmd = msg.strip().lower()
 
         if cmd.startswith('!total ') or cmd.startswith('!minute '):
@@ -739,7 +744,7 @@ class GuessEmoteGame(Command):
     emote = ""
 
     def initGame(self, bot, msg):
-        """Initialize GuessEmoteGame"""
+        """Initialize GuessEmoteGame."""
         emotelist = []
 
         if 'rng' in msg.lower():
@@ -1149,21 +1154,13 @@ def startGame(bot, user, msg, cmd):
     if bot.gameRunning:
         return False
     elif bot.get_permission(user) in [Permission.User, Permission.Subscriber] and msg == cmd:
-        """Check if pleb_gametimer is not on cooldown"""
-        if ((time.time() - bot.last_plebgame) > bot.pleb_gametimer):
-            bot.setlast_plebgame(time.time())      # Set pleb_gametimer
-            # The calling user is not a mod, so we subtract 5 points.
-            if(bot.ranking.getPoints(user) > GAMESTARTP):
-                bot.ranking.incrementPoints(user, -GAMESTARTP)
-                bot.gameRunning = True
-                return True
-            else:
-                bot.write("You need " + str(GAMESTARTP) + " points to start a game.")
-                return False
+        # The calling user is not a mod, so we subtract 5 points.
+        if(bot.ranking.getPoints(user) > GAMESTARTP):
+            bot.ranking.incrementPoints(user, -GAMESTARTP)
+            bot.gameRunning = True
+            return True
         else:
-            t = bot.pleb_gametimer - time.time() + bot.last_plebgame
-            next_plebgame = "%8.0f" % t
-            bot.write("Only mods can start chatgames for another " + str(next_plebgame) + " seconds. monkaS")
+            bot.write("You need " + str(GAMESTARTP) + " points to start a game.")
             return False
     else:  # The calling user is a mod, so we only check if the command is correct
         if msg == cmd:
@@ -1270,7 +1267,8 @@ class Oralpleasure(Command):
 
 
 class MonkalotParty(Command):
-    """Play the MonkalotParty!"""
+    """Play the MonkalotParty."""
+
     perm = Permission.User
     active = False
 
@@ -1280,8 +1278,7 @@ class MonkalotParty(Command):
 
     def selectGame(self, bot):
         """Select a game to play next."""
-
-        if self.active == False:
+        if self.active is False:
             return
 
         game = random.choice(list(self.mp.games))
@@ -1294,12 +1291,11 @@ class MonkalotParty(Command):
         del self.mp.games[game]
 
     def gameWinners(self, bot):
-        """Anounce game winners and give points"""
-
+        """Anounce game winners and give points."""
         s = "Monkalot Party is over! "
         winners = self.mp.topranks()
 
-        if winners == None:
+        if winners is None:
             s += "There was no clear winner ... FeelsBadMan"
         else:
             for i in range(0, len(winners[0])):
@@ -1311,9 +1307,8 @@ class MonkalotParty(Command):
         bot.write(s)
 
     def match(self, bot, user, msg):
+        """For now only admins and trusted mods can start this game."""
         cmd = msg.lower()
-
-        """For now only admins and trusted mods can start this game"""
         if self.active or (cmd == '!pstart' and (bot.get_permission(user) == 3 or user in bot.trusted_mods)):
             return True
 
@@ -1346,8 +1341,8 @@ class MonkalotParty(Command):
                     self.answer = ""
                     bot.ranking.incrementPoints(user, 5)
                     self.mp.uprank(user)
-                    if len(self.mp.games) > 3:
-                        self.callID = reactor.callLater(6, self.selectGame, bot)
+                    if len(self.mp.games) > 0:
+                        self.callID = reactor.callLater(3, self.selectGame, bot)
                     else:
                         self.gameWinners(bot)
                         self.close(bot)

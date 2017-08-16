@@ -9,6 +9,7 @@ STATISTIC_FILE = 'data/emote_stats.json'
 
 
 class EmoteCounter(object):
+    """Counts emotes posted in a channel."""
 
     emotelist = []
     minutestats = []
@@ -18,6 +19,7 @@ class EmoteCounter(object):
 
     def EmptyStatList(self):
         """Create an emote-statistic-dictionary and set all values to 0.
+
         Return the dictionary
         """
         emptylist = {}
@@ -29,13 +31,14 @@ class EmoteCounter(object):
         return emptylist
 
     def addCountDicts(self, dict1, dict2):
-        """Adds the emote counts of dict1 to dict2."""
+        """Add the emote counts of dict1 to dict2."""
         for key in dict2:
             if key in dict1:
                 dict2[key] += dict1[key]
 
     def countEmotes(self, msg):
         """Count the Emotes of the message.
+
         Return EmoteDictionary with emote counts
         """
         emotes = self.EmptyStatList()
@@ -50,17 +53,16 @@ class EmoteCounter(object):
         return emotes
 
     def startCPM(self):
-        """Activate count per minute, kickstart swapDummy()"""
+        """Activate count per minute, kickstart swapDummy()."""
         self.count_per_minute_on = True
         self.swapDummy()
 
     def stopCPM(self):
-        """Deactivate count per minute"""
+        """Deactivate count per minute."""
         self.count_per_minute_on = False
 
     def swapDummy(self):
-        """Swap the Dummy Counter Dictionary with the current Time Counter Dictionary"""
-
+        """Swap the Dummy Counter Dictionary with the current Time Counter Dictionary."""
         if self.count_per_minute_on:
             now = time.time()
             frame = int(now % self.freq)   # get the current timeframe (for freq = 60 -> seconds)
@@ -76,8 +78,7 @@ class EmoteCounter(object):
             self.callID = reactor.callLater(1, self.swapDummy, )
 
     def returnMinutecount(self, emote):
-        """Returns the Emotecount per minute"""
-
+        """Return the Emotecount per minute."""
         count = 0
 
         for i in range(len(self.minutestats)):
@@ -87,7 +88,6 @@ class EmoteCounter(object):
 
     def initTotalcount(self):
         """Check for TotalCountFile, else create one."""
-
         try:
             with open(STATISTIC_FILE) as file:
                 try:
@@ -106,7 +106,7 @@ class EmoteCounter(object):
             json.dump(emptylist, file, indent=4)
 
     def returnTotalcount(self, emote):
-        """Returns the Total count of an emote"""
+        """Return the Total count of an emote."""
         with open(STATISTIC_FILE) as file:
             totalcount = json.load(file)
 
@@ -116,7 +116,7 @@ class EmoteCounter(object):
             return
 
     def updateTotalcount(self, emotecount):
-        """Updates the total emote count."""
+        """Update the total emote count."""
         with open(STATISTIC_FILE) as file:
             totalcount = json.load(file)
 
@@ -128,7 +128,7 @@ class EmoteCounter(object):
             json.dump(newtotal, file, indent=4)
 
     def process_msg(self, msg):
-        """Process an incoming chatmessage"""
+        """Process an incoming chatmessage."""
         emotecount = self.countEmotes(msg)
 
         self.updateTotalcount(emotecount)
@@ -137,7 +137,7 @@ class EmoteCounter(object):
         self.addCountDicts(emotecount, self.dummycounter)
 
     def __init__(self, bot):
-        """Initialize emote count structure"""
+        """Initialize emote count structure."""
         self.bot = bot
         self.emotelist = self.bot.emotes
 

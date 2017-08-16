@@ -324,6 +324,7 @@ class TwitchBot(irc.IRCClient, object):
 
     def select_commands(self, perm):
         """If a game is active and plebcommands on colldown, only iterate through game list.
+
         If no game is active only allow 'passive games' a.k.a PyramidGame
         """
         if perm is 0:
@@ -513,7 +514,6 @@ class TwitchBot(irc.IRCClient, object):
 
     def getuserID(self, username):
         """Get the twitch-userTag from username."""
-
         return self.getuserTag(username)["users"][0]["_id"]
 
     def getuserEmotes(self, userID):
@@ -530,8 +530,7 @@ class TwitchBot(irc.IRCClient, object):
         return emotelist
 
     def accessToEmote(self, username, emote):
-        """Check if user has access to a certain emote"""
-
+        """Check if user has access to a certain emote."""
         userID = self.getuserID(username)
         emotelist = self.getuserEmotes(userID)
         for sets in emotelist:
@@ -551,7 +550,7 @@ class TwitchBot(irc.IRCClient, object):
             print("Channel object could not be fetched.")
 
     def setlast_plebgame(self, last_plebgame):
-        """Set timer of last_plebgame"""
+        """Set timer of last_plebgame."""
         self.last_plebgame = last_plebgame
 
 
