@@ -8,6 +8,7 @@ from twisted.internet import reactor
 from cleverwrap import CleverWrap
 import pyparsing
 from bot.minigames import MiniGames
+import time
 
 import re
 
@@ -1153,14 +1154,21 @@ def startGame(bot, user, msg, cmd):
     if bot.gameRunning:
         return False
     elif bot.get_permission(user) in [Permission.User, Permission.Subscriber] and msg == cmd:
-        # The calling user is not a mod, so we subtract 5 points.
-        if(bot.ranking.getPoints(user) > GAMESTARTP):
-            bot.ranking.incrementPoints(user, -GAMESTARTP, bot)
-            bot.gameRunning = True
-            return True
+        """Check if pleb_gametimer is not on cooldown."""
+        if ((time.time() - bot.last_plebgame) > bot.pleb_gametimer):
+            # The calling user is not a mod, so we subtract 5 points.
+            if(bot.ranking.getPoints(user) > GAMESTARTP):
+                bot.setlast_plebgame(time.time())      # Set pleb_gametimer
+                bot.ranking.incrementPoints(user, -GAMESTARTP, bot)
+                bot.gameRunning = True
+                return True
+            else:
+                bot.write("You need " + str(GAMESTARTP) + " points to start a game.")
+                return False
         else:
-            bot.write("You need " + str(GAMESTARTP) + " points to start a game.")
-            return False
+            t = bot.pleb_gametimer - time.time() + bot.last_plebgame
+            next_plebgame = "%8.0f" % t
+            bot.write("Only mods can start chatgames for another " + str(next_plebgame) + " seconds. monkaS")
     else:  # The calling user is a mod, so we only check if the command is correct
         if msg == cmd:
             bot.gameRunning = True
@@ -1340,8 +1348,8 @@ class MonkalotParty(Command):
                     self.answer = ""
                     bot.ranking.incrementPoints(user, 5, bot)
                     self.mp.uprank(user)
-                    if len(self.mp.games) > 0:
-                        self.callID = reactor.callLater(3, self.selectGame, bot)
+                    if len(self.mp.games) > 3:
+                        self.callID = reactor.callLater(6, self.selectGame, bot)
                     else:
                         self.gameWinners(bot)
                         self.close(bot)
