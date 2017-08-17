@@ -172,7 +172,7 @@ class TwitchBot(irc.IRCClient, object):
         if channel != self.channel:
             return
 
-        self.ranking.incrementPoints(name, 1)
+        self.ranking.incrementPoints(name, 1, self)
 
         # Check if bot is paused
         if not self.pause or name in self.owner_list or user in self.trusted_mods:

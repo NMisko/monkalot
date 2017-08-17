@@ -3,6 +3,7 @@
 import sqlite3
 import math
 import json
+import bot.bot
 
 DATABASE_PATH = "data/monkalot.db"
 
@@ -51,12 +52,25 @@ class Ranking():
         connection.close()
         return output
 
-    def incrementPoints(self, username, amount):
-        """Increment points of a user by a certain value."""
+    def incrementPoints(self, username, amount, bot):
+        """Increment points of a user by a certain value.
+        Check if the user reached legend in the process."""
         username = username.lower()
-        points = int(self.getPoints(username)) + amount
+        points = int(self.getPoints(username))
+
+        rank = self.getHSRank(points)
+        legend = "Legend" in rank
+
+        points += amount
+
         sql_command = "UPDATE points SET amount = ? WHERE username = ?;"
         self.executeCommand(sql_command, [points, username])
+
+        """Check for legend rank if user was not legend before."""
+        if legend is False:
+            rank = self.getHSRank(points)
+            if "Legend" in rank:
+                bot.write(bot.displayName(username) + " just reached " + rank + "!! PogChamp Clap")
 
     def getRank(self, points):
         """Get the absolute for a certain amount of points."""
@@ -87,7 +101,7 @@ class Ranking():
         if rank > 0:
             return str(rank)
         else:
-            return "Legend " + str(self.getRank(points))
+            return "Rank " + str(self.getRank(points)) + " Legend"
 
     def executeCommandGetConnection(self, sql_command, args):
         """Execute a command and return the cursor and connection.

@@ -645,13 +645,13 @@ class Pyramid(Command):
         if len(points) == 1:
             u = self.users[0]
             bot.write(bot.displayName(u) + " built a pyramid and " + bot.pronoun(u)[0] + " gets " + str(points[u]) + " spam points. PogChamp")
-            bot.ranking.incrementPoints(u, points[u])
+            bot.ranking.incrementPoints(u, points[u], bot)
         else:
             s = formatList(list(map(lambda x: bot.displayName(x), list(points.keys()))))  # calls bot.displayName on every user
             p = formatList(list(points.values()))
             bot.write("Teamwork! PogChamp " + s + " built a pyramid. They get " + p + " spam points. KappaClaus")
             for u in list(points.keys()):
-                bot.ranking.incrementPoints(u, points[u])
+                bot.ranking.incrementPoints(u, points[u], bot)
 
     def calculatePoints(self, bot):
         """Calculate the points users get for a pyramid."""
@@ -709,7 +709,7 @@ class KappaGame(Command):
             i = self.countEmotes(cmd, "Kappa")
             if i == self.n:
                 bot.write("/me " + bot.displayName(user) + " got it! It was " + str(self.n) + " Kappa s!")
-                bot.ranking.incrementPoints(user, KAPPAGAMEP)
+                bot.ranking.incrementPoints(user, KAPPAGAMEP, bot)
                 bot.gameRunning = False
                 self.active = False
             elif i != -1:
@@ -800,7 +800,7 @@ class GuessEmoteGame(Command):
 
             if cmd == self.emote:
                 bot.write("/me " + bot.displayName(user) + " got it! It was " + self.emote + " . " + bot.pronoun(user)[0].capitalize() + " gets " + str(EMOTEGAMEP) + " spam points.")
-                bot.ranking.incrementPoints(user, EMOTEGAMEP)
+                bot.ranking.incrementPoints(user, EMOTEGAMEP, bot)
                 bot.gameRunning = False
                 self.active = False
             elif cmd == "!emotes":
@@ -922,7 +922,7 @@ class GuessMinionGame(Command):
             name = self.minion['name'].strip()
             if cmd.strip().lower() == name.lower():
                 bot.write("/me " + bot.displayName(user) + " got it! It was " + name + ". " + bot.pronoun(user)[0].capitalize() + " gets " + str(MINIONGAMEP) + " spam points.")
-                bot.ranking.incrementPoints(user, MINIONGAMEP)
+                bot.ranking.incrementPoints(user, MINIONGAMEP, bot)
                 if is_callID_active(self.callID):
                     self.callID.cancel()
                 bot.gameRunning = False
@@ -1156,7 +1156,7 @@ def startGame(bot, user, msg, cmd):
     elif bot.get_permission(user) in [Permission.User, Permission.Subscriber] and msg == cmd:
         # The calling user is not a mod, so we subtract 5 points.
         if(bot.ranking.getPoints(user) > GAMESTARTP):
-            bot.ranking.incrementPoints(user, -GAMESTARTP)
+            bot.ranking.incrementPoints(user, -GAMESTARTP, bot)
             bot.gameRunning = True
             return True
         else:
@@ -1300,7 +1300,7 @@ class MonkalotParty(Command):
         else:
             for i in range(0, len(winners[0])):
                 s += bot.displayName(winners[0][i]) + " "
-                bot.ranking.incrementPoints(winners[0][i], winners[2])
+                bot.ranking.incrementPoints(winners[0][i], winners[2], bot)
 
             s += "got 1st place with " + str(winners[1]) + " points and get " + str(winners[2]) + " extra spampoints! PogChamp Clap"
 
@@ -1339,7 +1339,7 @@ class MonkalotParty(Command):
                 if cmd == self.answer:
                     bot.write("/me " + bot.displayName(user) + " got it first and gets 5 points. The answer was: " + self.answer)
                     self.answer = ""
-                    bot.ranking.incrementPoints(user, 5)
+                    bot.ranking.incrementPoints(user, 5, bot)
                     self.mp.uprank(user)
                     if len(self.mp.games) > 0:
                         self.callID = reactor.callLater(3, self.selectGame, bot)
