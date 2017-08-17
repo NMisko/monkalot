@@ -584,13 +584,12 @@ class Pyramid(Command):
         self.emojis = bot.emojis
         if self.count == 0:
             if len(msg.split(' ', 1)) == 1:     # Only let messages with one word through.
-                if (msg in self.emotes or msg in self.emojis or bot.accessToEmote(user, msg)):
-                    self.currentEmote = msg
-                    self.count = 1
-                    self.users.append(user)
+                self.currentEmote = msg
+                self.count = 1
+                self.users.append(user)
         elif self.count > 0:
             self.count = self.count + 1
-            if msg == self.pyramidLevel(self.currentEmote, self.count):
+            if msg == self.pyramidLevel(self.currentEmote, self.count) and (msg in self.emotes or msg in self.emojis or bot.accessToEmote(user, msg)):
                 self.users.append(user)
                 if(self.count == 5):  # 3 high pyramid
                     self.sendSuccessMessage(bot)
@@ -598,7 +597,7 @@ class Pyramid(Command):
                     self.count = 0
                 elif self.count == 2 and bot.pyramidBlock:  # block pyramid
                     self.blockPyramid(bot)
-            elif self.count == 3 and msg == self.pyramidLevel(self.currentEmote, 1):  # 2 high pyramid (pleb pyramid)
+            elif self.count == 3 and msg == self.pyramidLevel(self.currentEmote, 1) and (msg in self.emotes or msg in self.emojis or bot.accessToEmote(user, msg)):  # 2 high pyramid (pleb pyramid)
                 self.users.append(user)
                 self.successfulPlebPyramid(bot)
                 self.count = 0
