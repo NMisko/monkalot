@@ -684,6 +684,7 @@ class KappaGame(Command):
 
     active = False
     n = 0
+    answered = []
 
     def match(self, bot, user, msg):
         """Match if the game is active or gets started with !kstart by a user who pays 5 points."""
@@ -712,8 +713,11 @@ class KappaGame(Command):
                 bot.ranking.incrementPoints(user, KAPPAGAMEP, bot)
                 bot.gameRunning = False
                 self.active = False
+                self.answered = []
             elif i != -1:
-                bot.write("It's not " + str(i) + ". 4Head")
+                if i not in self.answered:
+                    bot.write("It's not " + str(i) + ". 4Head")
+                    self.answered.append(i)
 
     def countEmotes(self, msg, emote):
         """Count the number of emotes in a message."""
