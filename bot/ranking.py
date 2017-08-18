@@ -101,7 +101,7 @@ class Ranking():
         if rank > 0:
             return str(rank)
         else:
-            return "Rank " + str(self.getRank(points)) + " Legend"
+            return str(self.getRank(points)) + " Legend"
 
     def executeCommandGetConnection(self, sql_command, args):
         """Execute a command and return the cursor and connection.
