@@ -1,0 +1,14 @@
+{
+	"slap":[
+		"/me <user> slaps <target> with a large FishMoley !",
+		"/me <user> throws an anvil at <target>.",
+		"/me <target> gets crushed under a piano.",
+		"/me <target> gets caressed hardly by a picnic chair."
+	],
+	"hug":[
+		"/me <user> and <target> melt in affectionately in a warm embrace.",
+		"/me <user> and <target> decide to go on a cruise after feeling eachother's heartbeat.",
+		"@<target>: Do you need a hugjob?",
+		"@<target>: Shut up and hug me."
+	]
+}
