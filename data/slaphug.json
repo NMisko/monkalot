@@ -1,14 +1,21 @@
 {
 	"slap":[
 		"/me <user> slaps <target> with a large FishMoley !",
-		"/me <user> throws an anvil at <target>.",
-		"/me <target> gets crushed under a piano.",
-		"/me <target> gets caressed hardly by a picnic chair."
+		"/me <user> throws an anvil at <target>!",
+		"/me <target> gets crushed under a piano! :musical_keyboard:",
+		"/me <target> gets caressed hardly by a picnic chair!",
+		"/me <user> bitchslapped <target> so hard that even <t_pronoun2> ancestors turned dizzy!",
+		"/me <user> smacked <target>'s mouth with an old newspaper!",
+		"/me It was too late for <target> when <t_pronoun0> realised that <user> was coming from behind with a green gauntlet and mischevious intentions.",
+		"/me *Teleports behind <target>* Nothing personnel, kiddo! haHAA :hocho:"
 	],
 	"hug":[
 		"/me <user> and <target> melt in affectionately in a warm embrace.",
 		"/me <user> and <target> decide to go on a cruise after feeling eachother's heartbeat.",
-		"@<target>: Do you need a hugjob?",
-		"@<target>: Shut up and hug me."
+		"@<target>: Do you need a hugjob? FeelsHug",
+		"@<target>: Shut up and hug me! FeelsHug",
+		"/me After months of awkward glances, <user> decides to go and hug <target>. FeelsHug",
+		"/me <user> could not hold it any longer and went to hug <target> through the chat spam. FeelsHug",
+		"/me \"Hugs are worth a thousand words!\", said <user> when <u_pronoun0> embraced <u_pronoun2> friend <target>. FeelsHug"
 	]
 }

@@ -98,9 +98,28 @@ class SlapHug(Command):
     slapreply = replies["slap"]
     hugreply = replies["hug"]
 
-    def match(self, bot, user, msg):
-        """Match if command is !smorc."""
+    def replaceReply(self, bot, user, target, reply):
+        """Replace words in the reply string and return it."""
+        if "<user>" in reply:
+            reply = reply.replace("<user>", bot.displayName(user))
+        if "<target>" in reply:
+            reply = reply.replace("<target>", bot.displayName(target))
+        if "<u_pronoun0>" in reply:
+            reply = reply.replace("<u_pronoun0>", bot.pronoun(user)[0])
+        if "<u_pronoun1>" in reply:
+            reply = reply.replace("<u_pronoun1>", bot.pronoun(user)[1])
+        if "<u_pronoun2>" in reply:
+            reply = reply.replace("<u_pronoun2>", bot.pronoun(user)[2])
+        if "<t_pronoun0>" in reply:
+            reply = reply.replace("<t_pronoun0>", bot.pronoun(target)[0])
+        if "<t_pronoun1>" in reply:
+            reply = reply.replace("<t_pronoun1>", bot.pronoun(target)[1])
+        if "<t_pronoun2>" in reply:
+            reply = reply.replace("<t_pronoun2>", bot.pronoun(target)[2])
+        return reply
 
+    def match(self, bot, user, msg):
+        """Match if command is !slap/!hug <chatter>."""
         if (msg.lower().strip().startswith("!slap ") or msg.lower().strip().startswith("!hug ")):
             cmd = msg.split(" ")
             if len(cmd) == 2:
@@ -121,11 +140,7 @@ class SlapHug(Command):
         elif cmd[0].strip() == "!hug":
             reply = str(random.choice(self.hugreply))
 
-        if "<user>" in reply:
-            reply = reply.replace("<user>", bot.displayName(user))
-        if "<target>" in reply:
-            reply = reply.replace("<target>", bot.displayName(target))
-
+        reply = self.replaceReply(bot, user, target, reply)
         bot.write(reply)
 
 
