@@ -15,6 +15,7 @@ import re
 QUOTES_FILE = 'data/quotes.json'
 REPLIES_FILE = 'data/sreply_cmds.json'
 SMORC_FILE = 'data/smorc.json'
+SLAPHUG_FILE = 'data/slaphug.json'
 
 with open('configs/bot_config.json') as fp:
     CONFIG = json.load(fp)
@@ -83,6 +84,49 @@ class Smorc(Command):
     def run(self, bot, user, msg):
         """Answer with random smorc."""
         bot.write(random.choice(self.replies))
+
+
+class SlapHug(Command):
+    """Slap or hug a user."""
+
+    perm = Permission.User
+
+    """load command list"""
+    with open(SLAPHUG_FILE) as file:
+        replies = json.load(file)
+
+    slapreply = replies["slap"]
+    hugreply = replies["hug"]
+
+    def match(self, bot, user, msg):
+        """Match if command is !smorc."""
+
+        if (msg.lower().strip().startswith("!slap ") or msg.lower().strip().startswith("!hug ")):
+            cmd = msg.split(" ")
+            if len(cmd) == 2:
+                target = cmd[1].lower().strip()
+                """Check if user is in chat."""
+                if target in bot.users and target is not bot.nickname.lower():
+                    return True
+        return False
+
+    def run(self, bot, user, msg):
+        """Answer with random slap or hug to a user."""
+        bot.antispeech = True
+        cmd = msg.lower().strip().split(" ")
+        target = cmd[1].lower().strip()
+
+        if cmd[0].strip() == "!slap":
+            reply = str(random.choice(self.slapreply))
+        elif cmd[0].strip() == "!hug":
+            reply = str(random.choice(self.hugreply))
+
+        if "<user>" in reply:
+            reply = reply.replace("<user>", bot.displayName(user))
+        if "<target>" in reply:
+            reply = reply.replace("<target>", bot.displayName(target))
+
+        bot.write(reply)
 
 
 class SimpleReply(Command):

@@ -3,7 +3,6 @@
 import sqlite3
 import math
 import json
-import bot.bot
 
 DATABASE_PATH = "data/monkalot.db"
 

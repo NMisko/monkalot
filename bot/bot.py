@@ -463,6 +463,7 @@ class TwitchBot(irc.IRCClient, object):
             cmds.PyramidReply(self),
             cmds.EmoteReply(self),
             cmds.Smorc(self),
+            cmds.SlapHug(self),
             cmds.Rank(self),
             cmds.EditCommandMods(self),
             cmds.Pronouns(self),
