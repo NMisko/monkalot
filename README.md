@@ -14,9 +14,11 @@ You then copy this project in a folder, configure the bot and run `monkalot.py`.
 Make sure to modify the following values in `bot_config.json`:
 - `channel`: Twitch channel which the bot will run on
 - `username`: The bot's Twitch user
+- `clientID`: Twitch ClientID for API calls.
 - `oauth_key`: IRC oauth_key for the bot user (from [here](http://twitchapps.com/tmi/))
 - `owner_list`: List of Twitch users which have admin powers on bot
 - `ignore_list`: List of Twitch users which will be ignored by the bot
+- `cleverbot_key`: Cleverbot API Key for native speech.
 
 **Warning**: Make sure all channel and user names above are in lowercase.
 
