@@ -4,7 +4,7 @@ from bot.math_parser import NumericStringParser
 import random
 from random import shuffle
 import json
-from twisted.internet import reactor, threads
+from twisted.internet import reactor
 from cleverwrap import CleverWrap
 import pyparsing
 from bot.minigames import MiniGames
@@ -748,7 +748,7 @@ class KappaGame(Command):
         else:
             if msg == "!kstop" and bot.get_permission(user) not in [Permission.User, Permission.Subscriber]:
                 self.close(bot)
-                bot.write("Stopping game.")
+                bot.write("Stopping the Kappa game! FeelsBadMan")
                 return
 
             i = self.countEmotes(cmd, "Kappa")
@@ -842,7 +842,7 @@ class GuessEmoteGame(Command):
             bot.write("/me The 'Guess The Emote Game' has started. Write one of the following emotes to start playing: " + EmoteListToString(self.emotes))
         else:
             if cmd == "!estop" and bot.get_permission(user) not in [Permission.User, Permission.Subscriber]:
-                bot.write("Stopping game.")
+                bot.write("Stopping the Emote Game! FeelsBadMan")
                 self.close(bot)
                 return
 
@@ -912,26 +912,26 @@ class GuessMinionGame(Command):
 
         """ Write a clue in chat. Some set names have to be renamed. """
         if(stat == "cardClass"):
-            bot.write("The minion is a " + str(self.minion[stat]).lower() + " card.")
+            bot.write("/me The minion is a " + str(self.minion[stat]).lower() + " card.")
         elif(stat == "set"):
             if self.minion[stat] in self.statToSet:
                 setname = self.statToSet[self.minion[stat]]
             else:
                 setname = str(self.minion[stat])
-            bot.write("The card is from the '" + setname + "' set.")
+            bot.write("/me The card is from the '" + setname + "' set.")
         elif(stat == "name"):
-            bot.write("The name of the card starts with \'" + str(self.minion[stat][0]) + "\'.")
+            bot.write("/me The name of the card starts with \'" + str(self.minion[stat][0]) + "\'.")
         elif(stat == "rarity"):
-            bot.write("The minion is a \'" + str(self.minion[stat]).lower() + "\' card.")
+            bot.write("/me The minion is a \'" + str(self.minion[stat]).lower() + "\' card.")
         elif(stat == "attack"):
-            bot.write("The minion has " + str(self.minion[stat]) + " attackpower.")
+            bot.write("/me The minion has " + str(self.minion[stat]) + " attackpower.")
         elif(stat == "cost"):
-            bot.write("The card costs " + str(self.minion[stat]) + " mana.")
+            bot.write("/me The card costs " + str(self.minion[stat]) + " mana.")
         elif(stat == "health"):
             if(self.minion[stat] == 1):
-                bot.write("The minion has " + str(self.minion[stat]) + " healthpoint.")
+                bot.write("/me The minion has " + str(self.minion[stat]) + " healthpoint.")
             else:
-                bot.write("The minion has " + str(self.minion[stat]) + " healthpoints.")
+                bot.write("/me The minion has " + str(self.minion[stat]) + " healthpoints.")
 
         """Start of threading"""
         self.callID = reactor.callLater(self.cluetime, self.giveClue, bot)
@@ -964,19 +964,14 @@ class GuessMinionGame(Command):
         else:
             if cmd == "!mstop" and bot.get_permission(user) not in [Permission.User, Permission.Subscriber]:
                 self.close(bot)
-                bot.write("Stopping game.")
+                bot.write("Stopping the Minion Game! FeelsBadMan")
                 return
 
             name = self.minion['name'].strip()
             if cmd.strip().lower() == name.lower():
                 bot.write("/me " + bot.displayName(user) + " got it! It was " + name + ". " + bot.pronoun(user)[0].capitalize() + " gets " + str(MINIONGAMEP) + " spam points.")
                 bot.ranking.incrementPoints(user, MINIONGAMEP, bot)
-                if is_callID_active(self.callID):
-                    self.callID.cancel()
-                bot.gameRunning = False
-                self.active = False
-            elif cmd == ("!clue"):
-                self.giveClue(bot)
+                self.close(bot)
 
     def close(self, bot):
         """Close minion game."""
@@ -1199,6 +1194,7 @@ class Speech(Command):
             """Get reply in extra thread, so bot doesnt pause while waiting for the reply."""
             reactor.callInThread(self.getReply, bot, user, msg)
 
+
 def startGame(bot, user, msg, cmd):
     """Return whether a user can start a game.
 
@@ -1368,9 +1364,9 @@ class MonkalotParty(Command):
         bot.write(s)
 
     def match(self, bot, user, msg):
-        """For now only admins and trusted mods can start this game."""
+        """Match if active or '!pstart'."""
         cmd = msg.lower()
-        if self.active or (cmd == '!pstart' and (bot.get_permission(user) == 3 or user in bot.trusted_mods)):
+        if self.active or cmd == '!pstart':
             return True
 
     def run(self, bot, user, msg):
@@ -1389,9 +1385,9 @@ class MonkalotParty(Command):
             """Start of threading"""
             self.callID = reactor.callLater(5, self.selectGame, bot)
         else:
-            if cmd.lower() == "!pstop" and (bot.get_permission(user) == 3 or user in bot.trusted_mods):
+            if cmd.lower() == "!pstop" and (bot.get_permission(user) > 0):
                 self.close(bot)
-                bot.write("Stopping Monkalot Party. FeelsBadMan")
+                bot.write("Stopping Monkalot Party! FeelsBadMan")
                 return
             if self.answer != "":    # If we are not between games.
                 if self.answer not in bot.emotes:   # If not an emote compare in lowercase.
