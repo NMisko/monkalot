@@ -4,7 +4,7 @@ from bot.math_parser import NumericStringParser
 import random
 from random import shuffle
 import json
-from twisted.internet import reactor
+from twisted.internet import reactor, threads
 from cleverwrap import CleverWrap
 import pyparsing
 from bot.minigames import MiniGames
@@ -1168,6 +1168,14 @@ class Speech(Command):
 
     perm = Permission.User
     cw = ""
+    output = ""
+
+    def getReply(self, bot, user, msg):
+        """Get reply from cleverbot and post it in the channel."""
+        output = self.cw.say(msg)
+        if not random.randint(0, 3):
+            output = output + " monkaS"
+        bot.write("@" + user + " " + output)
 
     def __init__(self, bot):
         """Initialize the command."""
@@ -1187,11 +1195,9 @@ class Speech(Command):
             msg = msg.lower()
             msg = msg.replace("@", '')
             msg = msg.replace(bot.nickname, '')
-            output = self.cw.say(msg)
-            if not random.randint(0, 3):
-                output = output + " monkaS"
-            bot.write("@" + user + " " + output)
 
+            """Get reply in extra thread, so bot doesnt pause while waiting for the reply."""
+            reactor.callInThread(self.getReply, bot, user, msg)
 
 def startGame(bot, user, msg, cmd):
     """Return whether a user can start a game.
