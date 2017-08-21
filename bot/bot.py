@@ -418,8 +418,7 @@ class TwitchBot(irc.IRCClient, object):
             elif int(months) > 1:
                 reply = "PogChamp {}, thank you for subbing with {} Welcome back for {} years! PogChamp".format(user, plan[subtype], months)
 
-            #self.write(reply)
-            print(reply)
+            self.write(reply)
 
     def get_active_users(self, t=60*10):
         """Return list of users active in chat in the past t seconds (default: 10m)."""
