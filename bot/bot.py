@@ -156,11 +156,6 @@ class TwitchBot(irc.IRCClient, object):
         # Extract twitch name
         name = user.split('!', 1)[0]
 
-        # Catch twitch specific commands
-        if name in ["jtv", "twitchnotify"]:
-            self.jtv_command(msg)
-            return
-
         # Log the message
         logging.info("{}: {}".format(name, msg))
 
@@ -246,6 +241,8 @@ class TwitchBot(irc.IRCClient, object):
             self.notice(tags, args)
         elif cmd == "privmsg":
             self.userState(prefix, tags)
+        elif cmd == "usernotice":
+            self.jtv_command(tags)
 
         # Remove tag information
         if line[0] == "@":
@@ -396,20 +393,33 @@ class TwitchBot(irc.IRCClient, object):
             # Say something as the bot
             self.write(cmd[2:])
 
-    def jtv_command(self, msg):
+    def jtv_command(self, tags):
         """Send a message when someone subscribes."""
+        plan = {
+            "Prime": "Twitch Prime!! SeemsGood",
+            "1000": "4,99$!! VoHiYo",
+            "2000": "9,99$!! FeelsGoodMan",
+            "3000": "24,99$!! Jebaited"
+        }
+
+        msg = tags['system-msg']
+        user = tags['display-name']
+        msg_id = tags['msg-id']
+        months = tags['msg-param-months']
+        subtype = tags['msg-param-sub-plan']
+
+        msg = msg.replace("\s", " ")
         if "subscribed" in msg:
-            # Someone subscribed
+            """Someone just subscribed."""
             logging.warning(msg)
 
-            reply = "Thanks for subbing!"
-            if " just subscribed" in msg:
-                user = msg.split(' just ')[0]
-                reply = "{}: {}".format(user, reply)
-            elif " subscribed for" in msg:
-                user = msg.split(" subscribed for")[0]
-                reply = "{}: {}".format(user, reply)
-            self.write(reply)
+            if int(months) == 1:
+                reply = "<3 {}, thank you for subbing with {} Welcome to the channel! <3".format(user, plan[subtype])
+            elif int(months) > 1:
+                reply = "PogChamp {}, thank you for subbing with {} Welcome back for {} years! PogChamp".format(user, plan[subtype], months)
+
+            #self.write(reply)
+            print(reply)
 
     def get_active_users(self, t=60*10):
         """Return list of users active in chat in the past t seconds (default: 10m)."""
