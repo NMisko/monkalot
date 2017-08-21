@@ -531,9 +531,9 @@ class TwitchBot(irc.IRCClient, object):
         """Get the emotes a user can use from userID without the global emoticons."""
         url = "https://api.twitch.tv/kraken/users/{}/emotes".format(userID)
         headers = {'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': self.clientID, 'Authorization': self.password}
-
+        data = requests.get(url, headers=headers).json()
         try:
-            emotelist = requests.get(url, headers=headers).json()['emoticon_sets']
+            emotelist = data['emoticon_sets']
         except IndexError or KeyError:
             print("Error in getting emotes from userID")
 
