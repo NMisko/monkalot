@@ -17,17 +17,6 @@ REPLIES_FILE = 'data/sreply_cmds.json'
 SMORC_FILE = 'data/smorc.json'
 SLAPHUG_FILE = 'data/slaphug.json'
 
-with open('configs/bot_config.json') as fp:
-    CONFIG = json.load(fp)
-
-KAPPAGAMEP = CONFIG["points"]["kappa_game"]
-EMOTEGAMEEMOTES = CONFIG["EmoteGame"]
-EMOTEGAMEP = CONFIG["points"]["emote_game"]
-MINIONGAMEP = CONFIG["points"]["minion_game"]
-PYRAMIDP = CONFIG["points"]["pyramid"]
-GAMESTARTP = CONFIG["points"]["game_start"]
-AUTO_GAME_INTERVAL = CONFIG["auto_game_interval"]
-
 
 class Permission:
     """Twitch permissions."""
@@ -715,7 +704,7 @@ class Pyramid(Command):
     def calculatePoints(self, bot):
         """Calculate the points users get for a pyramid."""
         m = {}
-        points = PYRAMIDP
+        points = bot.PYRAMIDP
         for i in range(1, 6):
             user = self.users[i-1]
 
@@ -769,7 +758,7 @@ class KappaGame(Command):
             i = self.countEmotes(cmd, "Kappa")
             if i == self.n:
                 bot.write("/me " + bot.displayName(user) + " got it! It was " + str(self.n) + " Kappa s!")
-                bot.ranking.incrementPoints(user, KAPPAGAMEP, bot)
+                bot.ranking.incrementPoints(user, bot.KAPPAGAMEP, bot)
                 bot.gameRunning = False
                 self.active = False
                 self.answered = []
@@ -835,7 +824,7 @@ class GuessEmoteGame(Command):
                     i += 1
         else:
             """Get emotes from config-file."""
-            emotelist = EMOTEGAMEEMOTES
+            emotelist = bot.EMOTEGAMEEMOTES
 
         """Shuffle list and choose a winning emote."""
         shuffle(emotelist)
@@ -862,8 +851,8 @@ class GuessEmoteGame(Command):
                 return
 
             if cmd == self.emote:
-                bot.write("/me " + bot.displayName(user) + " got it! It was " + self.emote + " . " + bot.pronoun(user)[0].capitalize() + " gets " + str(EMOTEGAMEP) + " spam points.")
-                bot.ranking.incrementPoints(user, EMOTEGAMEP, bot)
+                bot.write("/me " + bot.displayName(user) + " got it! It was " + self.emote + " . " + bot.pronoun(user)[0].capitalize() + " gets " + str(bot.EMOTEGAMEP) + " spam points.")
+                bot.ranking.incrementPoints(user, bot.EMOTEGAMEP, bot)
                 bot.gameRunning = False
                 self.active = False
             elif cmd == "!emotes":
@@ -984,8 +973,8 @@ class GuessMinionGame(Command):
 
             name = self.minion['name'].strip()
             if cmd.strip().lower() == name.lower():
-                bot.write("/me " + bot.displayName(user) + " got it! It was " + name + ". " + bot.pronoun(user)[0].capitalize() + " gets " + str(MINIONGAMEP) + " spam points.")
-                bot.ranking.incrementPoints(user, MINIONGAMEP, bot)
+                bot.write("/me " + bot.displayName(user) + " got it! It was " + name + ". " + bot.pronoun(user)[0].capitalize() + " gets " + str(bot.MINIONGAMEP) + " spam points.")
+                bot.ranking.incrementPoints(user, bot.MINIONGAMEP, bot)
                 self.close(bot)
 
     def close(self, bot):
@@ -1001,7 +990,6 @@ class AutoGames(Command):
 
     perm = Permission.Moderator
     active = False
-    time = AUTO_GAME_INTERVAL  # time until a random game starts
     callID = None
 
     def randomGame(self, bot):
@@ -1023,7 +1011,7 @@ class AutoGames(Command):
             bot.process_command(user, cmd)
 
         """ start of threading """
-        self.callID = reactor.callLater(self.time, self.randomGame, bot)
+        self.callID = reactor.callLater(bot.AUTO_GAME_INTERVAL, self.randomGame, bot)
 
     def match(self, bot, user, msg):
         """Match if message starts with !games."""
@@ -1222,13 +1210,13 @@ def startGame(bot, user, msg, cmd):
         """Check if pleb_gametimer is not on cooldown."""
         if ((time.time() - bot.last_plebgame) > bot.pleb_gametimer):
             # The calling user is not a mod, so we subtract 5 points.
-            if(bot.ranking.getPoints(user) > GAMESTARTP):
+            if(bot.ranking.getPoints(user) > bot.GAMESTARTP):
                 bot.setlast_plebgame(time.time())      # Set pleb_gametimer
-                bot.ranking.incrementPoints(user, -GAMESTARTP, bot)
+                bot.ranking.incrementPoints(user, -bot.GAMESTARTP, bot)
                 bot.gameRunning = True
                 return True
             else:
-                bot.write("You need " + str(GAMESTARTP) + " points to start a game.")
+                bot.write("You need " + str(bot.GAMESTARTP) + " points to start a game.")
                 return False
         else:
             t = bot.pleb_gametimer - time.time() + bot.last_plebgame

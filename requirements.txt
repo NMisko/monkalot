@@ -4,3 +4,4 @@ twisted
 six
 pyparsing
 colorlog
+bottle

@@ -8,16 +8,23 @@ import bot.bot
 import time
 import logging
 import logging.config
+import argparse
 from importlib import reload
 
 
 logging.config.fileConfig('configs/logging.conf')
+
+parser = argparse.ArgumentParser(description="Start the bot.")
+parser.add_argument("-p", help="Port for the api webserver. If no port is given, no webserver is started.")
+args = parser.parse_args()
+port = args.p
 
 
 class BotFactory(protocol.ClientFactory):
     """BotFactory for connecting to a protocol."""
 
     protocol = bot.bot.TwitchBot
+    protocol.port = port
 
     tags = defaultdict(dict)
     activity = dict()
@@ -27,7 +34,8 @@ class BotFactory(protocol.ClientFactory):
         """Log and reload bot."""
         logging.error("Lost connection, reconnecting")
 
-        self.protocol = reload(bot.bot).TwitchBot  # noqa
+        self.protocol = reload(bot.bot).TwitchBot
+        protocol.port = port
 
         connector.connect()
 

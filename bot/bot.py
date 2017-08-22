@@ -16,6 +16,7 @@ import json
 import time
 from six.moves import input
 from importlib import reload
+from bot.web import WebAPI
 
 
 USERLIST_API = "http://tmi.twitch.tv/group/user/{}/chatters"
@@ -25,26 +26,13 @@ CHANNEL_BTTVEMOTES_API = "http://api.betterttv.net/2/channels/{}"
 HEARTHSTONE_CARD_API = "http://api.hearthstonejson.com/v1/latest/enUS/cards.collectible.json"
 EMOJI_API = "https://raw.githubusercontent.com/github/gemoji/master/db/emoji.json"
 
-with open('configs/bot_config.json') as fp:
-    CONFIG = json.load(fp)
-
 TRUSTED_MODS_PATH = 'data/trusted_mods.json'
 PRONOUNS_PATH = 'data/pronouns.json'
-PLEB_COOLDOWN = CONFIG["pleb_cooldown"]
-PLEB_GAMETIMER = CONFIG["pleb_gametimer"]
+CONFIG_PATH = 'configs/bot_config.json'
 
 
 class TwitchBot(irc.IRCClient, object):
     """TwitchBot extends the IRCClient to interact with Twitch.tv."""
-
-    last_warning = defaultdict(int)
-    owner_list = CONFIG['owner_list']
-    ignore_list = CONFIG['ignore_list']
-    nickname = str(CONFIG['username'])
-    clientID = str(CONFIG['clientID'])
-    password = str(CONFIG['oauth_key'])
-    cleverbot_key = str(CONFIG['cleverbot_key'])
-    channel = "#" + str(CONFIG['channel'])
 
     trusted_mods_path = TRUSTED_MODS_PATH
     pronouns_path = PRONOUNS_PATH
@@ -55,12 +43,45 @@ class TwitchBot(irc.IRCClient, object):
     gameRunning = False
     antispeech = False   # if a command gets executed which conflicts with native speech
     pyramidBlock = False
-    pleb_cooldowntime = PLEB_COOLDOWN  # time between non-sub commands
-    pleb_gametimer = PLEB_GAMETIMER    # time between pleb games
-    last_plebcmd = time.time() - pleb_cooldowntime
-    last_plebgame = time.time() - pleb_gametimer
-
     ranking = bot.ranking.Ranking()
+
+    def __init__(self):
+        """Start WEB API."""
+        self.reloadConfig()
+        if self.port is not None:
+            self.web = WebAPI(self, self.port)
+
+    def setConfig(self, config):
+        """Write the config file and reload."""
+        with open(CONFIG_PATH, 'w') as file:
+            json.dump(config, file, indent=4)
+        self.reloadConfig()
+
+    def reloadConfig(self):
+        """Reload the entire config."""
+        with open('configs/bot_config.json') as fp:
+            CONFIG = json.load(fp)
+        self.last_warning = defaultdict(int)
+        self.owner_list = CONFIG['owner_list']
+        self.ignore_list = CONFIG['ignore_list']
+        self.nickname = str(CONFIG['username'])
+        self.clientID = str(CONFIG['clientID'])
+        self.password = str(CONFIG['oauth_key'])
+        self.cleverbot_key = str(CONFIG['cleverbot_key'])
+        self.channel = "#" + str(CONFIG['channel'])
+        self.pleb_cooldowntime = CONFIG["pleb_cooldown"]  # time between non-sub commands
+        self.pleb_gametimer = CONFIG["pleb_gametimer"]  # time between pleb games
+        self.last_plebcmd = time.time() - self.pleb_cooldowntime
+        self.last_plebgame = time.time() - self.pleb_gametimer
+        self.config = CONFIG
+        self.KAPPAGAMEP = CONFIG["points"]["kappa_game"]
+        self.EMOTEGAMEEMOTES = CONFIG["EmoteGame"]
+        self.EMOTEGAMEP = CONFIG["points"]["emote_game"]
+        self.MINIONGAMEP = CONFIG["points"]["minion_game"]
+        self.PYRAMIDP = CONFIG["points"]["pyramid"]
+        self.GAMESTARTP = CONFIG["points"]["game_start"]
+        self.AUTO_GAME_INTERVAL = CONFIG["auto_game_interval"]
+        self.reload_commands()
 
     with open(TRUSTED_MODS_PATH) as fp:
         trusted_mods = json.load(fp)
@@ -404,7 +425,7 @@ class TwitchBot(irc.IRCClient, object):
 
         msg = tags['system-msg']
         user = tags['display-name']
-        msg_id = tags['msg-id']
+        # msg_id = tags['msg-id']
         months = tags['msg-param-months']
         subtype = tags['msg-param-sub-plan']
 
@@ -500,6 +521,9 @@ class TwitchBot(irc.IRCClient, object):
     def terminate(self):
         """Terminate bot."""
         self.close_commands()
+        if self.port is not None:
+            self.web.stop()
+
         reactor.stop()
 
     def displayName(self, user):
