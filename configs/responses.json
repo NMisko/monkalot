@@ -1,364 +1,377 @@
 {
-    "jtv_command": [
-        {
-            "id": "0",
-            "msg": "<3 <USER>, thank you for subbing with <SUBPLAN> Welcome to the channel! <3",
-            "args": {
-                "<SUBPLAN>":{
-                    "Prime": "Twitch Prime!! SeemsGood",
-                    "1000": "4,99$!! VoHiYo",
-                    "2000": "9,99$!! FeelsGoodMan",
-                    "3000": "24,99$!! Jebaited"
-                }
+    "jtv_command": {
+        "msg_standard": {
+            "msg": "<3 {}, thank you for subbing with {} Welcome to the channel! <3",
+            "info": "Message that gets posted when a viewer subscribes to the channel for the first time.",
+            "args_info": {
+                "user": "User who subribed to the channel.",
+                "subplan": "Type of subscription (Twitch Prime, 4,99€, etc.)"
+            }
+        },
+        "msg_with_months": {
+            "msg": "PogChamp {}, thank you for subbing with {} Welcome back for {} years! PogChamp",
+            "info": "Message that gets posted when a viewer resubscribes to the channel.",
+            "args_info": {
+                "user": "User who resubribed to the channel.",
+                "subplan": "Type of subscription (Twitch Prime, 4,99€, etc.)",
+                "months": "Amount of months the user is subscribed to the channel."
+            }
+        },
+        "subplan": {
+            "msg": {
+                "Prime": "Twitch Prime!! SeemsGood",
+                "1000": "4,99$!! VoHiYo",
+                "2000": "9,99$!! FeelsGoodMan",
+                "3000": "24,99$!! Jebaited"
             },
-            "info": "Message that gets posted when a viewer subscribes to the channel for the first time."
-        },
-        {
-            "id": "1",
-            "msg": "PogChamp <USER>, thank you for subbing with <SUBPLAN> Welcome back for <MONTHS> years! PogChamp",
-            "args": {
-                "<SUBPLAN>":{
-                    "Prime": "Twitch Prime!! SeemsGood",
-                    "1000": "4,99$!! VoHiYo",
-                    "2000": "9,99$!! FeelsGoodMan",
-                    "3000": "24,99$!! Jebaited"
-                }
-            },
-            "info": "Message that gets posted when a viewer resubscribes to the channel."
+            "info": "Arguments for subscribtion/resubscription messages.",
+            "args_info": ""
+    },
+    "EmoteReply": {
+        "call_reply": {
+            "msg": "{} NOW {} THIS {} IS {} WHAT {} I {} CALL {}",
+            "info": "Reply for '!call'-command. Followed by the text specified by the user.",
+            "args_info": {
+                "emote": "Emote that gets used in the call command."
+            }
         }
-    ],
-    "EmoteReply": [
-        {
-            "id": "0",
-            "msg": "<EMOTE> NOW <EMOTE> THIS <EMOTE> IS <EMOTE> WHAT <EMOTE> I <EMOTE> CALL <EMOTE>",
-            "args": {},
-            "info": "Reply for '!call'-command. Followed by the text specified by the user."
-        }
-    ],
-    "outputStats": [
-        {
-            "id": "0",
-            "msg": "Total <EMOTE> 's on this channel: <COUNT>",
-            "args": {},
-            "info": "Reply for total emote count. ('!total <EMOTE>')"
+    },
+    "outputStats": {
+        "total_reply": {
+            "msg": "Total {} 's on this channel: {}",
+            "info": "Reply for total emote count. ('!total <EMOTE>')",
+            "args_info": {
+                "emote": "Emote that user wants to get information about.",
+                "count": "Total amount of emotes posted in this channel."
+            }
         },
-        {
-            "id": "1",
-            "msg": "<EMOTE> 's per minute: <COUNT>",
-            "args": {},
-            "info": "Reply for emotes per minute count. ('!minute <EMOTE>')"
+        "minute_reply": {
+            "msg": "{} 's per minute: {}",
+            "info": "Reply for emotes per minute count. ('!minute <EMOTE>')",
+            "args_info": {
+                "emote": "Emote that user wants to get information about.",
+                "count": "Amount of emotes posted in the last minute in this channel."
+            }
         }
-    ],
-    "outputQuote": [
-        {
-            "id": "0",
-            "msg": "Quote not found. Try: !quote [1 - <N_QUOTES>]",
-            "args": {},
-            "info": "Reply if user specified a quote number that is not in the list."
+    },
+    "outputQuote": {
+        "not_found": {
+            "msg": "Quote not found. Try: !quote [1 - {}]",
+            "info": "Reply if user specified a quote number that is not in the list.",
+            "args_info": {
+                "n_quotes": "Total amount of available quotes."
+            }
         },
-        {
-            "id": "1",
+        "wrong_input": {
             "msg": "Wrong input for , try !quote <number>",
-            "args": {},
-            "info": "Reply if user uses wrong kind of input for '!quote <NUMBER>'."
+            "info": "Reply if user uses wrong kind of input for '!quote <NUMBER>'.",
+            "args_info": {}
         }
-    ],
-    "editQuoteList": [
-        {
-            "id": "0",
+    },
+    "editQuoteList": {
+        "quote_added": {
             "msg": "Quote has been added. FeelsGoodMan",
-            "args": {},
-            "info": "Reply if a quote has been added. ('!addquote <QUOTE>')"
+            "info": "Reply if a quote has been added. ('!addquote <QUOTE>')",
+            "args_info": {}
         },
-        {
-            "id": "1",
+        "quote_exists": {
             "msg": "Quote is already in the list. :thinking:",
-            "args": {},
-            "info": "Reply if user tries to add a quote that's already in the list."
+            "info": "Reply if user tries to add a quote that's already in the list.",
+            "args_info": {}
         },
-        {
-            "id": "2",
+        "quote_removed": {
             "msg": "Quote has been removed. FeelsBadMan",
-            "args": {},
-            "info": "Reply if a quote has been deleted. ('!delquote <QUOTE>')"
+            "info": "Reply if a quote has been deleted. ('!delquote <QUOTE>')",
+            "args_info": {}
         },
-        {
-            "id": "3",
+        "quote_not_found": {
             "msg": "Quote not found. :thinking:",
-            "args": {},
-            "info": "Reply if user tries to remove a quote that's not in the list."
+            "info": "Reply if user tries to remove a quote that's not in the list.",
+            "args_info": {}
         }
-    ],
-    "Calculator": [
-        {
-            "id": "0",
-            "msg": "@<USER> AjhHdjsTmab beep boop can_not-Calcuasdjnasjd---SHUTTING DOWN....... Just kidding 4Head",
-            "args": {},
-            "info": "Reply if user tries to devide by zero."
+    },
+    "Calculator": {
+        "div_by_zero": {
+            "msg": "@{} AjhHdjsTmab beep boop can_not-Calcuasdjnasjd---SHUTTING DOWN....... Just kidding 4Head",
+            "info": "Reply if user tries to devide by zero.",
+            "args_info": {
+                "user": "User who used the command."
+            }
         },
-        {
-            "id": "1",
-            "msg": "@<USER> It's too big Kreygasm",
-            "args": {},
-            "info": "Reply if the calculation yields a too large number."
+        "number_overflow": {
+            "msg": "@{} It's too big Kreygasm",
+            "info": "Reply if the calculation yields a too large number.",
+            "args_info": {
+                "user": "User who used the command."
+            }
         },
-        {
-            "id": "2",
-            "msg": "@<USER> ??? 4Head",
-            "args": {},
-            "info": "Reply if wrong input in '!calc' command."
+        "wrong_input": {
+            "msg": "@{} ??? 4Head",
+            "info": "Reply if wrong input in '!calc' command.",
+            "args_info": {
+                "user": "User who used the command."
+            }
         }
-    ],
-    "PyramidBlock": [
-        {
-            "id": "0",
+    },
+    "PyramidBlock": {
+        "block_activate": {
             "msg": "Blocking pyramids now. monkaS",
-            "args": {},
-            "info": "Write message if PyramidBlock gets activated."
+            "info": "Write message if PyramidBlock gets activated.",
+            "args_info": {}
         },
-        {
-            "id": "1",
+        "block_already_on": {
             "msg": "I'm already blocking pyramids. DansGame",
-            "args": {},
-            "info": "Write message if user tries to activate PyramidBlock while it's already on."
+            "info": "Write message if user tries to activate PyramidBlock while it's already on.",
+            "args_info": {}
         },
-        {
-            "id": "2",
+        "block_deactivate": {
             "msg": "No longer blocking pyramids. FeelsBadMan",
-            "args": {},
-            "info": "Write message if PyramidBlock gets deactivated."
+            "info": "Write message if PyramidBlock gets deactivated.",
+            "args_info": {}
         },
-        {
-            "id": "3",
+        "block_already_off": {
             "msg": "I wasn't blocking pyramids. DansGame",
-            "args": {},
-            "info": "Write message if user tries to deactivate PyramidBlock while it's not on."
+            "info": "Write message if user tries to deactivate PyramidBlock while it's not on.",
+            "args_info": {}
         }
-    ],
-    "Pyramid": [
-        {
-            "id": "0",
-            "msg": "<PYRAMIDBLOCKS>",
-            "args": {
-                "<PYRAMIDBLOCKS>":[
-                    "A pyramid (from Greek: πυραμίς pyramis)[1][2] is a structure whose outer surfaces are triangular and converge to a single point at the top, making the shape roughly a pyramid in the geometric sense.",
-                    "no 4Head",
-                    "Almost a pyramid PogChamp",
-                    "Not on my watch OpieOP",
-                    "Sorry, did I interrupt you? monkaS",
-                    "(⌐■_■)–︻╦╤─ TheIlluminati",
-                    "LUL"
-                ]
-            },
-            "info": "Pyramid block messages while PyramidBlock is on."
+    },
+    "Pyramid": {
+        "pyramidblocks": {
+            "msg": [
+                "A pyramid (from Greek: πυραμίς pyramis)[1][2] is a structure whose outer surfaces are triangular and converge to a single point at the top, making the shape roughly a pyramid in the geometric sense.",
+                "no 4Head",
+                "Almost a pyramid PogChamp",
+                "Not on my watch OpieOP",
+                "Sorry, did I interrupt you? monkaS",
+                "(⌐■_■)–︻╦╤─ TheIlluminati",
+                "LUL"
+            ],
+            "info": "Pyramid block messages while PyramidBlock is on.",
+            "args_info": {}
         },
-        {
-            "id": "1",
-            "msg": "Wow, <USER> built a pleb pyramid and <PRONOUN0> gets a free timeout. 4Head",
-            "args": {},
-            "info": "Write message if a user completes a 3-part pyramid and gets timed-out."
+        "plebpyramid": {
+            "msg": "Wow, {} built a pleb pyramid and {} gets a free timeout. 4Head",
+            "info": "Write message if a user completes a 3-part pyramid and gets timed-out.",
+            "args_info": {
+                "user": "User who built the pyramid.",
+                "pronoun0": "Pronoun for the user."
+            }
         },
-        {
-            "id": "2",
-            "msg": "<USER> created a pleb pyramid and would get a free timeout, but <PRONOUN0> is a mod. FeelsBadMan",
-            "args": {},
-            "info": "Write message if a channel moderator completes a 3-part pyramid."
+        "mod_plebpyramid": {
+            "msg": "{} created a pleb pyramid and would get a free timeout, but {} is a mod. FeelsBadMan",
+            "info": "Write message if a channel moderator completes a 3-part pyramid.",
+            "args_info": {
+                "user": "User who built the pyramid.",
+                "pronoun0": "Pronoun for the user."
+            }
         },
-        {
-            "id": "3",
-            "msg": "Wow, <MULTIUSERS> built a pleb pyramid and they all get a free timeout. 4Head",
-            "args": {},
-            "info": "Write message if multiple users complete a 3-part pyramid and get timed-out."
+        "multi_plebpyramid": {
+            "msg": "Wow, {} built a pleb pyramid and they all get a free timeout. 4Head",
+            "info": "Write message if multiple users complete a 3-part pyramid and get timed-out.",
+            "args_info": {
+                "mulitusers": "Users who built the pyramid together."
+            }
         },
-        {
-            "id": "4",
-            "msg": "<USER> built a pyramid and <PRONOUN0> gets <AMOUNT> spam points. PogChamp",
-            "args": {},
-            "info": "Write message if a user completes a 5-part pyramid and gets points as reward."
+        "pyramid": {
+            "msg": "{} built a pyramid and {} gets {} spam points. PogChamp",
+            "info": "Write message if a user completes a 5-part pyramid and gets points as reward.",
+            "args_info": {
+                "user": "User who built the pyramid.",
+                "pronoun0": "Pronoun for the user.",
+                "amount": "Amount of points the user gets for completing the pyramid."
+            }
         },
-        {
-            "id": "5",
-            "msg": "Teamwork! PogChamp <MULTIUSERS> built a pyramid. They get <AMOUNT> spam points. KappaClaus",
-            "args": {},
-            "info": "Write message if multiple users complete a 5-part pyramid and get points as reward."
+        "multi_pyramid": {
+            "msg": "Teamwork! PogChamp {} built a pyramid. They get {} spam points. KappaClaus",
+            "info": "Write message if multiple users complete a 5-part pyramid and get points as reward.",
+            "args_info": {
+                "multiusers": "Users who built the pyramid together.",
+                "amount": "Amount of points the user gets for completing the pyramid."
+            }
         }
-    ],
-    "KappaGame": [
-        {
-            "id": "0",
+    },
+    "KappaGame": {
+        "start_msg": {
             "msg": "/me ▬▬▬▬▬▬▬▬▬▬▬ஜ۩۞۩ஜ▬▬▬▬▬▬▬▬▬▬▬ Kappa game has started. Guess the right amount of Kappa s between 1 and 25! PogChamp ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
-            "args": {},
-            "info": "Announce the start of the KappaGame."
+            "info": "Announce the start of the KappaGame.",
+            "args_info": {}
         },
-        {
-            "id": "1",
+        "stop_msg": {
             "msg": "Stopping the Kappa game! FeelsBadMan",
-            "args": {},
-            "info": "Write message if the KappaGame gets canceled."
+            "info": "Write message if the KappaGame gets canceled.",
+            "args_info": {}
         },
-        {
-            "id": "2",
-            "msg": "/me <USER> got it! It was <AMOUNT> Kappa s!",
-            "args": {},
-            "info": "Write message if a user wins the Kappa game and gets points as reward."
+        "winner_msg": {
+            "msg": "/me {} got it! It was {} Kappa s!",
+            "info": "Write message if a user wins the Kappa game and gets points as reward.",
+            "args_info": {
+                "user": "User who won the KappaGame.",
+                "amount": "Right amount of Kappa's to win the game."
+            }
         },
-        {
-            "id": "3",
-            "msg": "It's not <AMOUNT>. 4Head",
-            "args": {},
-            "info": "Write the message if user guesses the wrong amount of Kappas."
+        "wrong_amount": {
+            "msg": "It's not {}. 4Head",
+            "info": "Write the message if user guesses the wrong amount of Kappas.",
+            "args_info": {
+                "amount": "Wrong amount of Kappa's input by the user."
+            }
         }
-    ],
-    "GuessEmoteGame": [
-        {
-            "id": "0",
-            "msg": "/me The 'Guess The Emote Game' has started. Write one of the following emotes to start playing: <MULTIEMOTES>",
-            "args": {},
-            "info": "Announce the start of the GuessEmoteGame."
+    },
+    "GuessEmoteGame": {
+        "start_msg": {
+            "msg": "/me The 'Guess The Emote Game' has started. Write one of the following emotes to start playing: {}",
+            "info": "Announce the start of the GuessEmoteGame.",
+            "args_info": {
+                "multiemotes": "Possible emotes for the GuessEmoteGame."
+            }
         },
-        {
-            "id": "1",
+        "stop_msg": {
             "msg": "Stopping the Emote Game! FeelsBadMan",
-            "args": {},
-            "info": "Write message if the GuessEmoteGame gets canceled."
+            "info": "Write message if the GuessEmoteGame gets canceled.",
+            "args_info": {}
         },
-        {
-            "id": "2",
-            "msg": "/me <USER> got it! It was <EMOTE> . <PRONOUN0> gets <AMOUNT> spam points.",
-            "args": {},
-            "info": "Write message if a user wins the GuessEmoteGame and gets points as reward."
+        "winner_msg": {
+            "msg": "/me {} got it! It was {} . {} gets {} spam points.",
+            "info": "Write message if a user wins the GuessEmoteGame and gets points as reward.",
+            "args_info": {
+                "user": "User who won the GuessEmoteGame.",
+                "emote": "Right emote to win the GuessEmoteGame",
+                "pronoun0": "Pronoun0 of the user.",
+                "amount": "Amount of points the user gets for winning the game."
+            }
         },
-        {
-            "id": "3",
-            "msg": "Possible game emotes: <MULTIEMOTES>",
-            "args": {},
-            "info": "Reply possible emotes for the game on '!emotes' command while the game is running."
+        "emote_msg": {
+            "msg": "Possible game emotes: {}",
+            "info": "Reply possible emotes for the game on '!emotes' command while the game is running.",
+            "args_info": {
+                "multiemotes": "Possible emotes for the GuessEmoteGame."
+            }
         }
-    ],
-    "GuessMinionGame": [
-        {
-            "id": "0",
-            "msg": "/me The minion is a <STAT> card.",
-            "args": {},
-            "info": "Give clue about the class of the card."
+    },
+    "GuessMinionGame": {
+        "clue_stat": {
+            "msg": "/me The minion is a {} card.",
+            "info": "Give clue about the class of the card.",
+            "args_info": {
+                "stat": "Class of the card."
+            }
         },
-        {
-            "id": "1",
-            "msg": "/me The card is from the '<SETNAME>' set.",
-            "args": {
-                "<SETNAME>": {
-                    "EXPERT1": "CLASSIC",
-                    "CORE": "CLASSIC",
-                    "HOF": "CLASSIC",
-                    "OG": "Whispers of the Old Gods",
-                    "GANGS": "Mean Streets of Gadgetzan",
-                    "KARA": "One Night in Karazhan",
-                    "ICECROWN": "Knights of the Frozen Throne",
-                    "TGT": "The Grand Tournament",
-                    "BRM": "Blackrock Mountain",
-                    "UNGORO": "Journey to Un'Goro",
-                    "NAXX": "Curse of Naxxramas",
-                    "GVG": "Goblins vs Gnomes",
-                    "LOE": "The League of Explorers"
-                }
+        "clue_set": {
+            "msg": "/me The card is from the {} set.",
+            "info": "Give clue from which set the card is from.",
+            "args_info": {
+                "stat": "The set in which the card was released."
+            }
+        },
+        "setnames": {
+            "msg": {
+                "EXPERT1": "CLASSIC",
+                "CORE": "CLASSIC",
+                "HOF": "CLASSIC",
+                "OG": "Whispers of the Old Gods",
+                "GANGS": "Mean Streets of Gadgetzan",
+                "KARA": "One Night in Karazhan",
+                "ICECROWN": "Knights of the Frozen Throne",
+                "TGT": "The Grand Tournament",
+                "BRM": "Blackrock Mountain",
+                "UNGORO": "Journey to Un'Goro",
+                "NAXX": "Curse of Naxxramas",
+                "GVG": "Goblins vs Gnomes",
+                "LOE": "The League of Explorers"
             },
-            "info": "Give clue from which set the card is from."
+            "info": "Hearthstone set name conversion.",
+            "args_info": {}
         },
-        {
-            "id": "2",
-            "msg": "/me The name of the card starts with '<STAT>'.",
-            "args": {},
-            "info": "Give the first letter of the minion's name as clue."
+        "clue_letter": {
+            "msg": "/me The name of the card starts with '{}'.",
+            "info": "Give the first letter of the minion's name as clue.",
+            "args_info": {
+                "stat": "The first letter of the name of the minion."
+            }
         },
-        {
-            "id": "3",
-            "msg": "/me The minion is a '<STAT>' card.",
-            "args": {},
-            "info": "Give clue about the rarity of the card."
+        "clue_rarity": {
+            "msg": "/me The minion is a '{}' card.",
+            "info": "Give clue about the rarity of the card.",
+            "args_info": {
+                "stat": "Rarity of the card."
+            }
         },
-        {
-            "id": "4",
-            "msg": "/me The minion has <STAT> attackpower.",
-            "args": {},
-            "info": "Give clue about the attackpower of the minion."
+        "clue_attackpower": {
+            "msg": "/me The minion has {} attackpower.",
+            "info": "Give clue about the attackpower of the minion.",
+            "args_info": {
+                "stat": "Attackpower of the minion."
+            }
         },
-        {
-            "id": "5",
-            "msg": "/me The card costs <STAT> mana.",
-            "args": {},
-            "info": "Give clue about the manacosts of the minion."
+        "clue_manacost": {
+            "msg": "/me The card costs {} mana.",
+            "info": "Give clue about the manacosts of the minion.",
+            "args_info": {
+                "stat": "Manacosts of the minion."
+            }
         },
-        {
-            "id": "6",
-            "msg": "/me The minion has <STAT> healthpoint.",
-            "args": {},
-            "info": "Give clue about the healthpoints (HP = 1) of the minion."
+        "clue_healthpoints": {
+            "msg": "/me The minion has {} healthpoint{}.",
+            "info": "Give clue about the healthpoints of the minion.",
+            "args_info": {
+                "stat": "Healthpoints of the minion.",
+                "plural": "Add an 's' if stat > 1"
+            }
         },
-        {
-            "id": "7",
-            "msg": "/me The minion has <STAT> healthpoints.",
-            "args": {},
-            "info": "Give clue about the healthpoints (HP > 1) of the minion."
-        },
-        {
-            "id": "8",
+        "start_msg": {
             "msg": "/me ▬▬▬▬▬▬▬▬▬▬▬ஜ۩۞۩ஜ▬▬▬▬▬▬▬▬▬▬▬ The 'Guess The Minion Game' has started. Type minion names to play. monkaS ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
-            "args": {},
-            "info": "Announce the start of the GuessMinionGame."
+            "info": "Announce the start of the GuessMinionGame.",
+            "args_info": {}
         },
-        {
-            "id": "9",
+        "stop_msg": {
             "msg": "Stopping the Minion Game! FeelsBadMan",
-            "args": {},
-            "info": "Write message if the GuessMinionGame gets canceled."
+            "info": "Write message if the GuessMinionGame gets canceled.",
+            "args_info": {}
         },
-        {
-            "id": "10",
-            "msg": "/me <USER> got it! It was <MINION>. <PRONOUN0> gets <AMOUNT> spam points.",
-            "args": {},
-            "info": "Write message if a user wins the GuessMinionGame and gets points as reward."
+        "winner_msg": {
+            "msg": "/me {} got it! It was {}. {} gets {} spam points.",
+            "info": "Write message if a user wins the GuessMinionGame and gets points as reward.",
+            "args_info": {
+                "user": "User who won the GuessMinionGame.",
+                "minion": "Right minion name to win the GuessMinionGame",
+                "pronoun0": "Pronoun0 of the user.",
+                "amount": "Amount of points the user gets for winning the game."
+            }
         }
-    ],
-    "AutoGames": [
-        {
-            "id": "0",
+    },
+    "AutoGames": {
+        "autogames_activate": {
             "msg": "AUTOMATIC GAME MODE ACTIVATED! MrDestructoid",
-            "args": {},
-            "info": "Write message if AutoGames get activated."
+            "info": "Write message if AutoGames get activated.",
+            "args_info": {}
         },
-        {
-            "id": "1",
+        "autogames_already_on": {
             "msg": "Automatic games are already on! DansGame",
-            "args": {},
-            "info": "Write message if user tries to activate AutoGames while it's already on."
+            "info": "Write message if user tries to activate AutoGames while it's already on.",
+            "args_info": {}
         },
-        {
-            "id": "2",
+        "autogames_deactivate": {
             "msg": "Automatic game mode deacti... ResidentSleeper",
-            "args": {},
-            "info": "Write message if AutoGames get deactivated."
+            "info": "Write message if AutoGames get deactivated.",
+            "args_info": {}
         },
-        {
-            "id": "3",
+        "autogames_already_off": {
             "msg": "Automatic games were not even active! EleGiggle",
-            "args": {},
-            "info": "Write message if user tries to deactivate AutoGames while they're not on."
+            "info": "Write message if user tries to deactivate AutoGames while they're not on.",
+            "args_info": {}
         }
-    ],
-    "Active": [
-        {
-            "id": "0",
-            "msg": "<USER>: There is <AMOUNT> active user in chat",
-            "args": {},
-            "info": "Return the amount of active users in chat (for only 1 active user)."
-        },
-        {
-            "id": "1",
-            "msg": "<USER>: There is <AMOUNT> active users in chat",
-            "args": {},
-            "info": "Return the amount of active users in chat."
+    },
+    "Active": {
+        "msg_active_users": {
+            "msg": "{}: There is {} active user{} in chat.",
+            "info": "Return the amount of active users in chat.",
+            "args_info": {
+                "user": "User who used the '!active' command.",
+                "amount": "Amount of active users.",
+                "plural": "Add an 's' if amount > 1"
+            }
         }
-    ]
+    }
 }
 
 
