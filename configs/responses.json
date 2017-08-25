@@ -26,6 +26,7 @@
             },
             "info": "Arguments for subscribtion/resubscription messages.",
             "args_info": ""
+        }
     },
     "EmoteReply": {
         "call_reply": {
@@ -371,20 +372,128 @@
                 "plural": "Add an 's' if amount > 1"
             }
         }
+    },
+    "Pronouns": {
+        "pronoun_added": {
+            "msg": "Successfully added pronouns monkaS .",
+            "info": "Message after a set of pronouns have been added for a user.",
+            "args_info": {}
+        }
+    },
+    "Rank": {
+        "pronoun_added": {
+            "msg": "{} is rank {} with {} spampoints. monkaS",
+            "info": "Display the rank and points of the user.",
+            "args_info": {
+                "user": "User whose rank and points are displayed.",
+                "rank": "Rank of the user.",
+                "points": "Points of the user."
+            }
+        }
+    },
+    "TopSpammers": {
+        "heading": {
+            "msg": "Top spammers: ",
+            "info": "Heading of the topspammers command.",
+            "args_info": {}
+        }
+    },
+    "Sleep": {
+        "bot_deactivate": {
+            "msg": "Going to sleep... bye! ResidentSleeper",
+            "info": "Display message when bot gets deactivated.",
+            "args_info": {}
+        },
+        "bot_activate": {
+            "msg": "Good morning everyone! FeelsGoodMan /",
+            "info": "Display message when bot gets activated.",
+            "args_info": {}
+        }
+    },
+    "startGame": {
+        "points_needed": {
+            "msg": "You need {} points to start a game.",
+            "info": "Show message if a user wants to start a game but doesn't have enough points.",
+            "args_info": {
+                "amount": "Amount of points needed to start a game."
+            }
+        },
+        "plebgames_on_cooldown": {
+            "msg": "Only mods can start chatgames for another {} seconds. monkaS",
+            "info": "Show message if a non-mod user wants to start a game while the plebgames are still on cooldown.",
+            "args_info": {
+                "cooldown": "Time until plebgames are available again."
+            }
+        }
+    },
+    "Oralpleasure": {
+        "op_already_on": {
+            "msg": "Oralpleasure is already on! Jebaited",
+            "info": "Show message if someone tries to activate op while it's already on.",
+            "args_info": {}
+        },
+        "op_activate": {
+            "msg": "Oralpleasure is now on! Kreygasm",
+            "info": "Display message when op gets activated.",
+            "args_info": {}
+        },
+        "op_deactivate": {
+            "msg": "Oralpleasure is now off! FeelsBadMan",
+            "info": "Display message when op gets deactivated.",
+            "args_info": {}
+        },
+        "op_already_off": {
+            "msg": "Oralpleasure was already off! monkaS",
+            "info": "Show message if someone tries to deactivate op while it's already off.",
+            "args_info": {}
+        }
+    },
+    "MonkalotParty": {
+        "game_over1": {
+            "msg": "Monkalot Party is over! ",
+            "info": "Part 1 of the message that gets displayed when MonkalotParty is over.",
+            "args_info": {}
+        },
+        "game_over2": {
+            "msg": "There was no clear winner ... FeelsBadMan",
+            "info": "Part 2 of the message that gets displayed when MonkalotParty is over and there is no clear winner.",
+            "args_info": {}
+        },
+        "game_over3": {
+            "msg": "got 1st place with {} points and get {} extra spampoints! PogChamp Clap",
+            "info": "Part 2 of the message that gets displayed when MonkalotParty is over and there are one or more winners.",
+            "args_info": {
+                "game_points": "Amount of games the winner/s won in MonkalotParty.",
+                "user_points": "Amount of points the users get for getting 1st place in MonkalotParty."
+            }
+        },
+        "start_msg": {
+            "msg": "/me ▬▬▬▬▬▬▬▬▬▬▬ஜ۩۞۩ஜ▬▬▬▬▬▬▬▬▬▬▬ PepePls PogChamp MONKALOTPARTY HAS STARTED ! Jebaited PepePls Kappa gachiGASM PepePls FeelsGoodMan 4Head EZ Clap PepePls LUL Kreygasm FeelsBadMan ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ monkaS Get ready for games in 5 ... 4 ... 3 ... 2 ... 1 ... monkaS",
+            "info": "Announce the start of the MonkalotParty.",
+            "args_info": {}
+        },
+        "stop_msg": {
+            "msg": "Stopping Monkalot Party! FeelsBadMan",
+            "info": "Write message if the MonkalotParty gets canceled.",
+            "args_info": {}
+        },
+        "winner_msg": {
+            "msg": "/me {} got it first and gets 5 points. The answer was: {}",
+            "info": "Write message if a user wins a minigame in MonkalotParty and gets points as reward.",
+            "args_info": {
+                "user": "User who won the minigame.",
+                "answer": "Right answer to the minigame."
+            }
+        }
+    },
+    "ranking": {
+        "msg_legend": {
+            "msg": "{} just reached {}!! PogChamp Clap",
+            "info": "Display if a user reaches legend rank for the first time.",
+            "args_info": {
+                "user": "User who just reached legend.",
+                "rank": "Legend Rank of the user."
+            }
+        }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

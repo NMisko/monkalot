@@ -29,6 +29,7 @@ EMOJI_API = "https://raw.githubusercontent.com/github/gemoji/master/db/emoji.jso
 TRUSTED_MODS_PATH = 'data/trusted_mods.json'
 PRONOUNS_PATH = 'data/pronouns.json'
 CONFIG_PATH = 'configs/bot_config.json'
+RESPONSES_PATH = 'configs/responses.json'
 
 
 class TwitchBot(irc.IRCClient, object):
@@ -57,10 +58,18 @@ class TwitchBot(irc.IRCClient, object):
             json.dump(config, file, indent=4)
         self.reloadConfig()
 
+    def setResponses(self, responses):
+        """Write the responses file and reload."""
+        with open(RESPONSES_PATH, 'w') as file:
+            json.dump(responses, file, indent=4)
+        self.reloadConfig()
+
     def reloadConfig(self):
         """Reload the entire config."""
-        with open('configs/bot_config.json') as fp:
-            CONFIG = json.load(fp)
+        with open(CONFIG_PATH) as file:
+            CONFIG = json.load(file)
+        with open(RESPONSES_PATH) as file:
+            RESPONSES = json.load(file)
         self.last_warning = defaultdict(int)
         self.owner_list = CONFIG['owner_list']
         self.ignore_list = CONFIG['ignore_list']
@@ -74,6 +83,7 @@ class TwitchBot(irc.IRCClient, object):
         self.last_plebcmd = time.time() - self.pleb_cooldowntime
         self.last_plebgame = time.time() - self.pleb_gametimer
         self.config = CONFIG
+        self.responses = RESPONSES
         self.KAPPAGAMEP = CONFIG["points"]["kappa_game"]
         self.EMOTEGAMEEMOTES = CONFIG["EmoteGame"]
         self.EMOTEGAMEP = CONFIG["points"]["emote_game"]
