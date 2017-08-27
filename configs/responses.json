@@ -1,20 +1,20 @@
 {
     "jtv_command": {
         "msg_standard": {
-            "msg": "<3 {}, thank you for subbing with {} Welcome to the channel! <3",
+            "msg": "<3 <USER>, thank you for subbing with <SUBPLAN> Welcome to the channel! <3",
             "info": "Message that gets posted when a viewer subscribes to the channel for the first time.",
             "args_info": {
-                "user": "User who subribed to the channel.",
-                "subplan": "Type of subscription (Twitch Prime, 4,99€, etc.)"
+                "<USER>": "User who subribed to the channel.",
+                "<SUBPLAN>": "Type of subscription (Twitch Prime, 4,99€, etc.)"
             }
         },
         "msg_with_months": {
-            "msg": "PogChamp {}, thank you for subbing with {} Welcome back for {} years! PogChamp",
+            "msg": "PogChamp <USER>, thank you for subbing with <SUBPLAN> Welcome back for <MONTHS> years! PogChamp",
             "info": "Message that gets posted when a viewer resubscribes to the channel.",
             "args_info": {
-                "user": "User who resubribed to the channel.",
-                "subplan": "Type of subscription (Twitch Prime, 4,99€, etc.)",
-                "months": "Amount of months the user is subscribed to the channel."
+                "<USER>": "User who resubribed to the channel.",
+                "<SUBPLAN>": "Type of subscription (Twitch Prime, 4,99€, etc.)",
+                "<MONTHS>": "Amount of months the user is subscribed to the channel."
             }
         },
         "subplan": {
@@ -30,41 +30,41 @@
     },
     "EmoteReply": {
         "call_reply": {
-            "msg": "{} NOW {} THIS {} IS {} WHAT {} I {} CALL {}",
+            "msg": "<EMOTE> NOW <EMOTE> THIS <EMOTE> IS <EMOTE> WHAT <EMOTE> I <EMOTE> CALL <EMOTE>",
             "info": "Reply for '!call'-command. Followed by the text specified by the user.",
             "args_info": {
-                "emote": "Emote that gets used in the call command."
+                "<EMOTE>": "Emote that gets used in the call command."
             }
         }
     },
     "outputStats": {
         "total_reply": {
-            "msg": "Total {} 's on this channel: {}",
+            "msg": "Total <EMOTE> 's on this channel: <COUNT>",
             "info": "Reply for total emote count. ('!total <EMOTE>')",
             "args_info": {
-                "emote": "Emote that user wants to get information about.",
-                "count": "Total amount of emotes posted in this channel."
+                "<EMOTE>": "Emote that user wants to get information about.",
+                "<COUNT>": "Total amount of emotes posted in this channel."
             }
         },
         "minute_reply": {
-            "msg": "{} 's per minute: {}",
+            "msg": "<EMOTE> 's per minute: <COUNT>",
             "info": "Reply for emotes per minute count. ('!minute <EMOTE>')",
             "args_info": {
-                "emote": "Emote that user wants to get information about.",
-                "count": "Amount of emotes posted in the last minute in this channel."
+                "<EMOTE>": "Emote that user wants to get information about.",
+                "<COUNT>": "Amount of emotes posted in the last minute in this channel."
             }
         }
     },
     "outputQuote": {
         "not_found": {
-            "msg": "Quote not found. Try: !quote [1 - {}]",
+            "msg": "Quote not found. Try: !quote [1 - <N_QUOTES>]",
             "info": "Reply if user specified a quote number that is not in the list.",
             "args_info": {
-                "n_quotes": "Total amount of available quotes."
+                "<N_QUOTES>": "Total amount of available quotes."
             }
         },
         "wrong_input": {
-            "msg": "Wrong input for , try !quote <number>",
+            "msg": "Wrong input for , try !quote {NUMBER}",
             "info": "Reply if user uses wrong kind of input for '!quote <NUMBER>'.",
             "args_info": {}
         }
@@ -93,24 +93,24 @@
     },
     "Calculator": {
         "div_by_zero": {
-            "msg": "@{} AjhHdjsTmab beep boop can_not-Calcuasdjnasjd---SHUTTING DOWN....... Just kidding 4Head",
+            "msg": "@<USER> AjhHdjsTmab beep boop can_not-Calcuasdjnasjd---SHUTTING DOWN....... Just kidding 4Head",
             "info": "Reply if user tries to devide by zero.",
             "args_info": {
-                "user": "User who used the command."
+                "<USER>": "User who used the command."
             }
         },
         "number_overflow": {
-            "msg": "@{} It's too big Kreygasm",
+            "msg": "@<USER> It's too big Kreygasm",
             "info": "Reply if the calculation yields a too large number.",
             "args_info": {
-                "user": "User who used the command."
+                "<USER>": "User who used the command."
             }
         },
         "wrong_input": {
-            "msg": "@{} ??? 4Head",
+            "msg": "@<USER> ??? 4Head",
             "info": "Reply if wrong input in '!calc' command.",
             "args_info": {
-                "user": "User who used the command."
+                "<USER>": "User who used the command."
             }
         }
     },
@@ -151,43 +151,43 @@
             "args_info": {}
         },
         "plebpyramid": {
-            "msg": "Wow, {} built a pleb pyramid and {} gets a free timeout. 4Head",
+            "msg": "Wow, <USER> built a pleb pyramid and <PRONOUN0> gets a free timeout. 4Head",
             "info": "Write message if a user completes a 3-part pyramid and gets timed-out.",
             "args_info": {
-                "user": "User who built the pyramid.",
-                "pronoun0": "Pronoun for the user."
+                "<USER>": "User who built the pyramid.",
+                "<PRONOUN0>": "Pronoun for the user."
             }
         },
         "mod_plebpyramid": {
-            "msg": "{} created a pleb pyramid and would get a free timeout, but {} is a mod. FeelsBadMan",
+            "msg": "<USER> created a pleb pyramid and would get a free timeout, but <PRONOUN0> is a mod. FeelsBadMan",
             "info": "Write message if a channel moderator completes a 3-part pyramid.",
             "args_info": {
-                "user": "User who built the pyramid.",
-                "pronoun0": "Pronoun for the user."
+                "<USER>": "User who built the pyramid.",
+                "<PRONOUN0>": "Pronoun for the user."
             }
         },
         "multi_plebpyramid": {
-            "msg": "Wow, {} built a pleb pyramid and they all get a free timeout. 4Head",
+            "msg": "Wow, <MULTIUSERS> built a pleb pyramid and they all get a free timeout. 4Head",
             "info": "Write message if multiple users complete a 3-part pyramid and get timed-out.",
             "args_info": {
-                "mulitusers": "Users who built the pyramid together."
+                "<MULTIUSERS>": "Users who built the pyramid together."
             }
         },
         "pyramid": {
-            "msg": "{} built a pyramid and {} gets {} spam points. PogChamp",
+            "msg": "<USER> built a pyramid and <PRONOUN0> gets <AMOUNT> spam points. PogChamp",
             "info": "Write message if a user completes a 5-part pyramid and gets points as reward.",
             "args_info": {
-                "user": "User who built the pyramid.",
-                "pronoun0": "Pronoun for the user.",
-                "amount": "Amount of points the user gets for completing the pyramid."
+                "<USER>": "User who built the pyramid.",
+                "<PRONOUN0>": "Pronoun for the user.",
+                "<AMOUNT>": "Amount of points the user gets for completing the pyramid."
             }
         },
         "multi_pyramid": {
-            "msg": "Teamwork! PogChamp {} built a pyramid. They get {} spam points. KappaClaus",
+            "msg": "Teamwork! PogChamp <MULTIUSERS> built a pyramid. They get <AMOUNT> spam points. KappaClaus",
             "info": "Write message if multiple users complete a 5-part pyramid and get points as reward.",
             "args_info": {
-                "multiusers": "Users who built the pyramid together.",
-                "amount": "Amount of points the user gets for completing the pyramid."
+                "<MULTIUSERS>": "Users who built the pyramid together.",
+                "<AMOUNT>": "Amount of points the user gets for completing the pyramid."
             }
         }
     },
@@ -203,27 +203,27 @@
             "args_info": {}
         },
         "winner_msg": {
-            "msg": "/me {} got it! It was {} Kappa s!",
+            "msg": "/me <USER> got it! It was <AMOUNT> Kappa s!",
             "info": "Write message if a user wins the Kappa game and gets points as reward.",
             "args_info": {
-                "user": "User who won the KappaGame.",
-                "amount": "Right amount of Kappa's to win the game."
+                "<USER>": "User who won the KappaGame.",
+                "<AMOUNT>": "Right amount of Kappa's to win the game."
             }
         },
         "wrong_amount": {
-            "msg": "It's not {}. 4Head",
+            "msg": "It's not <AMOUNT>. 4Head",
             "info": "Write the message if user guesses the wrong amount of Kappas.",
             "args_info": {
-                "amount": "Wrong amount of Kappa's input by the user."
+                "<AMOUNT>": "Wrong amount of Kappa's input by the user."
             }
         }
     },
     "GuessEmoteGame": {
         "start_msg": {
-            "msg": "/me The 'Guess The Emote Game' has started. Write one of the following emotes to start playing: {}",
+            "msg": "/me The 'Guess The Emote Game' has started. Write one of the following emotes to start playing: <MULTIEMOTES>",
             "info": "Announce the start of the GuessEmoteGame.",
             "args_info": {
-                "multiemotes": "Possible emotes for the GuessEmoteGame."
+                "<MULTIEMOTES>": "Possible emotes for the GuessEmoteGame."
             }
         },
         "stop_msg": {
@@ -232,36 +232,36 @@
             "args_info": {}
         },
         "winner_msg": {
-            "msg": "/me {} got it! It was {} . {} gets {} spam points.",
+            "msg": "/me <USER> got it! It was <EMOTE> . <PRONOUN0> gets <AMOUNT> spam points.",
             "info": "Write message if a user wins the GuessEmoteGame and gets points as reward.",
             "args_info": {
-                "user": "User who won the GuessEmoteGame.",
-                "emote": "Right emote to win the GuessEmoteGame",
-                "pronoun0": "Pronoun0 of the user.",
-                "amount": "Amount of points the user gets for winning the game."
+                "<USER>": "User who won the GuessEmoteGame.",
+                "<EMOTE>": "Right emote to win the GuessEmoteGame",
+                "<PRONOUN0>": "Pronoun0 of the user.",
+                "<AMOUNT>": "Amount of points the user gets for winning the game."
             }
         },
         "emote_msg": {
-            "msg": "Possible game emotes: {}",
+            "msg": "Possible game emotes: <MULTIEMOTES>",
             "info": "Reply possible emotes for the game on '!emotes' command while the game is running.",
             "args_info": {
-                "multiemotes": "Possible emotes for the GuessEmoteGame."
+                "<MULTIEMOTES>": "Possible emotes for the GuessEmoteGame."
             }
         }
     },
     "GuessMinionGame": {
         "clue_stat": {
-            "msg": "/me The minion is a {} card.",
+            "msg": "/me The minion is a <STAT> card.",
             "info": "Give clue about the class of the card.",
             "args_info": {
-                "stat": "Class of the card."
+                "<STAT>": "Class of the card."
             }
         },
         "clue_set": {
-            "msg": "/me The card is from the {} set.",
+            "msg": "/me The card is from the <STAT> set.",
             "info": "Give clue from which set the card is from.",
             "args_info": {
-                "stat": "The set in which the card was released."
+                "<STAT>": "The set in which the card was released."
             }
         },
         "setnames": {
@@ -284,39 +284,39 @@
             "args_info": {}
         },
         "clue_letter": {
-            "msg": "/me The name of the card starts with '{}'.",
+            "msg": "/me The name of the card starts with '<STAT>'.",
             "info": "Give the first letter of the minion's name as clue.",
             "args_info": {
-                "stat": "The first letter of the name of the minion."
+                "<STAT>": "The first letter of the name of the minion."
             }
         },
         "clue_rarity": {
-            "msg": "/me The minion is a '{}' card.",
+            "msg": "/me The minion is a '<STAT>' card.",
             "info": "Give clue about the rarity of the card.",
             "args_info": {
-                "stat": "Rarity of the card."
+                "<STAT>": "Rarity of the card."
             }
         },
         "clue_attackpower": {
-            "msg": "/me The minion has {} attackpower.",
+            "msg": "/me The minion has <STAT> attackpower.",
             "info": "Give clue about the attackpower of the minion.",
             "args_info": {
-                "stat": "Attackpower of the minion."
+                "<STAT>": "Attackpower of the minion."
             }
         },
         "clue_manacost": {
-            "msg": "/me The card costs {} mana.",
+            "msg": "/me The card costs <STAT> mana.",
             "info": "Give clue about the manacosts of the minion.",
             "args_info": {
-                "stat": "Manacosts of the minion."
+                "<STAT>": "Manacosts of the minion."
             }
         },
         "clue_healthpoints": {
-            "msg": "/me The minion has {} healthpoint{}.",
+            "msg": "/me The minion has <STAT> healthpoint<PLURAL>.",
             "info": "Give clue about the healthpoints of the minion.",
             "args_info": {
-                "stat": "Healthpoints of the minion.",
-                "plural": "Add an 's' if stat > 1"
+                "<STAT>": "Healthpoints of the minion.",
+                "<PLURAL>": "Add an 's' if stat > 1"
             }
         },
         "start_msg": {
@@ -330,13 +330,13 @@
             "args_info": {}
         },
         "winner_msg": {
-            "msg": "/me {} got it! It was {}. {} gets {} spam points.",
+            "msg": "/me <USER> got it! It was <MINION>. <PRONOUN0> gets <AMOUNT> spam points.",
             "info": "Write message if a user wins the GuessMinionGame and gets points as reward.",
             "args_info": {
-                "user": "User who won the GuessMinionGame.",
-                "minion": "Right minion name to win the GuessMinionGame",
-                "pronoun0": "Pronoun0 of the user.",
-                "amount": "Amount of points the user gets for winning the game."
+                "<USER>": "User who won the GuessMinionGame.",
+                "<MINION>": "Right minion name to win the GuessMinionGame",
+                "<PRONOUN0>": "Pronoun0 of the user.",
+                "<AMOUNT>": "Amount of points the user gets for winning the game."
             }
         }
     },
@@ -364,12 +364,12 @@
     },
     "Active": {
         "msg_active_users": {
-            "msg": "{}: There is {} active user{} in chat.",
+            "msg": "<USER>: There is <AMOUNT> active user<PLURAL> in chat.",
             "info": "Return the amount of active users in chat.",
             "args_info": {
-                "user": "User who used the '!active' command.",
-                "amount": "Amount of active users.",
-                "plural": "Add an 's' if amount > 1"
+                "<USER>": "User who used the '!active' command.",
+                "<AMOUNT>": "Amount of active users.",
+                "<PLURAL>": "Add an 's' if amount > 1"
             }
         }
     },
@@ -382,12 +382,12 @@
     },
     "Rank": {
         "pronoun_added": {
-            "msg": "{} is rank {} with {} spampoints. monkaS",
+            "msg": "<USER> is rank <RANK> with <POINTS> spampoints. monkaS",
             "info": "Display the rank and points of the user.",
             "args_info": {
-                "user": "User whose rank and points are displayed.",
-                "rank": "Rank of the user.",
-                "points": "Points of the user."
+                "<USER>": "User whose rank and points are displayed.",
+                "<RANK>": "Rank of the user.",
+                "<POINTS>": "Points of the user."
             }
         }
     },
@@ -412,17 +412,17 @@
     },
     "startGame": {
         "points_needed": {
-            "msg": "You need {} points to start a game.",
+            "msg": "You need <AMOUNT> points to start a game.",
             "info": "Show message if a user wants to start a game but doesn't have enough points.",
             "args_info": {
-                "amount": "Amount of points needed to start a game."
+                "<AMOUNT>": "Amount of points needed to start a game."
             }
         },
         "plebgames_on_cooldown": {
-            "msg": "Only mods can start chatgames for another {} seconds. monkaS",
+            "msg": "Only mods can start chatgames for another <COOLDOWN> seconds. monkaS",
             "info": "Show message if a non-mod user wants to start a game while the plebgames are still on cooldown.",
             "args_info": {
-                "cooldown": "Time until plebgames are available again."
+                "<COOLDOWN>": "Time until plebgames are available again."
             }
         }
     },
@@ -460,11 +460,11 @@
             "args_info": {}
         },
         "game_over3": {
-            "msg": "got 1st place with {} points and get {} extra spampoints! PogChamp Clap",
+            "msg": "got 1st place with <GAME_POINTS> points and get <USER_POINTS> extra spampoints! PogChamp Clap",
             "info": "Part 2 of the message that gets displayed when MonkalotParty is over and there are one or more winners.",
             "args_info": {
-                "game_points": "Amount of games the winner/s won in MonkalotParty.",
-                "user_points": "Amount of points the users get for getting 1st place in MonkalotParty."
+                "<GAME_POINTS>": "Amount of games the winner/s won in MonkalotParty.",
+                "<USER_POINTS>": "Amount of points the users get for getting 1st place in MonkalotParty."
             }
         },
         "start_msg": {
@@ -478,21 +478,21 @@
             "args_info": {}
         },
         "winner_msg": {
-            "msg": "/me {} got it first and gets 5 points. The answer was: {}",
+            "msg": "/me <USER> got it first and gets 5 points. The answer was: <ANSWER>",
             "info": "Write message if a user wins a minigame in MonkalotParty and gets points as reward.",
             "args_info": {
-                "user": "User who won the minigame.",
-                "answer": "Right answer to the minigame."
+                "<USER>": "User who won the minigame.",
+                "<ANSWER>": "Right answer to the minigame."
             }
         }
     },
     "ranking": {
         "msg_legend": {
-            "msg": "{} just reached {}!! PogChamp Clap",
+            "msg": "<USER> just reached <RANK>!! PogChamp Clap",
             "info": "Display if a user reaches legend rank for the first time.",
             "args_info": {
-                "user": "User who just reached legend.",
-                "rank": "Legend Rank of the user."
+                "<USER>": "User who just reached legend.",
+                "<RANK>": "Legend Rank of the user."
             }
         }
     }
