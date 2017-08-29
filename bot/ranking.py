@@ -69,7 +69,8 @@ class Ranking():
         if legend is False:
             rank = self.getHSRank(points)
             if "Legend" in rank:
-                bot.write(bot.displayName(username) + " just reached " + rank + "!! PogChamp Clap")
+                var = {"<USER>": bot.displayName(username), "<RANK>": rank}
+                bot.write(bot.replace_vars(self.responses["ranking"]["msg_legend"]["msg"], var))
 
     def getRank(self, points):
         """Get the absolute for a certain amount of points."""

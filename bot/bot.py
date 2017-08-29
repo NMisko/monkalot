@@ -426,12 +426,9 @@ class TwitchBot(irc.IRCClient, object):
 
     def jtv_command(self, tags):
         """Send a message when someone subscribes."""
-        plan = {
-            "Prime": "Twitch Prime!! SeemsGood",
-            "1000": "4,99$!! VoHiYo",
-            "2000": "9,99$!! FeelsGoodMan",
-            "3000": "24,99$!! Jebaited"
-        }
+        responses = self.responses["jtv_command"]
+
+        plan = responses["subplan"]["msg"]
 
         msg = tags['system-msg']
         user = tags['display-name']
@@ -445,9 +442,11 @@ class TwitchBot(irc.IRCClient, object):
             logging.warning(msg)
 
             if int(months) == 1:
-                reply = "<3 {}, thank you for subbing with {} Welcome to the channel! <3".format(user, plan[subtype])
+                var = {"<USER>": user, "<SUBPLAN>": plan[subtype]}
+                reply = bot.replace_vars(responses["msg_standard"]["msg"], var)
             elif int(months) > 1:
-                reply = "PogChamp {}, thank you for subbing with {} Welcome back for {} years! PogChamp".format(user, plan[subtype], months)
+                var = {"<USER>": user, "<SUBPLAN>": plan[subtype], "<MONTHS>": months}
+                reply = bot.replace_vars(responses["msg_with_months"]["msg"], var)
 
             self.write(reply)
 
@@ -506,6 +505,7 @@ class TwitchBot(irc.IRCClient, object):
             cmds.SlapHug(self),
             cmds.Rank(self),
             cmds.EditCommandMods(self),
+            cmds.Active(self),
             cmds.Pronouns(self),
             cmds.Questions(self),
             cmds.Oralpleasure(self),
@@ -596,6 +596,20 @@ class TwitchBot(irc.IRCClient, object):
     def setlast_plebgame(self, last_plebgame):
         """Set timer of last_plebgame."""
         self.last_plebgame = last_plebgame
+
+    def replace_vars(self, msg, args):
+        """Replace the variables in the message."""
+        oldmsg = msg
+        newmsg = msg
+
+        for key in args:
+            newmsg = newmsg.replace(key, str(args[key]))
+            """Check if something was replaced, otherwise something went wrong."""
+            if newmsg is oldmsg:
+                print("ERROR: Could not replace variable in string!")
+
+            oldmsg = newmsg
+        return newmsg
 
 
 class IPythonThread(Thread):

@@ -37,21 +37,75 @@
             }
         }
     },
+    "EditCommandMods": {
+        "mod_added": {
+            "msg": "Mod added. SeemsGood",
+            "info": "Reply if a mod got added to the trusted mod list.",
+            "args_info": {}
+        },
+        "already_mod": {
+            "msg": "<USER> is already a mod. monkaS",
+            "info": "Reply if someone tries to add a user who is already on the trusted mod list.",
+            "args_info": {
+                "<USER>": "User who is already in the trusted mod list."
+            }
+        },
+        "mod_deleted": {
+            "msg": "Mod removed. SeemsGood",
+            "info": "Reply if a mod got removed to the trusted mod list.",
+            "args_info": {}
+        },
+        "user_not_in_list": {
+            "msg": "<USER> is not a trusted mod. monkaS",
+            "info": "Reply if someone tries to remove a user who not on the trusted mod list.",
+            "args_info": {
+                "<USER>": "User who should be removed from the trusted mod list."
+            }
+        }
+    },
+    "EditCommandList": {
+        "cmd_already_exists": {
+            "msg": "Command already in the list! DansGame",
+            "info": "Reply if the command is already in the list.",
+            "args_info": {}
+        },
+        "cmd_added": {
+            "msg": "Command '<COMMAND>' added! FeelsGoodMan",
+            "info": "Reply if the command has been added to the list.",
+            "args_info": {
+                "<COMMAND>": "Command that has been added to the list."
+            }
+        },
+        "cmd_removed": {
+            "msg": "Command '<COMMAND>' deleted. FeelsBadMan",
+            "info": "Reply if the command has been removed from the list.",
+            "args_info": {
+                "<COMMAND>": "Command that has been removed to the list."
+            }
+        },
+        "cmd_not_found": {
+            "msg": "Command '<COMMAND>' does not exist. monkaS",
+            "info": "Reply if someone tries to remove a command that is not on the list.",
+            "args_info": {
+                "<COMMAND>": "Command that should be removed from the list."
+            }
+        }
+    },
     "outputStats": {
         "total_reply": {
-            "msg": "Total <EMOTE> 's on this channel: <COUNT>",
+            "msg": "Total <EMOTE> 's on this channel: <AMOUNT>",
             "info": "Reply for total emote count. ('!total <EMOTE>')",
             "args_info": {
                 "<EMOTE>": "Emote that user wants to get information about.",
-                "<COUNT>": "Total amount of emotes posted in this channel."
+                "<AMOUNT>": "Total amount of emotes posted in this channel."
             }
         },
         "minute_reply": {
-            "msg": "<EMOTE> 's per minute: <COUNT>",
+            "msg": "<EMOTE> 's per minute: <AMOUNT>",
             "info": "Reply for emotes per minute count. ('!minute <EMOTE>')",
             "args_info": {
                 "<EMOTE>": "Emote that user wants to get information about.",
-                "<COUNT>": "Amount of emotes posted in the last minute in this channel."
+                "<AMOUNT>": "Amount of emotes posted in the last minute in this channel."
             }
         }
     },
@@ -64,7 +118,7 @@
             }
         },
         "wrong_input": {
-            "msg": "Wrong input for , try !quote {NUMBER}",
+            "msg": "Wrong input for , try !quote <NUMBER>",
             "info": "Reply if user uses wrong kind of input for '!quote <NUMBER>'.",
             "args_info": {}
         }
@@ -111,6 +165,14 @@
             "info": "Reply if wrong input in '!calc' command.",
             "args_info": {
                 "<USER>": "User who used the command."
+            }
+        },
+        "default_error": {
+            "msg": "@<USER> <EXPRESSION> = ???",
+            "info": "Reply if the calculation expression can't be executed by the function.",
+            "args_info": {
+                "<USER>": "User who used the command.",
+                "<EXPRESSION>": "Calculation expression that can't be executed."
             }
         }
     },
@@ -381,7 +443,7 @@
         }
     },
     "Rank": {
-        "pronoun_added": {
+        "display_rank": {
             "msg": "<USER> is rank <RANK> with <POINTS> spampoints. monkaS",
             "info": "Display the rank and points of the user.",
             "args_info": {

@@ -248,6 +248,7 @@ class EmoteReply(Command):
     """Maximum word/character values so chat doesnt explode."""
     maxwords = [12, 15, 1]  # [call, any, word]
     maxchars = [60, 80, 30]
+    responses = {}
 
     def checkmaxvalues(self, cmd, text):
         """Check if messages are in bounds."""
@@ -279,9 +280,12 @@ class EmoteReply(Command):
 
     def run(self, bot, user, msg):
         """Output emote message if cmd matches."""
+        self.responses = bot.responses["EmoteReply"]
+
         if self.cmd == '!call':
+            var = {"<EMOTE>": self.emote}
+            s = bot.replace_vars(self.responses["call_reply"]["msg"], var)
             parsetext = self.text.split(' ')
-            s = self.emote + ' NOW ' + self.emote + ' THIS ' + self.emote + ' IS ' + self.emote + ' WHAT ' + self.emote + ' I ' + self.emote + ' CALL ' + self.emote
             for i in range(0, len(parsetext)):
                 s += ' ' + parsetext[i].upper() + ' ' + self.emote
         elif self.cmd == '!any':
@@ -304,6 +308,7 @@ class EditCommandMods(Command):
     """Command for owners to add or delete mods to list of trusted mods."""
 
     perm = Permission.Admin
+    responses = {}
 
     def match(self, bot, user, msg):
         """Match if !addmod or !delmod."""
@@ -311,19 +316,22 @@ class EditCommandMods(Command):
 
     def run(self, bot, user, msg):
         """Add or delete a mod."""
+        self.responses = bot.responses["EditCommandMods"]
         mod = msg.split(' ')[1].lower()
         if msg.startswith("!addmod "):
             if mod not in bot.trusted_mods:
                 bot.trusted_mods.append(mod)
-                bot.write("Mod added. SeemsGood")
+                bot.write(self.responses["mod_added"]["msg"])
             else:
-                bot.write(mod + " is already a mod. monkaS")
+                var = {"<USER>": mod}
+                bot.write(bot.replace_vars(self.responses["already_mod"]["msg"], var))
         elif msg.startswith("!delmod "):
             if mod in bot.trusted_mods:
                 bot.trusted_mods.remove(mod)
-                bot.write("Mod removed. SeemsGood")
+                bot.write(self.responses["mod_deleted"]["msg"])
             else:
-                bot.write(mod + " isn't a mod. monkaS")
+                var = {"<USER>": mod}
+                bot.write(bot.replace_vars(self.responses["user_not_in_list"]["msg"], var))
 
         with open(bot.trusted_mods_path, 'w') as file:
             json.dump(bot.trusted_mods, file, indent=4)
@@ -336,6 +344,7 @@ class EditCommandList(Command):
     """
 
     perm = Permission.Moderator
+    responses = {}
 
     """load command list"""
     with open(REPLIES_FILE) as file:
@@ -354,7 +363,7 @@ class EditCommandList(Command):
         """Check if the command is already in the list, if not
         add the command to the list"""
         if entrycmd in self.replies:
-            bot.write('Command already in the list! DansGame')
+            bot.write(self.responses["cmd_already_exists"]["msg"])
         else:
             self.replies[entrycmd] = entryarg
 
@@ -362,7 +371,8 @@ class EditCommandList(Command):
                 json.dump(self.replies, file, indent=4)
 
             bot.reload_commands()  # Needs to happen to refresh the list.
-            bot.write('Command '+entrycmd+' added! FeelsGoodMan')
+            var = {"<COMMAND>": entrycmd}
+            bot.write(bot.replace_vars(self.responses["cmd_added"]["msg"], var))
 
     def delcommand(self, bot, cmd):
         """Delete an existing command from the list."""
@@ -376,9 +386,11 @@ class EditCommandList(Command):
                 json.dump(self.replies, file, indent=4)
 
             bot.reload_commands()  # Needs to happen to refresh the list.
-            bot.write('Command '+entrycmd+' deleted. FeelsBadMan')
+            var = {"<COMMAND>": entrycmd}
+            bot.write(bot.replace_vars(self.responses["cmd_removed"]["msg"], var))
         else:
-            bot.write('Command '+entrycmd+' does not exist. monkaS')
+            var = {"<COMMAND>": entrycmd}
+            bot.write(bot.replace_vars(self.responses["cmd_not_found"]["msg"], var))
 
     def replylist(self, bot, cmd):
         """Write out the Commandlist in chat."""
@@ -396,6 +408,7 @@ class EditCommandList(Command):
 
     def run(self, bot, user, msg):
         """Add or delete command, or print list."""
+        self.responses = bot.responses["EditCommandList"]
         cmd = msg.lower().strip()
 
         if cmd.startswith("!addcommand "):
@@ -410,6 +423,7 @@ class outputStats(Command):
     """Reply total emote stats or stats/per minute."""
 
     perm = Permission.User
+    responses = {}
 
     def match(self, bot, user, msg):
         """Match if msg = !total <emote> or !minute <emote>."""
@@ -426,7 +440,8 @@ class outputStats(Command):
             return True
 
     def run(self, bot, user, msg):
-        """On first run initialize game."""
+        """Write out total or minute stats of an emote."""
+        self.responses = bot.responses["outputStats"]
         cmd = msg.strip().lower()
 
         if cmd.startswith('!total '):
@@ -434,27 +449,31 @@ class outputStats(Command):
             cmd = cmd.split(' ', 1)
             emote = cmd[1]
             count = bot.ecount.returnTotalcount(emote)
-            bot.write('Total ' + str(emote) + ' \'s on this channel: ' + str(count))
+            response = self.responses["total_reply"]["msg"]
         elif cmd.startswith('!minute '):
             cmd = msg.strip()
             cmd = cmd.split(' ', 1)
             emote = cmd[1]
             count = bot.ecount.returnMinutecount(emote)
-            bot.write(str(emote) + ' \'s per minute: ' + str(count))
+            response = self.responses["minute_reply"]["msg"]
         elif cmd == '!tkp':
             emote = 'Kappa'
             count = bot.ecount.returnTotalcount(emote)
-            bot.write('Total ' + str(emote) + ' \'s on this channel: ' + str(count))
+            response = self.responses["total_reply"]["msg"]
         elif cmd == '!kpm':
             emote = 'Kappa'
             count = bot.ecount.returnMinutecount(emote)
-            bot.write(str(emote) + ' \'s per minute: ' + str(count))
+            response = self.responses["minute_reply"]["msg"]
+
+        var = {"<EMOTE>": emote, "<AMOUNT>": count}
+        bot.write(bot.replace_vars(response, var))
 
 
 class outputQuote(Command):
     """Simple Class to output quotes stored in a json-file."""
 
     perm = Permission.User
+    responses = {}
 
     """load quote list"""
     with open(QUOTES_FILE) as file:
@@ -467,6 +486,7 @@ class outputQuote(Command):
 
     def run(self, bot, user, msg):
         """Say a quote."""
+        self.responses = bot.responses["outputQuote"]
         cmd = msg.lower().strip()
         if cmd == "!quote":
             quote = random.choice(self.quotelist)
@@ -479,22 +499,24 @@ class outputQuote(Command):
                     quote = self.quotelist[arg]
                     bot.write(quote)
                 else:
-                    bot.write('Quote not found. Try: !quote [1 - ' + str(len(self.quotelist)) + ']')
+                    var = {"<N_QUOTES>": len(self.quotelist)}
+                    bot.write(bot.replace_vars(self.responses["not_found"]["msg"], var))
             except ValueError:
-                bot.write('Wrong input for , try !quote <number>')
+                bot.write(self.responses["wrong_input"]["msg"])
 
 
 class editQuoteList(Command):
     """Add or delete quote from a json-file."""
 
     perm = Permission.Moderator
+    responses = {}
 
     """load quote list"""
     with open(QUOTES_FILE) as file:
         quotelist = json.load(file)
 
     def addquote(self, bot, msg):
-        """Add a quote."""
+        """Add a quote to the list."""
         quote = msg[len("!addquote "):]
         quote.strip()
 
@@ -503,12 +525,12 @@ class editQuoteList(Command):
             with open(QUOTES_FILE, 'w') as file:
                 json.dump(self.quotelist, file, indent=4)
             bot.reload_commands()  # Needs to happen to refresh the list.
-            bot.write('Quote has been added. FeelsGoodMan')
+            bot.write(self.responses["quote_added"]["msg"])
         else:
-            bot.write('Quote is already in the list. :thinking:')
+            bot.write(self.responses["quote_exists"]["msg"])
 
     def delquote(self, bot, msg):
-        """Delete a quote."""
+        """Delete a quote from the list."""
         quote = msg[len("!delquote "):]
         quote.strip()
 
@@ -517,9 +539,9 @@ class editQuoteList(Command):
             with open(QUOTES_FILE, 'w') as file:
                 json.dump(self.quotelist, file, indent=4)
             bot.reload_commands()  # Needs to happen to refresh the list.
-            bot.write('Quote has been removed. FeelsBadMan')
+            bot.write(self.responses["quote_removed"]["msg"])
         else:
-            bot.write('Quote not found. :thinking:')
+            bot.write(self.responses["quote_not_found"]["msg"])
 
     def match(self, bot, user, msg):
         """Match if message starts with !addquote or !delquote."""
@@ -528,6 +550,7 @@ class editQuoteList(Command):
 
     def run(self, bot, user, msg):
         """Add or delete quote."""
+        self.responses = bot.responses["editQuoteList"]
         cmd = msg.lower().strip()
         if cmd.startswith("!addquote "):
             self.addquote(bot, msg)
@@ -543,6 +566,7 @@ class Calculator(Command):
 
     nsp = NumericStringParser()
     perm = Permission.User
+    responses = {}
 
     symbols = ["e", "pi", "sin", "cos", "tan", "abs", "trunc", "round", "sgn"]
 
@@ -552,6 +576,7 @@ class Calculator(Command):
 
     def run(self, bot, user, msg):
         """Evaluate second part of message and write the result."""
+        self.responses = bot.responses["Calculator"]
         expr = msg.split(' ', 1)[1]
         try:
             result = self.nsp.eval(expr)
@@ -560,13 +585,17 @@ class Calculator(Command):
             reply = "{} = {}".format(expr, result)
             bot.write(reply)
         except ZeroDivisionError:
-            bot.write('@' + bot.displayName(user) + " AjhHdjsTmab beep boop can_not-Calcuasdjnasjd---SHUTTING DOWN....... Just kidding 4Head")
+            var = {"<USER>": bot.displayName(user)}
+            bot.write(bot.replace_vars(self.responses["div_by_zero"]["msg"], var))
         except OverflowError:
-            bot.write('@' + bot.displayName(user) + " It's too big Kreygasm")
+            var = {"<USER>": bot.displayName(user)}
+            bot.write(bot.replace_vars(self.responses["number_overflow"]["msg"], var))
         except pyparsing.ParseException:
-            bot.write('@' + bot.displayName(user) + " ??? 4Head")
+            var = {"<USER>": bot.displayName(user)}
+            bot.write(bot.replace_vars(self.responses["wrong_input"]["msg"], var))
         except TypeError or ValueError:  # Not sure which Errors might happen here.
-            bot.write('@' + bot.displayName(user) + " {} = ???".format(expr))
+            var = {"<USER>": bot.displayName(user), "<EXPRESSION>": expr}
+            bot.write(bot.replace_vars(self.responses["default_error"]["msg"], var))
 
     def checkSymbols(self, msg):
         """Check whether s contains no letters, except e, pi, sin, cos, tan, abs, trunc, round, sgn."""
@@ -580,6 +609,7 @@ class PyramidBlock(Command):
     """Send a random SMOrc message."""
 
     perm = Permission.Moderator
+    responses = {}
 
     def match(self, bot, user, msg):
         """Match if command is !block on or !block off."""
@@ -587,32 +617,32 @@ class PyramidBlock(Command):
 
     def run(self, bot, user, msg):
         """Set block."""
+        self.responses = bot.responses["PyramidBlock"]
         if msg == "!block on":
             if not bot.pyramidBlock:
                 bot.pyramidBlock = True
-                bot.write("Blocking pyramids now. monkaS")
+                bot.write(self.responses["block_activate"]["msg"])
             else:
-                bot.write("I'm already blocking pyramids. DansGame")
+                bot.write(self.responses["block_already_on"]["msg"])
         elif msg == "!block off":
             if bot.pyramidBlock:
                 bot.pyramidBlock = False
-                bot.write("No longer blocking pyramids. FeelsBadMan")
+                bot.write(self.responses["block_deactivate"]["msg"])
             else:
-                bot.write("I wasn't blocking pyramids. DansGame")
+                bot.write(self.responses["block_already_off"]["msg"])
 
 
 class Pyramid(Command):
     """Recognizes pyramids of emotes."""
 
     perm = Permission.User
+    responses = {}
 
     count = 0
     currentEmote = ""
     emotes = []
     emojis = []
     users = []
-    pyramidBlocks = ["A pyramid (from Greek: πυραμίς pyramis)[1][2] is a structure whose outer surfaces are triangular and converge to a single point at the top, making the shape roughly a pyramid in the geometric sense.",
-                     "no 4Head", "Almost a pyramid PogChamp", "Not on my watch OpieOP", "Sorry, did I interrupt you? monkaS", "(⌐■_■)–︻╦╤─ TheIlluminati", "LUL"]
 
     def match(self, bot, user, msg):
         """Match always."""
@@ -629,6 +659,7 @@ class Pyramid(Command):
 
     def run(self, bot, user, msg):
         """Check whether a pyramid was successfully built or a new one was started."""
+        self.responses = bot.responses["Pyramid"]
         self.emotes = bot.emotes
         self.emojis = bot.emojis
         if self.count == 0:
@@ -663,11 +694,10 @@ class Pyramid(Command):
     def blockPyramid(self, bot):
         """Block a pyramid."""
         if random.randint(0, 3):
-            bot.write(random.choice(self.pyramidBlocks))
+            bot.write(random.choice(self.responses["pyramidblocks"]["msg"]))
             self.count = 0
         else:
             self.count = 0
-            bot.write(self.pyramidLevel(self.currentEmote, 4))
             bot.write(self.pyramidLevel(self.currentEmote, 5))
 
     def successfulPlebPyramid(self, bot):
@@ -676,13 +706,16 @@ class Pyramid(Command):
         if len(uniqueUsers) == 1:
             user = uniqueUsers[0]
             if bot.get_permission(user) in [Permission.User, Permission.Subscriber]:
-                bot.write("Wow, " + bot.displayName(user) + " built a pleb pyramid and " + bot.pronoun(user)[0] + " gets a free timeout. 4Head")
+                var = {"<USER>": bot.displayName(user), "<PRONOUN0>": bot.pronoun(user)[0]}
+                bot.write(bot.replace_vars(self.responses["plebpyramid"]["msg"], var))
                 bot.write("/timeout " + user + " 60")
             else:
-                bot.write(bot.displayName(user) + " created a pleb pyramid and would get a free timeout, but " + bot.pronoun(user)[0] + " is a mod. FeelsBadMan")
+                var = {"<USER>": bot.displayName(user), "<PRONOUN0>": bot.pronoun(user)[0]}
+                bot.write(bot.replace_vars(self.responses["mod_plebpyramid"]["msg"], var))
         else:
             s = formatList(list(map(lambda x: bot.displayName(x), uniqueUsers)))
-            bot.write("Wow, " + s + " built a pleb pyramid and they all get a free timeout. 4Head")
+            var = {"<MULTIUSERS>": s}
+            bot.write(bot.replace_vars(self.responses["multi_plebpyramid"]["msg"], var))
             for u in uniqueUsers:
                 if bot.get_permission(u) in [Permission.User, Permission.Subscriber]:
                     bot.write("/timeout " + u + " 60")
@@ -691,13 +724,15 @@ class Pyramid(Command):
         """Send a message for a successful pyramid."""
         points = self.calculatePoints(bot)
         if len(points) == 1:
-            u = self.users[0]
-            bot.write(bot.displayName(u) + " built a pyramid and " + bot.pronoun(u)[0] + " gets " + str(points[u]) + " spam points. PogChamp")
-            bot.ranking.incrementPoints(u, points[u], bot)
+            user = self.users[0]
+            var = {"<USER>": bot.displayName(user), "<PRONOUN0>": bot.pronoun(user)[0], "<AMOUNT>": points[user]}
+            bot.write(bot.replace_vars(self.responses["pyramid"]["msg"], var))
+            bot.ranking.incrementPoints(user, points[user], bot)
         else:
             s = formatList(list(map(lambda x: bot.displayName(x), list(points.keys()))))  # calls bot.displayName on every user
             p = formatList(list(points.values()))
-            bot.write("Teamwork! PogChamp " + s + " built a pyramid. They get " + p + " spam points. KappaClaus")
+            var = {"<MULTIUSERS>": s, "<AMOUNT>": p}
+            bot.write(bot.replace_vars(self.responses["multi_pyramid"]["msg"], var))
             for u in list(points.keys()):
                 bot.ranking.incrementPoints(u, points[u], bot)
 
@@ -729,6 +764,7 @@ class KappaGame(Command):
     """
 
     perm = Permission.User
+    responses = {}
 
     active = False
     n = 0
@@ -740,31 +776,32 @@ class KappaGame(Command):
 
     def run(self, bot, user, msg):
         """Generate a random number n when game gets first started. Afterwards, check if a message contains the emote n times."""
+        self.responses = bot.responses["KappaGame"]
         cmd = msg.strip()
 
         if not self.active:
             self.active = True
             self.n = random.randint(1, 25)
             print("Kappas: " + str(self.n))
-            bot.write("/me ▬▬▬▬▬▬▬▬▬▬▬ஜ۩۞۩ஜ▬▬▬▬▬▬▬▬▬▬▬ \
-                Kappa game has started. Guess the right amount of Kappa s between 1 and 25! PogChamp \
-                ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬")
+            bot.write(self.responses["start_msg"]["msg"])
         else:
             if msg == "!kstop" and bot.get_permission(user) not in [Permission.User, Permission.Subscriber]:
                 self.close(bot)
-                bot.write("Stopping the Kappa game! FeelsBadMan")
+                bot.write(self.responses["stop_msg"]["msg"])
                 return
 
             i = self.countEmotes(cmd, "Kappa")
             if i == self.n:
-                bot.write("/me " + bot.displayName(user) + " got it! It was " + str(self.n) + " Kappa s!")
+                var = {"<USER>": bot.displayName(user), "<AMOUNT>": self.n}
+                bot.write(bot.replace_vars(self.responses["winner_msg"]["msg"], var))
                 bot.ranking.incrementPoints(user, bot.KAPPAGAMEP, bot)
                 bot.gameRunning = False
                 self.active = False
                 self.answered = []
             elif i != -1:
                 if i not in self.answered:
-                    bot.write("It's not " + str(i) + ". 4Head")
+                    var = {"<AMOUNT>": i}
+                    bot.write(bot.replace_vars(self.responses["wrong_amount"]["msg"], var))
                     self.answered.append(i)
 
     def countEmotes(self, msg, emote):
@@ -791,6 +828,7 @@ class GuessEmoteGame(Command):
     """
 
     perm = Permission.User
+    responses = {}
     active = False
     emotes = []
     emote = ""
@@ -837,26 +875,30 @@ class GuessEmoteGame(Command):
 
     def run(self, bot, user, msg):
         """Initalize the command on first run. Check for right emote for each new msg."""
+        self.responses = bot.responses["GuessEmoteGame"]
         cmd = msg.strip()
 
         if not self.active:
             self.active = True
             self.initGame(bot, msg)
             print("Right emote: " + self.emote)
-            bot.write("/me The 'Guess The Emote Game' has started. Write one of the following emotes to start playing: " + EmoteListToString(self.emotes))
+            var = {"<MULTIEMOTES>": EmoteListToString(self.emotes)}
+            bot.write(bot.replace_vars(self.responses["start_msg"]["msg"], var))
         else:
             if cmd == "!estop" and bot.get_permission(user) not in [Permission.User, Permission.Subscriber]:
-                bot.write("Stopping the Emote Game! FeelsBadMan")
+                bot.write(self.responses["stop_msg"]["msg"])
                 self.close(bot)
                 return
 
             if cmd == self.emote:
-                bot.write("/me " + bot.displayName(user) + " got it! It was " + self.emote + " . " + bot.pronoun(user)[0].capitalize() + " gets " + str(bot.EMOTEGAMEP) + " spam points.")
+                var = {"<USER>": bot.displayName(user), "<EMOTE>": self.emote, "<PRONOUN0>": bot.pronoun(user)[0].capitalize(), "<AMOUNT>": bot.EMOTEGAMEP}
+                bot.write(bot.replace_vars(self.responses["winner_msg"]["msg"], var))
                 bot.ranking.incrementPoints(user, bot.EMOTEGAMEP, bot)
                 bot.gameRunning = False
                 self.active = False
             elif cmd == "!emotes":
-                bot.write("Possible game emotes: " + EmoteListToString(self.emotes))
+                var = {"<MULTIEMOTES>": EmoteListToString(self.emotes)}
+                bot.write(bot.replace_vars(self.responses["emote_msg"]["msg"], var))
 
     def close(self, bot):
         """Close emote game."""
@@ -882,25 +924,12 @@ class GuessMinionGame(Command):
     """
 
     perm = Permission.User
+    responses = {}
     active = False
     cluetime = 10   # time between clues in seconds
     callID = None
 
-    statToSet = {
-        "EXPERT1": "CLASSIC",
-        "CORE": "CLASSIC",
-        "HOF": "CLASSIC",
-        "OG": "Whispers of the Old Gods",
-        "GANGS": "Mean Streets of Gadgetzan",
-        "KARA": "One Night in Karazhan",
-        "ICECROWN": "Knights of the Frozen Throne",
-        "TGT": "The Grand Tournament",
-        "BRM": "Blackrock Mountain",
-        "UNGORO": "Journey to Un'Goro",
-        "NAXX": "Curse of Naxxramas",
-        "GVG": "Goblins vs Gnomes",
-        "LOE": "The League of Explorers"
-    }
+    statToSet = {}
 
     def giveClue(self, bot): # noqa (let's ignore the high complexity for now)
         """Give a random clue to the chat.
@@ -916,26 +945,34 @@ class GuessMinionGame(Command):
 
         """ Write a clue in chat. Some set names have to be renamed. """
         if(stat == "cardClass"):
-            bot.write("/me The minion is a " + str(self.minion[stat]).lower() + " card.")
+            var = {"<STAT>": str(self.minion[stat]).lower()}
+            bot.write(bot.replace_vars(self.responses["clue_stat"]["msg"], var))
         elif(stat == "set"):
+            self.statToSet = self.responses["setnames"]["msg"]
             if self.minion[stat] in self.statToSet:
                 setname = self.statToSet[self.minion[stat]]
             else:
                 setname = str(self.minion[stat])
-            bot.write("/me The card is from the '" + setname + "' set.")
+            var = {"<STAT>": setname}
+            bot.write(bot.replace_vars(self.responses["clue_set"]["msg"], var))
         elif(stat == "name"):
-            bot.write("/me The name of the card starts with \'" + str(self.minion[stat][0]) + "\'.")
+            var = {"<STAT>": self.minion[stat][0]}
+            bot.write(bot.replace_vars(self.responses["clue_letter"]["msg"], var))
         elif(stat == "rarity"):
-            bot.write("/me The minion is a \'" + str(self.minion[stat]).lower() + "\' card.")
+            var = {"<STAT>": str(self.minion[stat]).lower()}
+            bot.write(bot.replace_vars(self.responses["clue_rarity"]["msg"], var))
         elif(stat == "attack"):
-            bot.write("/me The minion has " + str(self.minion[stat]) + " attackpower.")
+            var = {"<STAT>": self.minion[stat]}
+            bot.write(bot.replace_vars(self.responses["clue_attackpower"]["msg"], var))
         elif(stat == "cost"):
-            bot.write("/me The card costs " + str(self.minion[stat]) + " mana.")
+            var = {"<STAT>": self.minion[stat]}
+            bot.write(bot.replace_vars(self.responses["clue_manacost"]["msg"], var))
         elif(stat == "health"):
             if(self.minion[stat] == 1):
-                bot.write("/me The minion has " + str(self.minion[stat]) + " healthpoint.")
+                var = {"<STAT>": self.minion[stat], "<PLURAL>": ""}
             else:
-                bot.write("/me The minion has " + str(self.minion[stat]) + " healthpoints.")
+                var = {"<STAT>": self.minion[stat], "<PLURAL>": "s"}
+            bot.write(bot.replace_vars(self.responses["clue_healthpoints"]["msg"], var))
 
         """Start of threading"""
         self.callID = reactor.callLater(self.cluetime, self.giveClue, bot)
@@ -955,25 +992,25 @@ class GuessMinionGame(Command):
 
     def run(self, bot, user, msg):
         """On first run initialize game."""
+        self.responses = bot.responses["GuessMinionGame"]
         cmd = msg.strip()
 
         if not self.active:
             self.active = True
             self.initGame(bot)
             print("Right Minion: " + self.minion['name'])
-            bot.write("/me ▬▬▬▬▬▬▬▬▬▬▬ஜ۩۞۩ஜ▬▬▬▬▬▬▬▬▬▬▬ \
-                The 'Guess The Minion Game' has started. Type minion names to play. monkaS \
-                ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬")
+            bot.write(self.responses["start_msg"]["msg"])
             self.giveClue(bot)
         else:
             if cmd == "!mstop" and bot.get_permission(user) not in [Permission.User, Permission.Subscriber]:
                 self.close(bot)
-                bot.write("Stopping the Minion Game! FeelsBadMan")
+                bot.write(self.responses["stop_msg"]["msg"])
                 return
 
             name = self.minion['name'].strip()
             if cmd.strip().lower() == name.lower():
-                bot.write("/me " + bot.displayName(user) + " got it! It was " + name + ". " + bot.pronoun(user)[0].capitalize() + " gets " + str(bot.MINIONGAMEP) + " spam points.")
+                var = {"<USER>": bot.displayName(user), "<MINION>": name, "<PRONOUN0>": bot.pronoun(user)[0].capitalize(), "<AMOUNT>": bot.MINIONGAMEP}
+                bot.write(bot.replace_vars(self.responses["winner_msg"]["msg"], var))
                 bot.ranking.incrementPoints(user, bot.MINIONGAMEP, bot)
                 self.close(bot)
 
@@ -989,6 +1026,7 @@ class AutoGames(Command):
     """Start games randomly."""
 
     perm = Permission.Moderator
+    responses = {}
     active = False
     callID = None
 
@@ -1019,24 +1057,25 @@ class AutoGames(Command):
 
     def run(self, bot, user, msg):
         """Start/stop automatic games."""
+        self.responses = bot.responses["AutoGames"]
         cmd = msg[len("!games "):]
         cmd.strip()
 
         if cmd == 'on':
             if not self.active:
                 self.active = True
-                self.callID = reactor.callLater(self.time, self.randomGame, bot)
-                bot.write('AUTOMATIC GAME MODE ACTIVATED! MrDestructoid')
+                self.callID = reactor.callLater(bot.AUTO_GAME_INTERVAL, self.randomGame, bot)
+                bot.write(self.responses["autogames_activate"]["msg"])
             else:
-                bot.write('Automatic games are already on! DansGame')
+                bot.write(self.responses["autogames_already_on"]["msg"])
         elif cmd == 'off':
             if is_callID_active(self.callID):
                 self.callID.cancel()
             if self.active:
                 self.active = False
-                bot.write('Automatic game mode deacti... ResidentSleeper')
+                bot.write(self.responses["autogames_deactivate"]["msg"])
             else:
-                bot.write('Automatic games were not even active! EleGiggle')
+                bot.write(self.responses["autogames_already_off"]["msg"])
 
     def close(self, bot):
         """Close the game."""
@@ -1049,6 +1088,7 @@ class Active(Command):
     """Get active users."""
 
     perm = Permission.User
+    responses = {}
 
     def match(self, bot, user, msg):
         """Match if message starts with !active."""
@@ -1056,25 +1096,25 @@ class Active(Command):
 
     def run(self, bot, user, msg):
         """Write out active users."""
-        reply = None
+        self.responses = bot.responses["Active"]
         active = len(bot.get_active_users())
 
         if active == 1:
-            reply = "{}: There is {} active user in chat"
+            var = {"<USER>": user, "<AMOUNT>": active, "<PLURAL>": ""}
         else:
-            reply = "{}: There are {} active users in chat"
+            var = {"<USER>": user, "<AMOUNT>": active, "<PLURAL>": "s"}
 
-        reply = reply.format(user, active)
-        bot.write(reply)
+        bot.write(bot.replace_vars(self.responses["msg_active_users"]["msg"], var))
 
 
 class Pronouns(Command):
     """Allows changing gender pronouns for a user.
 
-    Usage: !g igetnokick she her hers
+    Usage: !g <USER> she her hers
     """
 
     perm = Permission.Admin
+    responses = {}
 
     def match(self, bot, user, msg):
         """Match if message starts with !g and has one argument."""
@@ -1082,19 +1122,21 @@ class Pronouns(Command):
 
     def run(self, bot, user, msg):
         """Add custom pronouns."""
+        self.responses = bot.responses["Pronouns"]
         args = msg.lower().split(' ')
 
         bot.pronouns[args[1]] = [args[2], args[3], args[4]]
         with open(bot.pronouns_path, 'w') as file:
             json.dump(bot.pronouns, file, indent=4)
 
-        bot.write("Successfully added pronouns monkaS .")
+        bot.write(self.responses["pronoun_added"]["msg"])
 
 
 class Rank(Command):
     """Get rank of a user."""
 
     perm = Permission.User
+    responses = {}
 
     def match(self, bot, user, msg):
         """Match if message is !rank or starts with !rank and has one argument."""
@@ -1111,16 +1153,19 @@ class Rank(Command):
         0-19: Rank 25, 20-39: Rank 24,..., 480-499: Rank 1
         >= LEGENDP: Legend
         """
+        self.responses = bot.responses["Rank"]
         if msg.startswith('!rank '):
             user = msg.split(' ')[1]
         points = bot.ranking.getPoints(user)
-        bot.write(bot.displayName(user) + " is rank " + bot.ranking.getHSRank(points) + " with " + str(points) + " spampoints. monkaS")
+        var = {"<USER>": bot.displayName(user), "<RANK>": bot.ranking.getHSRank(points), "<POINTS>": points}
+        bot.write(bot.replace_vars(self.responses["display_rank"]["msg"], var))
 
 
 class TopSpammers(Command):
     """Write top spammers."""
 
     perm = Permission.User
+    responses = {}
 
     def match(self, bot, user, msg):
         """Match if message is !topspammers."""
@@ -1128,8 +1173,9 @@ class TopSpammers(Command):
 
     def run(self, bot, user, msg):
         """Return the top spammers."""
+        self.responses = bot.responses["TopSpammers"]
         ranking = bot.ranking.getTopSpammers(5)
-        out = "Top spammers: "
+        out = self.responses["heading"]["msg"]
         if len(ranking) > 0:
             for i in range(0, len(ranking)-1):
                 out = out + bot.displayName(ranking[i][0]) + ": Rank " + bot.ranking.getHSRank(ranking[i][1]) + ", "
@@ -1141,6 +1187,7 @@ class Sleep(Command):
     """Allows admins and trusted mods to pause the bot."""
 
     perm = Permission.Moderator
+    responses = {}
 
     def match(self, bot, user, msg):
         """Match if message is !sleep or !wakeup."""
@@ -1151,13 +1198,14 @@ class Sleep(Command):
 
     def run(self, bot, user, msg):
         """Put the bot to sleep or wake it up."""
+        self.responses = bot.responses["Sleep"]
         cmd = msg.lower().replace(' ', '')
         if cmd.startswith("!sleep"):
-            bot.write("Going to sleep... bye! ResidentSleeper")
+            bot.write(self.responses["bot_deactivate"]["msg"])
             bot.close_commands()
             bot.pause = True
         elif cmd.startswith("!wakeup"):
-            bot.write("Good morning everyone! FeelsGoodMan /")
+            bot.write(self.responses["bot_activate"]["msg"])
             bot.pause = False
 
 
@@ -1204,6 +1252,8 @@ def startGame(bot, user, msg, cmd):
     Takes off points if a non moderator wants to start a game.
     Also makes sure only one game is running at a time.
     """
+    responses = bot.responses["startGame"]
+
     if bot.gameRunning:
         return False
     elif bot.get_permission(user) in [Permission.User, Permission.Subscriber] and msg == cmd:
@@ -1216,12 +1266,14 @@ def startGame(bot, user, msg, cmd):
                 bot.gameRunning = True
                 return True
             else:
-                bot.write("You need " + str(bot.GAMESTARTP) + " points to start a game.")
+                var = {"<AMOUNT>": bot.GAMESTARTP}
+                bot.write(bot.replace_vars(responses["points_needed"]["msg"], var))
                 return False
         else:
             t = bot.pleb_gametimer - time.time() + bot.last_plebgame
             next_plebgame = "%8.0f" % t
-            bot.write("Only mods can start chatgames for another " + str(next_plebgame) + " seconds. monkaS")
+            var = {"<COOLDOWN>": next_plebgame}
+            bot.write(bot.replace_vars(responses["plebgames_on_cooldown"]["msg"], var))
     else:  # The calling user is a mod, so we only check if the command is correct
         if msg == cmd:
             bot.gameRunning = True
@@ -1298,6 +1350,7 @@ class Oralpleasure(Command):
 
     perm = Permission.User
     active = False
+    responses = {}
 
     def match(self, bot, user, msg):
         """Match if the bot is tagged."""
@@ -1306,20 +1359,21 @@ class Oralpleasure(Command):
 
     def run(self, bot, user, msg):
         """Define answers based on pieces in the message."""
+        self.responses = bot.responses["Oralpleasure"]
         cmd = msg.lower()
 
         if cmd.startswith('!oralpleasure on'):
             if self.active:
-                bot.write('Oralpleasure is already on! Jebaited')
+                bot.write(self.responses["op_already_on"]["msg"])
             else:
                 self.active = True
-                bot.write('Oralpleasure is now on! Kreygasm')
+                bot.write(self.responses["op_activate"]["msg"])
         elif cmd.startswith('!oralpleasure off'):
             if self.active:
                 self.active = False
-                bot.write('Oralpleasure is now off! FeelsBadMan')
+                bot.write(self.responses["op_deactivate"]["msg"])
             else:
-                bot.write('Oralpleasure was already off! monkaS')
+                bot.write(self.responses["op_already_off"]["msg"])
 
     def close(self, bot):
         """Turn off on shotdown or reload."""
@@ -1331,6 +1385,7 @@ class MonkalotParty(Command):
 
     perm = Permission.User
     active = False
+    responses = {}
 
     mp = ""
     answer = ""
@@ -1352,17 +1407,18 @@ class MonkalotParty(Command):
 
     def gameWinners(self, bot):
         """Anounce game winners and give points."""
-        s = "Monkalot Party is over! "
+        s = self.responses["game_over1"]["msg"]
         winners = self.mp.topranks()
 
         if winners is None:
-            s += "There was no clear winner ... FeelsBadMan"
+            s += self.responses["game_over2"]["msg"]
         else:
             for i in range(0, len(winners[0])):
                 s += bot.displayName(winners[0][i]) + " "
                 bot.ranking.incrementPoints(winners[0][i], winners[2], bot)
 
-            s += "got 1st place with " + str(winners[1]) + " points and get " + str(winners[2]) + " extra spampoints! PogChamp Clap"
+            var = {"<GAME_POINTS>": winners[1], "<USER_POINTS>": winners[2]}
+            s += bot.replace_vars(self.responses["game_over3"]["msg"], var)
 
         bot.write(s)
 
@@ -1374,30 +1430,29 @@ class MonkalotParty(Command):
 
     def run(self, bot, user, msg):
         """Define answers based on pieces in the message."""
+        self.responses = bot.responses["MonkalotParty"]
         cmd = msg.strip()
 
         if not self.active:
             self.mp = MiniGames()
             self.active = True
             bot.gameRunning = True
-            bot.write("/me ▬▬▬▬▬▬▬▬▬▬▬ஜ۩۞۩ஜ▬▬▬▬▬▬▬▬▬▬▬ \
-            PepePls PogChamp MONKALOTPARTY HAS STARTED ! Jebaited PepePls \
-            Kappa gachiGASM PepePls FeelsGoodMan 4Head EZ Clap PepePls LUL Kreygasm FeelsBadMan \
-            ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ monkaS Get ready for games in 5 ... 4 ... 3 ... 2 ... 1 ... monkaS")
+            bot.write(self.responses["start_msg"]["msg"])
 
             """Start of threading"""
             self.callID = reactor.callLater(5, self.selectGame, bot)
         else:
             if cmd.lower() == "!pstop" and (bot.get_permission(user) > 0):
                 self.close(bot)
-                bot.write("Stopping Monkalot Party! FeelsBadMan")
+                bot.write(self.responses["stop_msg"]["msg"])
                 return
             if self.answer != "":    # If we are not between games.
                 if self.answer not in bot.emotes:   # If not an emote compare in lowercase.
                     self.answer = self.answer.lower()
                     cmd = cmd.lower()
                 if cmd == self.answer:
-                    bot.write("/me " + bot.displayName(user) + " got it first and gets 5 points. The answer was: " + self.answer)
+                    var = {"<USER>": bot.displayName(user), "<ANSWER>": self.answer}
+                    bot.write(bot.replace_vars(self.responses["winner_msg"]["msg"], var))
                     self.answer = ""
                     bot.ranking.incrementPoints(user, 5, bot)
                     self.mp.uprank(user)
