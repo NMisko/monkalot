@@ -45,6 +45,7 @@ class TwitchBot(irc.IRCClient, object):
     antispeech = False   # if a command gets executed which conflicts with native speech
     pyramidBlock = False
     ranking = bot.ranking.Ranking()
+    port = None
 
     def __init__(self):
         """Start WEB API."""
