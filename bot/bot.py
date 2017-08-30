@@ -444,7 +444,7 @@ class TwitchBot(irc.IRCClient, object):
 
             if int(months) == 1:
                 var = {"<USER>": user, "<SUBPLAN>": plan[subtype]}
-                reply = self..replace_vars(responses["msg_standard"]["msg"], var)
+                reply = self.replace_vars(responses["msg_standard"]["msg"], var)
             elif int(months) > 1:
                 var = {"<USER>": user, "<SUBPLAN>": plan[subtype], "<MONTHS>": months}
                 reply = self.replace_vars(responses["msg_with_months"]["msg"], var)
