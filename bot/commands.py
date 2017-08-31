@@ -1208,6 +1208,24 @@ class Sleep(Command):
             bot.write(self.responses["bot_activate"]["msg"])
             bot.pause = False
 
+class BanMe(Command):
+    """Ban me part in normal messages."""
+
+    perm = Permission.User
+
+    def match(self, bot, user, msg):
+        """Ban if mentioning bot and contains 'ban me'"""
+        return bot.nickname in msg.lower() and "ban me" in msg.lower()
+
+    def run(self, bot, user, msg):
+        self.responses = bot.responses["BanMe"]
+        if bot.get_permission(user) in [Permission.User, Permission.Subscriber]:
+            bot.write("/ban " + user)
+            bot.write("/unban " + user)
+            bot.write("@" + user + " " + self.responses["success"]["msg"])
+        else:
+            """A mod want to get banned/unmodded, but monkalot can't unmod them anyway"""
+            bot.write("@" + user + " "  + self.responses["fail"]["msg"])
 
 class Speech(Command):
     """Natural language by using cleverbot."""
@@ -1233,10 +1251,6 @@ class Speech(Command):
 
     def run(self, bot, user, msg):
         """Send message to cleverbot only if no other command got triggered."""
-        if "ban me" in msg.lower():
-            bot.write("/ban " + user)
-            bot.write("/unban " + user)
-
         if bot.antispeech is not True:
             msg = msg.lower()
             msg = msg.replace("@", '')
