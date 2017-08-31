@@ -1210,6 +1210,7 @@ class Sleep(Command):
 
 class BanMe(Command):
     """Ban me part in normal messages."""
+
     perm = Permission.User
 
     def match(self, bot, user, msg):
@@ -1217,8 +1218,14 @@ class BanMe(Command):
         return bot.nickname in msg.lower() and "ban me" in msg.lower()
 
     def run(self, bot, user, msg):
-        bot.write("/ban " + user)
-        bot.write("/unban " + user)
+        self.responses = bot.responses["BanMe"]
+        if bot.get_permission(user) in [Permission.User, Permission.Subscriber]:
+            bot.write("/ban " + user)
+            bot.write("/unban " + user)
+            bot.write("@" + user + " " + self.responses["success"]["msg"])
+        else:
+            """A mod want to get banned/unmodded, but monkalot can't unmod them anyway"""
+            bot.write("@" + user + " "  + self.responses["fail"]["msg"])
 
 class Speech(Command):
     """Natural language by using cleverbot."""

@@ -472,6 +472,18 @@
             "args_info": {}
         }
     },
+    "BanMe": {
+        "success": {
+            "msg": "Sure DatSheffy",
+            "info": "Display message when plebs want to got banned",
+            "args_info": {}
+        },
+		"fail": {
+			"msg": "DansGame",
+			"info": "Display message when mods want to got banned",
+			"args_info": {}
+		}
+    },
     "startGame": {
         "points_needed": {
             "msg": "You need <AMOUNT> points to start a game.",
