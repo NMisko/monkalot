@@ -160,6 +160,36 @@ class SimpleReply(Command):
             bot.write(reply)
 
 
+class TentaReply(Command):
+    """Reply with squid emotes or penta emotes."""
+
+    perm = Permission.User
+
+    def match(self, bot, user, msg):
+        """Match if the message starts with '!tenta ' or '!penta ' followed by an emote."""
+        cmd = msg.split(" ")
+        if (msg.lower().strip().startswith("!tenta ") or msg.lower().strip().startswith("!penta ") or msg.lower().strip().startswith("!hentai ")):
+            if len(cmd) == 2:
+                arg = cmd[1].strip()
+                """Check if arg is an emote."""
+                if arg in bot.emotes:
+                    return True
+        return False
+
+    def run(self, bot, user, msg):
+        """Reply with squid or penta message."""
+        cmd = msg.split(" ")
+        emote = cmd[1].strip()
+
+        if msg.lower().strip().startswith("!tenta"):
+            s = "Squid1 Squid2 " + emote + " Squid2 Squid4"
+        elif msg.lower().strip().startswith("!penta"):
+            s = emote + " " + emote + " " + emote + " " + emote + " " + emote
+        elif msg.lower().strip().startswith("!hentai"):
+            s = "gachiGASM Squid4 " + emote + " Squid1 Jebaited"
+        bot.write(s)
+
+
 class Spam(Command):
     """Spams together with chat."""
 
@@ -1032,7 +1062,7 @@ class AutoGames(Command):
 
     def randomGame(self, bot):
         """Start a random game."""
-        gamecmds = ["!kstart", "!estart", "!mstart"]
+        gamecmds = ["!kstart", "!estart", "!mstart", "!pstart"]
 
         if not self.active:
             return
@@ -1440,8 +1470,7 @@ class MonkalotParty(Command):
     def match(self, bot, user, msg):
         """Match if active or '!pstart'."""
         cmd = msg.lower()
-        if self.active or cmd == '!pstart':
-            return True
+        return self.active or startGame(bot, user, msg, "!pstart")
 
     def run(self, bot, user, msg):
         """Define answers based on pieces in the message."""
