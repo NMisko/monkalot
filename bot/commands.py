@@ -1218,6 +1218,7 @@ class BanMe(Command):
         return bot.nickname in msg.lower() and "ban me" in msg.lower()
 
     def run(self, bot, user, msg):
+        bot.antispeech = True
         self.responses = bot.responses["BanMe"]
         if bot.get_permission(user) in [Permission.User, Permission.Subscriber]:
             bot.write("/ban " + user)
