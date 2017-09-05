@@ -812,6 +812,7 @@ class KappaGame(Command):
         if not self.active:
             self.active = True
             self.n = random.randint(1, 25)
+            self.answered = []
             print("Kappas: " + str(self.n))
             bot.write(self.responses["start_msg"]["msg"])
         else:
@@ -845,6 +846,7 @@ class KappaGame(Command):
 
     def close(self, bot):
         """Close kappa game."""
+        self.answered = []
         self.active = False
         bot.gameRunning = False
 
