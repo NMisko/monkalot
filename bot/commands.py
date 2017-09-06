@@ -1273,6 +1273,9 @@ class Speech(Command):
         if not random.randint(0, 3):
             output = output + " monkaS"
         bot.write("@" + user + " " + output)
+        """Resetting CleverWrap Object to counter reoccuring bug.
+        Should think of a cleaner solution in the future."""
+        self.cw.reset()
 
     def __init__(self, bot):
         """Initialize the command."""
