@@ -15,7 +15,7 @@ class MiniGames(object):
     ranks = {}
 
     def storycalc(self):
-        """Give a math textquestion."""
+        """Give a math text question."""
         start_a = random.randrange(2, 10, 2)
         start_b = random.randrange(2, 10, 2)
         more = randint(1, 9)
@@ -115,7 +115,7 @@ class MiniGames(object):
             quest = "Which deck is " + emote2 + " playing?"
             answer = deck
         elif n == 5:
-            quest = "What color has " + emote + " 's plastic toy " + toy + "?"
+            quest = "What color does " + emote + " 's plastic toy " + toy + " have?"
             answer = color
         elif n == 6:
             quest = "What kind of plastic toy did " + emote + " bring?"
@@ -208,7 +208,7 @@ class MiniGames(object):
 
         item = random.choice(list(self.data[qtype]))
         article = self.data[qtype][item][1]
-        question = "/me ▬W▬H▬A▬T▬S▬▬T▬H▬E▬▬C▬O▬L▬O▬R▬▬ :thinking: What color has {}{}? :thinking: ▬W▬H▬A▬T▬S▬▬T▬H▬E▬▬C▬O▬L▬O▬R▬▬".format(article, item)
+        question = "/me ▬W▬H▬A▬T▬S▬▬T▬H▬E▬▬C▬O▬L▬O▬R▬▬ :thinking: What's the color of {}{}? :thinking: ▬W▬H▬A▬T▬S▬▬T▬H▬E▬▬C▬O▬L▬O▬R▬▬".format(article, item)
         answer = self.data[qtype][item][0]
 
         return {"colorof": {"question": question, "answer": answer}}
@@ -221,18 +221,18 @@ class MiniGames(object):
         key_arg = bool(random.getrandbits(1))
 
         if key_arg:
-            item = key
-            question = "/me ▬▬▬▬▬▬C▬A▬P▬I▬T▬A▬L▬▬O▬F▬▬▬▬▬▬ :thinking: {} is the capital of? :thinking: ▬▬▬▬▬▬C▬A▬P▬I▬T▬A▬L▬▬O▬F▬▬▬▬▬▬".format(item)
-            answer = self.data[qtype][key]
-        else:
             item = self.data[qtype][key]
-            question = "/me ▬▬▬▬▬▬C▬A▬P▬I▬T▬A▬L▬▬O▬F▬▬▬▬▬▬ :thinking: What is the capital of {}? :thinking: ▬▬▬▬▬▬C▬A▬P▬I▬T▬A▬L▬▬O▬F▬▬▬▬▬▬".format(item)
+            question = "/me ▬▬▬▬▬▬C▬A▬P▬I▬T▬A▬L▬▬O▬F▬▬▬▬▬▬ :thinking: {} is the capital of? :thinking: ▬▬▬▬▬▬C▬A▬P▬I▬T▬A▬L▬▬O▬F▬▬▬▬▬▬".format(item)
             answer = key
+        else:
+            item = key
+            question = "/me ▬▬▬▬▬▬C▬A▬P▬I▬T▬A▬L▬▬O▬F▬▬▬▬▬▬ :thinking: What is the capital of {}? :thinking: ▬▬▬▬▬▬C▬A▬P▬I▬T▬A▬L▬▬O▬F▬▬▬▬▬▬".format(item)
+            answer = self.data[qtype][key]
 
         return {"capitalof": {"question": question, "answer": answer}}
 
     def oppositeof(self):
-        """Ask the oposite of a word."""
+        """Ask the opposite of a word."""
         qtype = self.questtype[0]
 
         key = random.choice(list(self.data[qtype]))
@@ -257,7 +257,7 @@ class MiniGames(object):
             self.ranks.update({user: 1})
 
     def topranks(self):
-        """Return the topranked users and return the amount of spampoints they get."""
+        """Return the top ranked users and return the amount of spampoints they get."""
         winners = []
 
         topscore = self.ranks[max(self.ranks.keys(), key=(lambda key: self.ranks[key]))]
