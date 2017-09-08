@@ -1460,8 +1460,8 @@ class MonkalotParty(Command):
         if winners is None:
             s += self.responses["game_over2"]["msg"]
         else:
+            s += formatList(winners[0]) + " "
             for i in range(0, len(winners[0])):
-                s += bot.displayName(winners[0][i]) + " "
                 bot.ranking.incrementPoints(winners[0][i], winners[2], bot)
 
             var = {"<GAME_POINTS>": winners[1], "<USER_POINTS>": winners[2]}
