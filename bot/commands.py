@@ -940,12 +940,9 @@ class GuessEmoteGame(Command):
 
 def EmoteListToString(emoteList):
     """Convert an EmoteList to a string."""
-    s = ""
-
-    for i in range(0, len(emoteList)-1):
-        s = s + emoteList[i] + " "
-
-    return s
+    # Use string.join to glue string of emotes in emoteList
+    separator = " "
+    return separator.join(emoteList)
 
 
 class GuessMinionGame(Command):
