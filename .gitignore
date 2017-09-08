@@ -4,3 +4,6 @@ __pycache__/
 logs/
 pylama.ini
 *.db
+data/emote_stats.json
+data/monkalot.db
+configs/bot_config.json
