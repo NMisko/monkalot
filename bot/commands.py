@@ -9,6 +9,7 @@ from cleverwrap import CleverWrap
 import pyparsing
 from bot.minigames import MiniGames
 import time
+from datetime import datetime
 
 import re
 
@@ -1520,3 +1521,51 @@ class MonkalotParty(Command):
             self.callID.cancel()
         self.active = False
         bot.gameRunning = False
+
+
+def TwitchTime2datetime(twitch_time):
+    """Convert Twitch time string to datetime object.
+    E.g.: 2017-09-08T22:35:33.449961Z
+    """
+
+    for ch in ['-','T','Z', ':']:
+        twitch_time = twitch_time.replace(ch, "")
+
+    return datetime.strptime(twitch_time, "%Y%m%d%H%M%S")
+    
+
+class StreamInfo(Command):
+    """Get stream informations and write them in chat."""
+
+    perm = Permission.User
+    responses = {}
+
+    def match(self, bot, user, msg):
+        """Match if a stream information command is triggered."""
+        cmd = msg.lower()
+        return (cmd.startswith("!fps") or cmd.startswith("!uptime"))
+
+    def run(self, bot, user, msg):
+        """Get stream object and return requested information."""
+        self.responses = bot.responses["StreamInfo"]
+        cmd = msg.lower()
+        self.stream = bot.getStream(bot.channelID)
+
+        if self.stream["stream"] is None:
+            bot.write(self.responses["stream_off"]["msg"])
+        else:
+            if cmd.startswith("!fps"):
+                fps = format(self.stream["stream"]["average_fps"], '.2f')
+                var = {"<FPS>": fps}
+                bot.write(bot.replace_vars(self.responses["fps_msg"]["msg"], var))
+            elif cmd.startswith("!uptime"):
+                created_at = self.stream["stream"]["created_at"]
+                streamstart = TwitchTime2datetime(created_at)
+                now = datetime.utcnow()
+                elapsed_time =  now - streamstart
+                seconds = int(elapsed_time.total_seconds())
+                hours = seconds // 3600
+                minutes = (seconds % 3600) // 60
+                seconds = seconds % 60
+                var = {"<HOURS>": hours, "<MINUTES>": minutes, "<SECONDS>": seconds}
+                bot.write(bot.replace_vars(self.responses["uptime"]["msg"], var))

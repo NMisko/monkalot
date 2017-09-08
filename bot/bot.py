@@ -79,6 +79,7 @@ class TwitchBot(irc.IRCClient, object):
         self.password = str(CONFIG['oauth_key'])
         self.cleverbot_key = str(CONFIG['cleverbot_key'])
         self.channel = "#" + str(CONFIG['channel'])
+        self.channelID = self.getuserID(str(CONFIG['channel']))
         self.pleb_cooldowntime = CONFIG["pleb_cooldown"]  # time between non-sub commands
         self.pleb_gametimer = CONFIG["pleb_gametimer"]  # time between pleb games
         self.last_plebcmd = time.time() - self.pleb_cooldowntime
@@ -138,7 +139,11 @@ class TwitchBot(irc.IRCClient, object):
         """On first start, get channel_BTTV-emotelist"""
         url = CHANNEL_BTTVEMOTES_API.format(self.channel[1:])
         data = requests.get(url).json()
-        emotelist = data['emotes']
+        try:
+            emotelist = data['emotes']
+        except:
+            print("No BTTV emotes found.")
+            emotelist = []
 
         self.channel_bttvemotes = []
         for i in range(0, len(emotelist)):
@@ -516,7 +521,8 @@ class TwitchBot(irc.IRCClient, object):
             cmds.SimpleReply(self),
             cmds.PyramidBlock(self),
             cmds.Spam(self),
-            cmds.TopSpammers(self)
+            cmds.TopSpammers(self),
+            cmds.StreamInfo(self)
         ]
 
         for i in range(0, ngames):
@@ -587,7 +593,7 @@ class TwitchBot(irc.IRCClient, object):
         return False
 
     def getChannel(self, channelID):
-        """Get the subscriberemotes from channelID."""
+        """Get the channel object from channelID."""
         url = "https://api.twitch.tv/kraken/channels/" + channelID
         headers = {'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': self.clientID, 'Authorization': self.password}
 
@@ -595,6 +601,16 @@ class TwitchBot(irc.IRCClient, object):
             return requests.get(url, headers=headers).json()
         except IndexError or KeyError:
             print("Channel object could not be fetched.")
+
+    def getStream(self, channelID):
+        """Get the channel object from channelID."""
+        url = "https://api.twitch.tv/kraken/streams/" + channelID
+        headers = {'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': self.clientID, 'Authorization': self.password}
+
+        try:
+            return requests.get(url, headers=headers).json()
+        except IndexError or KeyError:
+            print("Stream object could not be fetched.")
 
     def setlast_plebgame(self, last_plebgame):
         """Set timer of last_plebgame."""

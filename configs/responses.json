@@ -560,6 +560,29 @@
             }
         }
     },
+    "StreamInfo": {
+        "stream_off": {
+            "msg": "Stream is not running at the moment.",
+            "info": "Display if stream is offline while someone tries to access stream informations.",
+            "args_info": {}
+        },
+        "fps_msg": {
+            "msg": "Average FPS: <FPS>",
+            "info": "Display the average fps of the stream.",
+            "args_info": {
+                "<FPS>": "Average fps of the stream."
+            }
+        },
+        "uptime": {
+            "msg": "Channel has been live for <HOURS>h <MINUTES>min <SECONDS>sec",
+            "info": "Display the time the stream has been online for.",
+            "args_info": {
+                "<HOURS>": "Hours of uptime",
+                "<MINUTES>": "Minutes of uptime",
+                "<SECONDS>": "Seconds of uptime"
+            }
+        }
+    },
     "ranking": {
         "msg_legend": {
             "msg": "<USER> just reached <RANK>!! PogChamp Clap",
