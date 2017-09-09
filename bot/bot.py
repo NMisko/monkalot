@@ -55,21 +55,21 @@ class TwitchBot(irc.IRCClient, object):
 
     def setConfig(self, config):
         """Write the config file and reload."""
-        with open(CONFIG_PATH, 'w') as file:
+        with open(CONFIG_PATH, 'w', encoding="utf-8") as file:
             json.dump(config, file, indent=4)
         self.reloadConfig()
 
     def setResponses(self, responses):
         """Write the responses file and reload."""
-        with open(RESPONSES_PATH, 'w') as file:
+        with open(RESPONSES_PATH, 'w', encoding="utf-8") as file:
             json.dump(responses, file, indent=4)
         self.reloadConfig()
 
     def reloadConfig(self):
         """Reload the entire config."""
-        with open(CONFIG_PATH) as file:
+        with open(CONFIG_PATH, 'r', encoding="utf-8") as file:
             CONFIG = json.load(file)
-        with open(RESPONSES_PATH) as file:
+        with open(RESPONSES_PATH, 'r', encoding="utf-8") as file:
             RESPONSES = json.load(file)
         self.last_warning = defaultdict(int)
         self.owner_list = CONFIG['owner_list']
