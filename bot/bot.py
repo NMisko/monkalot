@@ -186,6 +186,7 @@ class TwitchBot(irc.IRCClient, object):
 
     def privmsg(self, user, channel, msg):
         """React to messages in the channel."""
+        # Note: if msg is too long, it will not even get in to this function
         # Extract twitch name
         name = user.split('!', 1)[0]
 
@@ -274,6 +275,9 @@ class TwitchBot(irc.IRCClient, object):
             self.notice(tags, args)
         elif cmd == "privmsg":
             self.userState(prefix, tags)
+        # used in Twitch only, seems non-standard in IRC
+        # elif cmd == "whisper":
+           # pass
         elif cmd == "usernotice":
             self.jtv_command(tags)
 
@@ -283,6 +287,19 @@ class TwitchBot(irc.IRCClient, object):
 
         # Then we let IRCClient handle the rest
         super().lineReceived(line)
+
+    def irc_WHISPER(self, prefix, args):
+        """Method to let twisted to handle non standard IRC message (whisper)"""
+        # sender: string of username, the whisper sender
+        sender = prefix.split("!")[0]
+        # args[0]: receiver of whisper message (should be bot)
+        # args[1]: content of message
+        self.handleWhisper(sender, args[1])
+
+    def handleWhisper(self, sender, content):
+        """Entry point for all incoming whisper messages to bot"""
+        # currently do nothing at all
+        print(sender, " send me this in whisper ", content)
 
     def hostTarget(self, channel, target):
         """Track and update hosting status."""
