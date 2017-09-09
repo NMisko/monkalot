@@ -139,11 +139,7 @@ class TwitchBot(irc.IRCClient, object):
         """On first start, get channel_BTTV-emotelist"""
         url = CHANNEL_BTTVEMOTES_API.format(self.channel[1:])
         data = requests.get(url).json()
-        try:
-            emotelist = data['emotes']
-        except:
-            print("No BTTV emotes found.")
-            emotelist = []
+        emotelist = data.get("emotes", [])
 
         self.channel_bttvemotes = []
         for i in range(0, len(emotelist)):
