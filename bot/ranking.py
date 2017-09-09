@@ -4,32 +4,35 @@ import sqlite3
 import math
 import json
 
-DATABASE_PATH = "data/monkalot.db"
-
-with open('configs/bot_config.json') as fp:
-    CONFIG = json.load(fp)
-
-BASE = CONFIG["ranking"]["base"]  # points from min rank to second min rank
-FACTOR = CONFIG["ranking"]["factor"]
-RANKS = CONFIG["ranking"]["ranks"]
+DATABASE_PATH = "{}data/monkalot.db"
+CONFIG_PATH = "{}configs/bot_config.json"
 
 
 class Ranking():
     """Manages spam points ranking."""
 
-    # Set up connection to database and create tables if they do not yet exist.
-    connection = sqlite3.connect(DATABASE_PATH)
-    sql_create_command = """
-        CREATE TABLE IF NOT EXISTS points (
-        username TEXT PRIMARY_KEY,
-        amount INTEGER
-        );
-        """
-    cursor = connection.cursor()
-    cursor.execute(sql_create_command)
-    cursor.close()
-    connection.commit()
-    connection.close()
+    def __init__(self, bot):
+        """Set up connection to database and create tables if they do not yet exist."""
+        self.bot = bot
+        self.connection = sqlite3.connect(DATABASE_PATH.format(bot.root))
+        sql_create_command = """
+            CREATE TABLE IF NOT EXISTS points (
+            username TEXT PRIMARY_KEY,
+            amount INTEGER
+            );
+            """
+        self.cursor = self.connection.cursor()
+        self.cursor.execute(sql_create_command)
+        self.cursor.close()
+        self.connection.commit()
+        self.connection.close()
+
+        with open(CONFIG_PATH.format(bot.root)) as fp:
+            CONFIG = json.load(fp)
+
+        self.BASE = CONFIG["ranking"]["base"]  # points from min rank to second min rank
+        self.FACTOR = CONFIG["ranking"]["factor"]
+        self.RANKS = CONFIG["ranking"]["ranks"]
 
     def getPoints(self, username):
         """Get the points of a user."""
@@ -53,7 +56,9 @@ class Ranking():
 
     def incrementPoints(self, username, amount, bot):
         """Increment points of a user by a certain value.
-        Check if the user reached legend in the process."""
+
+        Check if the user reached legend in the process.
+        """
         username = username.lower()
         points = int(self.getPoints(username))
 
@@ -93,9 +98,9 @@ class Ranking():
     def getHSRank(self, points):
         """Return spam rank of a user in hearthstone units."""
         p = points
-        rank = RANKS
+        rank = self.RANKS
         while p > 0 and rank > 0:
-            p = p - BASE * math.pow(FACTOR, (RANKS - rank))
+            p = p - self.BASE * math.pow(self.FACTOR, (self.RANKS - rank))
             rank = rank - 1
 
         if rank > 0:
@@ -109,7 +114,7 @@ class Ranking():
         Use this if you need the output of the command, or need the cursor and connection.
         Since different threads will try to access this method, a connection has to be reopened everytime.
         """
-        connection = sqlite3.connect(DATABASE_PATH)
+        connection = sqlite3.connect(DATABASE_PATH.format(self.bot.root))
         cursor = connection.cursor()
         cursor.execute(sql_command, args)
         connection.commit()

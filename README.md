@@ -1,14 +1,17 @@
 **Monkalot**
 ===============
-A bot for [Zetalot's Twitch stream](https://twitch.tv/zetalot). 
+A bot for [Zetalot's Twitch stream](https://twitch.tv/zetalot).
 
 ![monkaS](http://i3.kym-cdn.com/entries/icons/original/000/022/713/4.png)
 
 Uses [SimpleTwitchBot](https://github.com/EhsanKia/SimpleTwitchBot) by [EhsanKia](https://github.com/EhsanKia/) as base.
 
 # Installation and usage
-All you should need is Python 3.6+ with [Twisted](https://twistedmatrix.com/trac/) installed.
-You then copy this project in a folder, configure the bot and run `monkalot.py`.
+Clone this project and install all necessary packages in `requirements.txt`.
+Copy the `template` folder in `channels`, rename it and fill in the values in `bot_config.json`.
+Then start the bot by starting `monkalot.py`.
+
+Multiple bots can be started by adding more folders with different configurations to `channels`.
 
 #### Configuration:
 Make sure to modify the following values in `bot_config.json`:

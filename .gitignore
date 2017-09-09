@@ -1,6 +1,7 @@
 *.pyc
-*.json
 __pycache__/
 logs/
 pylama.ini
-*.db
+
+channels/*
+!channels/template

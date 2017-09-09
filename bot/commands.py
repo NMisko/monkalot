@@ -13,10 +13,10 @@ from datetime import datetime
 
 import re
 
-QUOTES_FILE = 'data/quotes.json'
-REPLIES_FILE = 'data/sreply_cmds.json'
-SMORC_FILE = 'data/smorc.json'
-SLAPHUG_FILE = 'data/slaphug.json'
+QUOTES_FILE = '{}data/quotes.json'
+REPLIES_FILE = '{}data/sreply_cmds.json'
+SMORC_FILE = '{}data/smorc.json'
+SLAPHUG_FILE = '{}data/slaphug.json'
 
 
 class Permission:
@@ -63,9 +63,10 @@ class Smorc(Command):
 
     perm = Permission.User
 
-    """load command list"""
-    with open(SMORC_FILE) as fp:
-        replies = json.load(fp)
+    def __init__(self, bot):
+        """Load command list."""
+        with open(SMORC_FILE.format(bot.root)) as fp:
+            self.replies = json.load(fp)
 
     def match(self, bot, user, msg):
         """Match if command is !smorc."""
@@ -81,12 +82,12 @@ class SlapHug(Command):
 
     perm = Permission.User
 
-    """load command list"""
-    with open(SLAPHUG_FILE) as file:
-        replies = json.load(file)
-
-    slapreply = replies["slap"]
-    hugreply = replies["hug"]
+    def __init__(self, bot):
+        """Load command list."""
+        with open(SLAPHUG_FILE.format(bot.root)) as file:
+            self.replies = json.load(file)
+            self.slapreply = self.replies["slap"]
+            self.hugreply = self.replies["hug"]
 
     def replaceReply(self, bot, user, target, reply):
         """Replace words in the reply string and return it."""
@@ -142,9 +143,10 @@ class SimpleReply(Command):
 
     perm = Permission.User
 
-    """load command list"""
-    with open(REPLIES_FILE) as fp:
-        replies = json.load(fp)
+    def __init__(self, bot):
+        """Load command list."""
+        with open(REPLIES_FILE.format(bot.root)) as fp:
+            self.replies = json.load(fp)
 
     def match(self, bot, user, msg):
         """Match if command exists."""
@@ -195,13 +197,16 @@ class Spam(Command):
     """Spams together with chat."""
 
     perm = Permission.User
-    fifo = []
-    counter = {}
-    maxC = 0
-    maxMsg = ""
 
     OBSERVED_MESSAGES = 15
     NECESSARY_SPAM = 6
+
+    def __init__(self, bot):
+        """Initialize variables."""
+        self.fifo = []
+        self.counter = {}
+        self.maxC = 0
+        self.maxMsg = ""
 
     def match(self, bot, user, msg):
         """Add message to queue. Match if a message was spammed more than NECESSARY_SPAM."""
@@ -273,13 +278,17 @@ class EmoteReply(Command):
     """
 
     perm = Permission.User
-    cmd = ''
-    emote = ''
-    text = ''
+
     """Maximum word/character values so chat doesnt explode."""
     maxwords = [12, 15, 1]  # [call, any, word]
     maxchars = [60, 80, 30]
-    responses = {}
+
+    def __init__(self, bot):
+        """Initialize variables."""
+        self.cmd = ''
+        self.emote = ''
+        self.text = ''
+        self.responses = {}
 
     def checkmaxvalues(self, cmd, text):
         """Check if messages are in bounds."""
@@ -339,7 +348,10 @@ class EditCommandMods(Command):
     """Command for owners to add or delete mods to list of trusted mods."""
 
     perm = Permission.Admin
-    responses = {}
+
+    def __init__(self, bot):
+        """Initialize variables."""
+        self.responses = {}
 
     def match(self, bot, user, msg):
         """Match if !addmod or !delmod."""
@@ -364,7 +376,7 @@ class EditCommandMods(Command):
                 var = {"<USER>": mod}
                 bot.write(bot.replace_vars(self.responses["user_not_in_list"]["msg"], var))
 
-        with open(bot.trusted_mods_path, 'w') as file:
+        with open(bot.trusted_mods_path.format(bot.root), 'w') as file:
             json.dump(bot.trusted_mods, file, indent=4)
 
 
@@ -375,11 +387,12 @@ class EditCommandList(Command):
     """
 
     perm = Permission.Moderator
-    responses = {}
 
-    """load command list"""
-    with open(REPLIES_FILE) as file:
-        replies = json.load(file)
+    def __init__(self, bot):
+        """Load command list."""
+        self.responses = {}
+        with open(REPLIES_FILE.format(bot.root)) as file:
+            self.replies = json.load(file)
 
     def addcommand(self, bot, cmd):
         """Add a new command to the list, make sure there are no duplicates."""
@@ -398,7 +411,7 @@ class EditCommandList(Command):
         else:
             self.replies[entrycmd] = entryarg
 
-            with open(REPLIES_FILE, 'w') as file:
+            with open(REPLIES_FILE.format(bot.root), 'w') as file:
                 json.dump(self.replies, file, indent=4)
 
             bot.reload_commands()  # Needs to happen to refresh the list.
@@ -413,7 +426,7 @@ class EditCommandList(Command):
         if entrycmd in self.replies:
             del self.replies[entrycmd]
 
-            with open(REPLIES_FILE, 'w') as file:
+            with open(REPLIES_FILE.format(bot.root), 'w') as file:
                 json.dump(self.replies, file, indent=4)
 
             bot.reload_commands()  # Needs to happen to refresh the list.
@@ -454,7 +467,10 @@ class outputStats(Command):
     """Reply total emote stats or stats/per minute."""
 
     perm = Permission.User
-    responses = {}
+
+    def __init__(self, bot):
+        """Initialize variables."""
+        self.responses = {}
 
     def match(self, bot, user, msg):
         """Match if msg = !total <emote> or !minute <emote>."""
@@ -504,11 +520,12 @@ class outputQuote(Command):
     """Simple Class to output quotes stored in a json-file."""
 
     perm = Permission.User
-    responses = {}
 
-    """load quote list"""
-    with open(QUOTES_FILE) as file:
-        quotelist = json.load(file)
+    def __init__(self, bot):
+        """Load command list."""
+        self.responses = {}
+        with open(QUOTES_FILE.format(bot.root)) as file:
+            self.quotelist = json.load(file)
 
     def match(self, bot, user, msg):
         """Match if command starts with !quote."""
@@ -540,11 +557,12 @@ class editQuoteList(Command):
     """Add or delete quote from a json-file."""
 
     perm = Permission.Moderator
-    responses = {}
 
-    """load quote list"""
-    with open(QUOTES_FILE) as file:
-        quotelist = json.load(file)
+    def __init__(self, bot):
+        """Load command list."""
+        self.responses = {}
+        with open(QUOTES_FILE.format(bot.root)) as file:
+            self.quotelist = json.load(file)
 
     def addquote(self, bot, msg):
         """Add a quote to the list."""
@@ -553,7 +571,7 @@ class editQuoteList(Command):
 
         if quote not in self.quotelist:
             self.quotelist.append(quote)
-            with open(QUOTES_FILE, 'w') as file:
+            with open(QUOTES_FILE.format(bot.root), 'w') as file:
                 json.dump(self.quotelist, file, indent=4)
             bot.reload_commands()  # Needs to happen to refresh the list.
             bot.write(self.responses["quote_added"]["msg"])
@@ -567,7 +585,7 @@ class editQuoteList(Command):
 
         if quote in self.quotelist:
             self.quotelist.remove(quote)
-            with open(QUOTES_FILE, 'w') as file:
+            with open(QUOTES_FILE.format(bot.root), 'w') as file:
                 json.dump(self.quotelist, file, indent=4)
             bot.reload_commands()  # Needs to happen to refresh the list.
             bot.write(self.responses["quote_removed"]["msg"])
@@ -595,11 +613,14 @@ class Calculator(Command):
     Example: !calc log(5^2) + sin(pi/4)
     """
 
-    nsp = NumericStringParser()
     perm = Permission.User
-    responses = {}
 
     symbols = ["e", "pi", "sin", "cos", "tan", "abs", "trunc", "round", "sgn"]
+
+    def __init__(self, bot):
+        """Initialize variables."""
+        self.nsp = NumericStringParser()
+        self.responses = {}
 
     def match(self, bot, user, msg):
         """Match if the message starts with !calc."""
@@ -642,6 +663,10 @@ class PyramidBlock(Command):
     perm = Permission.Moderator
     responses = {}
 
+    def __init__(self, bot):
+        """Initialize variables."""
+        self.responses = {}
+
     def match(self, bot, user, msg):
         """Match if command is !block on or !block off."""
         return msg == "!block on" or msg == "!block off"
@@ -667,13 +692,15 @@ class Pyramid(Command):
     """Recognizes pyramids of emotes."""
 
     perm = Permission.User
-    responses = {}
 
-    count = 0
-    currentEmote = ""
-    emotes = []
-    emojis = []
-    users = []
+    def __init__(self, bot):
+        """Initialize variables."""
+        self.responses = {}
+        self.count = 0
+        self.currentEmote = ""
+        self.emotes = []
+        self.emojis = []
+        self.users = []
 
     def match(self, bot, user, msg):
         """Match always."""
@@ -795,11 +822,13 @@ class KappaGame(Command):
     """
 
     perm = Permission.User
-    responses = {}
 
-    active = False
-    n = 0
-    answered = []
+    def __init__(self, bot):
+        """Initialize variables."""
+        self.responses = {}
+        self.active = False
+        self.n = 0
+        self.answered = []
 
     def match(self, bot, user, msg):
         """Match if the game is active or gets started with !kstart by a user who pays 5 points."""
@@ -861,10 +890,13 @@ class GuessEmoteGame(Command):
     """
 
     perm = Permission.User
-    responses = {}
-    active = False
-    emotes = []
-    emote = ""
+
+    def __init__(self, bot):
+        """Initialize variables."""
+        self.responses = {}
+        self.active = False
+        self.emotes = []
+        self.emote = ""
 
     def initGame(self, bot, msg):
         """Initialize GuessEmoteGame."""
@@ -954,12 +986,14 @@ class GuessMinionGame(Command):
     """
 
     perm = Permission.User
-    responses = {}
-    active = False
-    cluetime = 10   # time between clues in seconds
-    callID = None
 
-    statToSet = {}
+    def __init__(self, bot):
+        """Initialize variables."""
+        self.responses = {}
+        self.active = False
+        self.cluetime = 10   # time between clues in seconds
+        self.callID = None
+        self.statToSet = {}
 
     def giveClue(self, bot): # noqa (let's ignore the high complexity for now)
         """Give a random clue to the chat.
@@ -1056,9 +1090,12 @@ class AutoGames(Command):
     """Start games randomly."""
 
     perm = Permission.Moderator
-    responses = {}
-    active = False
-    callID = None
+
+    def __init__(self, bot):
+        """Initialize variables."""
+        self.responses = {}
+        self.active = False
+        self.callID = None
 
     def randomGame(self, bot):
         """Start a random game."""
@@ -1120,6 +1157,10 @@ class Active(Command):
     perm = Permission.User
     responses = {}
 
+    def __init__(self, bot):
+        """Initialize variables."""
+        self.responses = {}
+
     def match(self, bot, user, msg):
         """Match if message starts with !active."""
         return msg.lower().startswith("!active")
@@ -1144,7 +1185,10 @@ class Pronouns(Command):
     """
 
     perm = Permission.Admin
-    responses = {}
+
+    def __init__(self, bot):
+        """Initialize variables."""
+        self.responses = {}
 
     def match(self, bot, user, msg):
         """Match if message starts with !g and has one argument."""
@@ -1156,7 +1200,7 @@ class Pronouns(Command):
         args = msg.lower().split(' ')
 
         bot.pronouns[args[1]] = [args[2], args[3], args[4]]
-        with open(bot.pronouns_path, 'w') as file:
+        with open(bot.pronouns_path.format(bot.root), 'w') as file:
             json.dump(bot.pronouns, file, indent=4)
 
         bot.write(self.responses["pronoun_added"]["msg"])
@@ -1166,7 +1210,10 @@ class Rank(Command):
     """Get rank of a user."""
 
     perm = Permission.User
-    responses = {}
+
+    def __init__(self, bot):
+        """Initialize variables."""
+        self.responses = {}
 
     def match(self, bot, user, msg):
         """Match if message is !rank or starts with !rank and has one argument."""
@@ -1195,7 +1242,10 @@ class TopSpammers(Command):
     """Write top spammers."""
 
     perm = Permission.User
-    responses = {}
+
+    def __init__(self, bot):
+        """Initialize variables."""
+        self.responses = {}
 
     def match(self, bot, user, msg):
         """Match if message is !topspammers."""
@@ -1217,7 +1267,10 @@ class Sleep(Command):
     """Allows admins and trusted mods to pause the bot."""
 
     perm = Permission.Moderator
-    responses = {}
+
+    def __init__(self, bot):
+        """Initialize variables."""
+        self.responses = {}
 
     def match(self, bot, user, msg):
         """Match if message is !sleep or !wakeup."""
@@ -1238,16 +1291,18 @@ class Sleep(Command):
             bot.write(self.responses["bot_activate"]["msg"])
             bot.pause = False
 
+
 class BanMe(Command):
     """Ban me part in normal messages."""
 
     perm = Permission.User
 
     def match(self, bot, user, msg):
-        """Ban if mentioning bot and contains 'ban me'"""
+        """Ban if mentioning bot and contains 'ban me'."""
         return bot.nickname in msg.lower() and "ban me" in msg.lower()
 
     def run(self, bot, user, msg):
+        """Ban a user. And unban him again."""
         bot.antispeech = True
         self.responses = bot.responses["BanMe"]
         if bot.get_permission(user) in [Permission.User, Permission.Subscriber]:
@@ -1256,14 +1311,18 @@ class BanMe(Command):
             bot.write("@" + user + " " + self.responses["success"]["msg"])
         else:
             """A mod want to get banned/unmodded, but monkalot can't unmod them anyway"""
-            bot.write("@" + user + " "  + self.responses["fail"]["msg"])
+            bot.write("@" + user + " " + self.responses["fail"]["msg"])
+
 
 class Speech(Command):
     """Natural language by using cleverbot."""
 
     perm = Permission.User
-    cw = {}
-    output = ""
+
+    def __init__(self, bot):
+        """Initialize variables."""
+        self.cw = {}
+        self.output = ""
 
     def getReply(self, bot, user, msg):
         """Get reply from cleverbot and post it in the channel."""
@@ -1278,7 +1337,7 @@ class Speech(Command):
             Should think of a cleaner solution in the future."""
             self.cw[user].reset()
 
-    #def __init__(self, bot):
+    # def __init__(self, bot):
     #    """Initialize the command."""
     #    self.cw = CleverWrap(bot.cleverbot_key)
 
@@ -1356,8 +1415,6 @@ class Questions(Command):
 
     perm = Permission.User
 
-    calc = None
-
     whatis = [
         'what\'s',
         'whats',
@@ -1403,8 +1460,11 @@ class Oralpleasure(Command):
     """Turn oral pleasure on and off."""
 
     perm = Permission.User
-    active = False
-    responses = {}
+
+    def __init__(self, bot):
+        """Initialize variables."""
+        self.active = False
+        self.responses = {}
 
     def match(self, bot, user, msg):
         """Match if the bot is tagged."""
@@ -1438,12 +1498,14 @@ class MonkalotParty(Command):
     """Play the MonkalotParty."""
 
     perm = Permission.User
-    active = False
-    responses = {}
 
-    mp = ""
-    answer = ""
-    callID = None
+    def __init__(self, bot):
+        """Initialize variables."""
+        self.active = False
+        self.responses = {}
+        self.mp = ""
+        self.answer = ""
+        self.callID = None
 
     def selectGame(self, bot):
         """Select a game to play next."""
@@ -1460,7 +1522,7 @@ class MonkalotParty(Command):
         del self.mp.games[game]
 
     def gameWinners(self, bot):
-        """Anounce game winners and give points."""
+        """Announce game winners and give points."""
         s = self.responses["game_over1"]["msg"]
         winners = self.mp.topranks()
 
@@ -1478,7 +1540,6 @@ class MonkalotParty(Command):
 
     def match(self, bot, user, msg):
         """Match if active or '!pstart'."""
-        cmd = msg.lower()
         return self.active or startGame(bot, user, msg, "!pstart")
 
     def run(self, bot, user, msg):
@@ -1487,7 +1548,7 @@ class MonkalotParty(Command):
         cmd = msg.strip()
 
         if not self.active:
-            self.mp = MiniGames()
+            self.mp = MiniGames(bot)
             self.active = True
             bot.gameRunning = True
             bot.write(self.responses["start_msg"]["msg"])
@@ -1525,20 +1586,23 @@ class MonkalotParty(Command):
 
 def TwitchTime2datetime(twitch_time):
     """Convert Twitch time string to datetime object.
+
     E.g.: 2017-09-08T22:35:33.449961Z
     """
-
-    for ch in ['-','T','Z', ':']:
+    for ch in ['-', 'T', 'Z', ':']:
         twitch_time = twitch_time.replace(ch, "")
 
     return datetime.strptime(twitch_time, "%Y%m%d%H%M%S")
-    
+
 
 class StreamInfo(Command):
     """Get stream informations and write them in chat."""
 
     perm = Permission.User
-    responses = {}
+
+    def __init__(self, bot):
+        """Initialize variables."""
+        self.responses = {}
 
     def match(self, bot, user, msg):
         """Match if a stream information command is triggered."""
@@ -1562,7 +1626,7 @@ class StreamInfo(Command):
                 created_at = self.stream["stream"]["created_at"]
                 streamstart = TwitchTime2datetime(created_at)
                 now = datetime.utcnow()
-                elapsed_time =  now - streamstart
+                elapsed_time = now - streamstart
                 seconds = int(elapsed_time.total_seconds())
                 hours = seconds // 3600
                 minutes = (seconds % 3600) // 60

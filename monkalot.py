@@ -4,27 +4,22 @@
 from twisted.internet import protocol, reactor
 from collections import defaultdict
 
-import bot.bot
 import time
 import logging
 import logging.config
 import argparse
-from importlib import reload
+from bot.bot import TwitchBot
+from bot.multibot_irc_client import MultiBotIRCClient
+import os
 
 
-logging.config.fileConfig('configs/logging.conf')
-
-parser = argparse.ArgumentParser(description="Start the bot.")
-parser.add_argument("-p", help="Port for the api webserver. If no port is given, no webserver is started.")
-args = parser.parse_args()
-port = args.p
+logging.config.fileConfig('config/logging.conf')
 
 
 class BotFactory(protocol.ClientFactory):
     """BotFactory for connecting to a protocol."""
 
-    protocol = bot.bot.TwitchBot
-    protocol.port = port
+    protocol = MultiBotIRCClient
 
     tags = defaultdict(dict)
     activity = dict()
@@ -34,8 +29,7 @@ class BotFactory(protocol.ClientFactory):
         """Log and reload bot."""
         logging.error("Lost connection, reconnecting")
 
-        self.protocol = reload(bot.bot).TwitchBot
-        protocol.port = port
+        self.protocol = MultiBotIRCClient
 
         connector.connect()
 
@@ -49,5 +43,25 @@ class BotFactory(protocol.ClientFactory):
 
 
 if __name__ == "__main__":
+    # Parse arguments
+    parser = argparse.ArgumentParser(description="Start the bot.")
+    parser.add_argument("-p", help="Port for the api webserver. If no port is given, no webserver is started.")
+    parser.add_argument("-c", help="Folder containing the channel data and configs.", default="channels")
+    args = parser.parse_args()
+    port = args.p
+    config_folder = args.c
+
+    # Read config folder for different bot configurations
+    bots = []
+    for f in os.listdir(config_folder):
+        path = config_folder + "/" + f + "/"
+        if f != 'template' and os.path.isdir(path):
+            logging.warning("Adding folder: " + path)
+            bots.append(TwitchBot(path))
+
+    # Statically set the bots used by the MultiBotIRCClient
+    MultiBotIRCClient.bots = bots
+
+    # Start the client
     reactor.connectTCP('irc.twitch.tv', 6667, BotFactory())
     reactor.run()

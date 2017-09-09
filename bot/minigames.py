@@ -4,15 +4,13 @@ import json
 import random
 from random import shuffle, randint
 
+DATA_OBJECT = '{}data/monkalot_party.json'
+
 
 class MiniGames(object):
     """Small and fast chat games."""
 
-    DATA_OBJECT = 'data/monkalot_party.json'
-    data = {}
     questtype = ['oppositeof', 'capitalof', 'colorof', 'completelyric', 'completewithemote', 'similars', 'write']
-    games = {}
-    ranks = {}
 
     def storycalc(self):
         """Give a math text question."""
@@ -281,9 +279,9 @@ class MiniGames(object):
 
         return winners, topscore, spampoints
 
-    def __init__(self):
+    def __init__(self, bot):
         """Initialize mini game structure."""
-        with open(self.DATA_OBJECT) as file:
+        with open(DATA_OBJECT.format(bot.root)) as file:
             self.data = json.load(file)
 
         """Reset rankings and games."""

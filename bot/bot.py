@@ -1,23 +1,16 @@
 """Module for Twitch bot and threaded logging."""
 
-from twisted.words.protocols import irc
-from twisted.internet import reactor
 from collections import defaultdict
 from bot.commands import Permission
-from threading import Thread
 import traceback
 import requests
 import logging
 import bot.commands
 import bot.ranking
 import bot.emotecounter
-import signal
 import json
 import time
-from six.moves import input
 from importlib import reload
-from bot.web import WebAPI
-
 
 USERLIST_API = "http://tmi.twitch.tv/group/user/{}/chatters"
 TWITCHEMOTES_API = "http://api.twitch.tv/kraken/chat/emoticon_images?emotesets=0"
@@ -26,13 +19,13 @@ CHANNEL_BTTVEMOTES_API = "http://api.betterttv.net/2/channels/{}"
 HEARTHSTONE_CARD_API = "http://api.hearthstonejson.com/v1/latest/enUS/cards.collectible.json"
 EMOJI_API = "https://raw.githubusercontent.com/github/gemoji/master/db/emoji.json"
 
-TRUSTED_MODS_PATH = 'data/trusted_mods.json'
-PRONOUNS_PATH = 'data/pronouns.json'
-CONFIG_PATH = 'configs/bot_config.json'
-RESPONSES_PATH = 'configs/responses.json'
+TRUSTED_MODS_PATH = '{}data/trusted_mods.json'
+PRONOUNS_PATH = '{}data/pronouns.json'
+CONFIG_PATH = '{}configs/bot_config.json'
+RESPONSES_PATH = '{}configs/responses.json'
 
 
-class TwitchBot(irc.IRCClient, object):
+class TwitchBot():
     """TwitchBot extends the IRCClient to interact with Twitch.tv."""
 
     trusted_mods_path = TRUSTED_MODS_PATH
@@ -44,32 +37,98 @@ class TwitchBot(irc.IRCClient, object):
     gameRunning = False
     antispeech = False   # if a command gets executed which conflicts with native speech
     pyramidBlock = False
-    ranking = bot.ranking.Ranking()
-    port = None
 
-    def __init__(self):
-        """Start WEB API."""
+    # This needs to be set, in order for the bot to be able to answer
+    irc = None
+
+    def __init__(self, root):
+        """Initialize bot."""
+        self.root = root
         self.reloadConfig()
-        if self.port is not None:
-            self.web = WebAPI(self, self.port)
+        self.ranking = bot.ranking.Ranking(self)
+
+        with open(TRUSTED_MODS_PATH.format(self.root)) as fp:
+            self.trusted_mods = json.load(fp)
+
+        with open(PRONOUNS_PATH.format(self.root)) as fp:
+            self.pronouns = json.load(fp)
+
+        # Get user list
+        url = USERLIST_API.format(self.channel[1:])
+        data = requests.get(url).json()
+        self.users = set(sum(data['chatters'].values(), []))
+        self.mods = set()
+        self.subs = set()
+
+        # Get twitchtv-emotelist
+        url = TWITCHEMOTES_API
+        data = requests.get(url).json()
+        emotelist = data['emoticon_sets']['0']
+
+        self.twitchemotes = []
+        for i in range(0, len(emotelist)):
+            emote = emotelist[i]['code'].strip()
+            if ('\\') not in emote:
+                self.twitchemotes.append(emote)
+
+        # Get global_BTTV-emotelist
+        url = GLOBAL_BTTVEMOTES_API
+        data = requests.get(url).json()
+        emotelist = data['emotes']
+
+        self.global_bttvemotes = []
+        for i in range(0, len(emotelist)):
+            emote = emotelist[i]['code'].strip()
+            self.global_bttvemotes.append(emote)
+
+        # On first start, get channel_BTTV-emotelist
+        url = CHANNEL_BTTVEMOTES_API.format(self.channel[1:])
+        data = requests.get(url).json()
+        emotelist = data.get("emotes", [])
+
+        self.channel_bttvemotes = []
+        for i in range(0, len(emotelist)):
+            emote = emotelist[i]['code'].strip()
+            self.channel_bttvemotes.append(emote)
+
+        # All available emotes in one list
+        self.emotes = self.twitchemotes + self.global_bttvemotes + self.channel_bttvemotes
+
+        # Get all hearthstone cards
+        url = HEARTHSTONE_CARD_API
+        self.cards = requests.get(url).json()
+
+        # On first start get all emojis
+        url = EMOJI_API
+        self.emojilist = requests.get(url).json()
+        self.emojis = []
+        for i in range(0, len(self.emojilist)):
+            try:
+                self.emojis.append(self.emojilist[i]['emoji'])
+            except KeyError:
+                pass    # No Emoji found.
+
+        # Initialize emotecounter
+        self.ecount = bot.emotecounter.EmoteCounter(self)
+        self.ecount.startCPM()
 
     def setConfig(self, config):
         """Write the config file and reload."""
-        with open(CONFIG_PATH, 'w', encoding="utf-8") as file:
+        with open(CONFIG_PATH.format(self.root), 'w', encoding="utf-8") as file:
             json.dump(config, file, indent=4)
         self.reloadConfig()
 
     def setResponses(self, responses):
         """Write the responses file and reload."""
-        with open(RESPONSES_PATH, 'w', encoding="utf-8") as file:
+        with open(RESPONSES_PATH.format(self.root), 'w', encoding="utf-8") as file:
             json.dump(responses, file, indent=4)
         self.reloadConfig()
 
     def reloadConfig(self):
         """Reload the entire config."""
-        with open(CONFIG_PATH, 'r', encoding="utf-8") as file:
+        with open(CONFIG_PATH.format(self.root), 'r', encoding="utf-8") as file:
             CONFIG = json.load(file)
-        with open(RESPONSES_PATH, 'r', encoding="utf-8") as file:
+        with open(RESPONSES_PATH.format(self.root), 'r', encoding="utf-8") as file:
             RESPONSES = json.load(file)
         self.last_warning = defaultdict(int)
         self.owner_list = CONFIG['owner_list']
@@ -95,164 +154,16 @@ class TwitchBot(irc.IRCClient, object):
         self.AUTO_GAME_INTERVAL = CONFIG["auto_game_interval"]
         self.reload_commands()
 
-    with open(TRUSTED_MODS_PATH) as fp:
-        trusted_mods = json.load(fp)
-
-    with open(PRONOUNS_PATH) as fp:
-        pronouns = json.load(fp)
-
-    def signedOn(self):
-        """Call when first signed on."""
-        self.factory.wait_time = 1
-        logging.warning("Signed on as {}".format(self.nickname))
-
-        signal.signal(signal.SIGINT, self.manual_action)
-
-        # When first starting, get user list
-        url = USERLIST_API.format(self.channel[1:])
-        data = requests.get(url).json()
-        self.users = set(sum(data['chatters'].values(), []))
-        self.mods = set()
-        self.subs = set()
-
-        """On first start, get twitchtv-emotelist"""
-        url = TWITCHEMOTES_API
-        data = requests.get(url).json()
-        emotelist = data['emoticon_sets']['0']
-
-        self.twitchemotes = []
-        for i in range(0, len(emotelist)):
-            emote = emotelist[i]['code'].strip()
-            if ('\\') not in emote:
-                self.twitchemotes.append(emote)
-
-        """On first start, get global_BTTV-emotelist"""
-        url = GLOBAL_BTTVEMOTES_API
-        data = requests.get(url).json()
-        emotelist = data['emotes']
-
-        self.global_bttvemotes = []
-        for i in range(0, len(emotelist)):
-            emote = emotelist[i]['code'].strip()
-            self.global_bttvemotes.append(emote)
-
-        """On first start, get channel_BTTV-emotelist"""
-        url = CHANNEL_BTTVEMOTES_API.format(self.channel[1:])
-        data = requests.get(url).json()
-        emotelist = data.get("emotes", [])
-
-        self.channel_bttvemotes = []
-        for i in range(0, len(emotelist)):
-            emote = emotelist[i]['code'].strip()
-            self.channel_bttvemotes.append(emote)
-
-        """All available emotes in one list"""
-        self.emotes = self.twitchemotes + self.global_bttvemotes + self.channel_bttvemotes
-
-        """On first start, get all hearthstone cards"""
-        url = HEARTHSTONE_CARD_API
-        self.cards = requests.get(url).json()
-
-        """On first start get all emojis"""
-        url = EMOJI_API
-        self.emojilist = requests.get(url).json()
-        self.emojis = []
-        for i in range(0, len(self.emojilist)):
-            try:
-                self.emojis.append(self.emojilist[i]['emoji'])
-            except KeyError:
-                pass    # No Emoji found.
-
-        """Initialize emotecounter"""
-        self.ecount = bot.emotecounter.EmoteCounter(self)
-        self.ecount.startCPM()
-
-        # Get data structures stored in factory
-        self.activity = self.factory.activity
-        self.tags = self.factory.tags
-
-        # Load commands
-        self.reload_commands()
-
-        # Join channel
-        self.sendLine("CAP REQ :twitch.tv/membership")
-        self.sendLine("CAP REQ :twitch.tv/commands")
-        self.sendLine("CAP REQ :twitch.tv/tags")
-        self.join(self.channel)
-
-    def joined(self, channel):
-        """Log when channel is joined."""
-        logging.warning("Joined %s" % channel)
-
-    def privmsg(self, user, channel, msg):
-        """React to messages in the channel."""
-        # Note: if msg is too long, it will not even get in to this function
-        # Extract twitch name
-        name = user.split('!', 1)[0]
-
-        # Log the message
-        logging.info("{}: {}".format(name, msg))
-
-        # Ignore messages by ignored user
-        if name in self.ignore_list:
-            return
-
-        # Ignore message sent to wrong channel
-        if channel != self.channel:
-            return
-
-        self.ranking.incrementPoints(name, 1, self)
-
-        # Check if bot is paused
-        if not self.pause or name in self.owner_list or name in self.trusted_mods:
-            self.process_command(name, msg)
-
-        # Log user activity
-        self.activity[name] = time.time()
-
     def modeChanged(self, user, channel, added, modes, args):
-        """Not sure what this does. Maybe gets called when mods get added/removed."""
-        if channel != self.channel:
-            return
-
+        """Update mod list when mod joins or leaves."""
         # Keep mod list up to date
         func = 'add' if added else 'discard'
         for name in args:
             getattr(self.mods, func)(name)
 
         change = 'added' if added else 'removed'
-        info_msg = "Mod {}: {}".format(change, ', '.join(args))
+        info_msg = "[{}] Mod {}: {}".format(channel, change, ', '.join(args))
         logging.warning(info_msg)
-
-    def userJoined(self, user, channel):
-        """Update user list when user joins."""
-        if channel == self.channel:
-            self.users.add(user)
-
-    def userLeft(self, user, channel):
-        """Update user list when user leaves."""
-        if channel == self.channel:
-            self.users.discard(user)
-
-    def parsemsg(self, s):
-        """Break a message from an IRC server into its prefix, command, and arguments."""
-        tags = {}
-        prefix = ''
-        trailing = []
-        if s[0] == '@':
-            tags_str, s = s[1:].split(' ', 1)
-            tag_list = tags_str.split(';')
-            tags = dict(t.split('=') for t in tag_list)
-        if s[0] == ':':
-            prefix, s = s[1:].split(' ', 1)
-        if s.find(' :') != -1:
-            s, trailing = s.split(' :', 1)
-            args = s.split()
-            args.append(trailing)
-        else:
-            args = s.split()
-        command = args.pop(0).lower()
-        return tags, prefix, command, args
 
     def pronoun(self, user):
         """Get the proper pronouns for a user."""
@@ -261,86 +172,23 @@ class TwitchBot(irc.IRCClient, object):
         else:
             return ["he", "him", "his"]
 
-    def lineReceived(self, line):
-        """Parse IRC line."""
-        line = line.decode("utf-8")
-        # First, we check for any custom twitch commands
-        tags, prefix, cmd, args = self.parsemsg(line)
-
-        if cmd == "hosttarget":
-            self.hostTarget(*args)
-        elif cmd == "clearchat":
-            self.clearChat(*args)
-        elif cmd == "notice":
-            self.notice(tags, args)
-        elif cmd == "privmsg":
-            self.userState(prefix, tags)
-        # used in Twitch only, seems non-standard in IRC
-        # elif cmd == "whisper":
-           # pass
-        elif cmd == "usernotice":
-            self.jtv_command(tags)
-
-        # Remove tag information
-        if line[0] == "@":
-            line = line.split(' ', 1)[1]
-
-        # Then we let IRCClient handle the rest
-        super().lineReceived(line)
-
-    def irc_WHISPER(self, prefix, args):
-        """Method to let twisted to handle non standard IRC message (whisper)"""
-        # sender: string of username, the whisper sender
-        sender = prefix.split("!")[0]
-        # args[0]: receiver of whisper message (should be bot)
-        # args[1]: content of message
-        self.handleWhisper(sender, args[1])
-
     def handleWhisper(self, sender, content):
-        """Entry point for all incoming whisper messages to bot"""
+        """Entry point for all incoming whisper messages to bot."""
         # currently do nothing at all
-        print(sender, " send me this in whisper ", content)
+        print("{} sent me [{}] this in a whisper: {}".format(sender, self.nickname, content))
 
-    def hostTarget(self, channel, target):
-        """Track and update hosting status."""
-        target = target.split(' ')[0]
+    def setHost(self, channel, target):
+        """React to a channel being hosted."""
         if target == "-":
             self.host_target = None
-            logging.warning("Exited host mode")
+            logging.warning("[{}] Exited host mode".format(channel))
         else:
             self.host_target = target
-            logging.warning("Now hosting {}".format(target))
-
-    def clearChat(self, channel, target=None):
-        """Log chat clear notices."""
-        if target:
-            logging.warning("{} was timed out".format(target))
-        else:
-            logging.warning("chat was cleared")
-
-    def notice(self, tags, args):
-        """Log all chat mode changes."""
-        if "msg-id" not in tags:
-            return
-
-        msg_id = tags['msg-id']
-        if msg_id == "subs_on":
-            logging.warning("Subonly mode ON")
-        elif msg_id == "subs_off":
-            logging.warning("Subonly mode OFF")
-        elif msg_id == "slow_on":
-            logging.warning("Slow mode ON")
-        elif msg_id == "slow_off":
-            logging.warning("Slow mode OFF")
-        elif msg_id == "r9k_on":
-            logging.warning("R9K mode ON")
-        elif msg_id == "r9k_off":
-            logging.warning("R9K mode OFF")
+            logging.warning("[{}] Now hosting {}".format(channel, target))
 
     def userState(self, prefix, tags):
         """Track user tags."""
         name = prefix.split("!")[0]
-        self.tags[name].update(tags)
 
         if 'subscriber' in tags:
             if tags['subscriber'] == '1':
@@ -353,11 +201,6 @@ class TwitchBot(irc.IRCClient, object):
                 self.mods.add(name)
             elif name in self.mods:
                 self.mods.discard(name)
-
-    def write(self, msg):
-        """Send message to channel and log it."""
-        self.msg(self.channel, msg)
-        logging.info("{}: {}".format(self.nickname, msg))
 
     def get_permission(self, user):
         """Return the users permission level."""
@@ -387,6 +230,16 @@ class TwitchBot(irc.IRCClient, object):
 
     def process_command(self, user, msg):
         """Process messages and call commands."""
+        # Ignore messages by ignored user
+        if user in self.ignore_list:
+            return
+
+        self.ranking.incrementPoints(user, 1, self)
+
+        # Check if bot is paused
+        if self.pause and user not in self.owner_list and user not in self.trusted_mods:
+            return
+
         perm_levels = ['User', 'Subscriber', 'Moderator', 'Owner']
         perm = self.get_permission(user)
         msg = msg.strip()
@@ -421,27 +274,6 @@ class TwitchBot(irc.IRCClient, object):
                 logging.error(traceback.format_exc())
         """Reset antispeech for next command"""
         self.antispeech = False
-
-    def manual_action(self, *args):
-        """Allow manual command input."""
-        self.terminate()
-        return
-
-        # Always terminate. For now this won't be used.
-        cmd = input("Command: ").strip()
-        if cmd == "q":  # Stop bot
-            self.terminate()
-        elif cmd == 'r':  # Reload bot
-            self.reload()
-        elif cmd == 'rc':  # Reload commands
-            self.reload_commands()
-        elif cmd == 'p':  # Pause bot
-            self.pause = not self.pause
-        elif cmd == 'd':  # try to enter debug mode
-            IPythonThread(self).start()
-        elif cmd.startswith("s"):
-            # Say something as the bot
-            self.write(cmd[2:])
 
     def jtv_command(self, tags):
         """Send a message when someone subscribes."""
@@ -548,15 +380,10 @@ class TwitchBot(irc.IRCClient, object):
         """Reload bot."""
         logging.warning("Reloading bot!")
         self.close_commands()
-        self.quit()
 
     def terminate(self):
         """Terminate bot."""
         self.close_commands()
-        if self.port is not None:
-            self.web.stop()
-
-        reactor.stop()
 
     def displayName(self, user):
         """Get the proper capitalization of a twitch user."""
@@ -643,25 +470,9 @@ class TwitchBot(irc.IRCClient, object):
             oldmsg = newmsg
         return newmsg
 
-
-class IPythonThread(Thread):
-    """An IPython thread. Used for debug mode."""
-
-    def __init__(self, b):
-        """Initialize thread."""
-        Thread.__init__(self)
-        self.bot = b
-
-    def run(self):
-        """Enter debug mode."""
-        logger = logging.getLogger()
-        handler = logger.handlers[0]
-        handler.setLevel(logging.ERROR)
-        try:
-            from IPython import embed
-            bot = self.bot
-            embed()
-            del bot
-        except ImportError:
-            logging.error("IPython not installed, cannot debug.")
-        handler.setLevel(logging.INFO)
+    def write(self, msg):
+        """Write a message."""
+        if self.irc is not None:
+            self.irc.write(self.channel, msg)
+        else:
+            logging.warning("The bot {} in channel {} wanted to say something, but irc isn't set.".format(self.nickname, self.channel))
