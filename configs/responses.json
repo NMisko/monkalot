@@ -567,7 +567,7 @@
             "args_info": {}
         },
         "fps_msg": {
-            "msg": "Average FPS: <FPS>",
+            "msg": "Average FPS of the stream: <FPS>",
             "info": "Display the average fps of the stream.",
             "args_info": {
                 "<FPS>": "Average fps of the stream."
