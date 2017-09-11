@@ -10,6 +10,7 @@ import bot.ranking
 import bot.emotecounter
 import json
 import time
+import copy
 from importlib import reload
 
 USERLIST_API = "http://tmi.twitch.tv/group/user/{}/chatters"
@@ -515,7 +516,7 @@ class TwitchBot():
                     else:
                         base[k] = custom[k]
 
-        return dict(base)
+        return copy.deepcopy(base)
 
     def write(self, msg):
         """Write a message."""
