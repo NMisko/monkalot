@@ -22,7 +22,8 @@ EMOJI_API = "https://raw.githubusercontent.com/github/gemoji/master/db/emoji.jso
 TRUSTED_MODS_PATH = '{}data/trusted_mods.json'
 PRONOUNS_PATH = '{}data/pronouns.json'
 CONFIG_PATH = '{}configs/bot_config.json'
-RESPONSES_PATH = '{}configs/responses.json'
+CUSTOM_RESPONSES_PATH = '{}configs/responses.json'
+TEMPLATE_RESPONSES_PATH = 'channels/template/configs/responses.json'
 
 
 class TwitchBot():
@@ -119,8 +120,8 @@ class TwitchBot():
         self.reloadConfig()
 
     def setResponses(self, responses):
-        """Write the responses file and reload."""
-        with open(RESPONSES_PATH.format(self.root), 'w', encoding="utf-8") as file:
+        """Write the custom responses file and reload."""
+        with open(CUSTOM_RESPONSES_PATH.format(self.root), 'w', encoding="utf-8") as file:
             json.dump(responses, file, indent=4)
         self.reloadConfig()
 
@@ -128,8 +129,25 @@ class TwitchBot():
         """Reload the entire config."""
         with open(CONFIG_PATH.format(self.root), 'r', encoding="utf-8") as file:
             CONFIG = json.load(file)
-        with open(RESPONSES_PATH.format(self.root), 'r', encoding="utf-8") as file:
+        # load template responses first
+        with open(TEMPLATE_RESPONSES_PATH, 'r', encoding="utf-8") as file:
             RESPONSES = json.load(file)
+        # load custom responses
+        try:
+            with open(CUSTOM_RESPONSES_PATH.format(self.root), 'r', encoding="utf-8") as file:
+                CUSTOM_RESPONSES = json.load(file)
+        except FileNotFoundError:
+            logging.warning("No custom responses file for {}.".format(self.root))
+            CUSTOM_RESPONSES = {}
+        except:
+            # Any errors else
+            logging.error("Unknown errors when reading custom responses of {}.".format(self.root))
+            logging.error(traceback.format_exc())
+            CUSTOM_RESPONSES = {}
+
+        # then merge with custom responses
+        RESPONSES = {**RESPONSES, **CUSTOM_RESPONSES}
+
         self.last_warning = defaultdict(int)
         self.owner_list = CONFIG['owner_list']
         self.ignore_list = CONFIG['ignore_list']
