@@ -146,7 +146,7 @@ class TwitchBot():
             CUSTOM_RESPONSES = {}
 
         # then merge with custom responses
-        RESPONSES = {**RESPONSES, **CUSTOM_RESPONSES}
+        RESPONSES = self.deepMergeDict(RESPONSES, CUSTOM_RESPONSES)
 
         self.last_warning = defaultdict(int)
         self.owner_list = CONFIG['owner_list']
@@ -487,6 +487,35 @@ class TwitchBot():
 
             oldmsg = newmsg
         return newmsg
+
+    def deepMergeDict(self, base, custom, dictPath=""):
+        """
+            Intended to merge dictionaries created from JSON.load().
+            We try to preserve the structure of base, while merging custom to base.
+            The rule for merging is:
+            - if custom[key] exists but base[key] doesn't, append to base[key]
+            - if BOTH custom[key] and base[key] exist, but their type is different, raise TypeError
+            - if BOTH custom[key] and base[key] exist, but their type is same ...
+              - if both are dictionary, merge recursively
+              - else use custom[key]
+        """
+        for k in custom.keys():
+            if k not in base.keys():
+                # entry in custom but not base, append it
+                base[k] = custom[k]
+            else:
+                dictPath+="[{}]".format(k)
+                if type(base[k]) != type(custom[k]):
+                    raise TypeError("Different type of data found on merging key{}".format(dictPath))
+                else:
+                    # Have same key and same type of data
+                    # Do recursive merge for dictionary
+                    if isinstance(custom[k], dict):
+                        base[k] = self.deepMergeDict(base[k], custom[k], dictPath)
+                    else:
+                        base[k] = custom[k]
+
+        return dict(base)
 
     def write(self, msg):
         """Write a message."""
