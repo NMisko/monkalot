@@ -139,7 +139,7 @@ class TwitchBot():
         except FileNotFoundError:
             logging.warning("No custom responses file for {}.".format(self.root))
             CUSTOM_RESPONSES = {}
-        except:
+        except Exception:
             # Any errors else
             logging.error("Unknown errors when reading custom responses of {}.".format(self.root))
             logging.error(traceback.format_exc())
