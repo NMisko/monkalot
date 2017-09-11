@@ -120,7 +120,9 @@ class MultiBotIRCClient(irc.IRCClient, object):
         # elif cmd == "whisper":
         # pass
         elif cmd == "usernotice":
-            self.jtv_command(tags)
+            for b in MultiBotIRCClient.bots:
+                if b.channel == args[0]:
+                    b.jtv_command(tags)
 
         # Remove tag information
         if line[0] == "@":
