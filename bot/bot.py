@@ -10,6 +10,7 @@ import bot.ranking
 import bot.emotecounter
 import json
 import time
+import copy
 from importlib import reload
 
 USERLIST_API = "http://tmi.twitch.tv/group/user/{}/chatters"
@@ -22,7 +23,8 @@ EMOJI_API = "https://raw.githubusercontent.com/github/gemoji/master/db/emoji.jso
 TRUSTED_MODS_PATH = '{}data/trusted_mods.json'
 PRONOUNS_PATH = '{}data/pronouns.json'
 CONFIG_PATH = '{}configs/bot_config.json'
-RESPONSES_PATH = '{}configs/responses.json'
+CUSTOM_RESPONSES_PATH = '{}configs/responses.json'
+TEMPLATE_RESPONSES_PATH = 'channels/template/configs/responses.json'
 
 
 class TwitchBot():
@@ -119,8 +121,8 @@ class TwitchBot():
         self.reloadConfig()
 
     def setResponses(self, responses):
-        """Write the responses file and reload."""
-        with open(RESPONSES_PATH.format(self.root), 'w', encoding="utf-8") as file:
+        """Write the custom responses file and reload."""
+        with open(CUSTOM_RESPONSES_PATH.format(self.root), 'w', encoding="utf-8") as file:
             json.dump(responses, file, indent=4)
         self.reloadConfig()
 
@@ -128,8 +130,25 @@ class TwitchBot():
         """Reload the entire config."""
         with open(CONFIG_PATH.format(self.root), 'r', encoding="utf-8") as file:
             CONFIG = json.load(file)
-        with open(RESPONSES_PATH.format(self.root), 'r', encoding="utf-8") as file:
+        # load template responses first
+        with open(TEMPLATE_RESPONSES_PATH, 'r', encoding="utf-8") as file:
             RESPONSES = json.load(file)
+        # load custom responses
+        try:
+            with open(CUSTOM_RESPONSES_PATH.format(self.root), 'r', encoding="utf-8") as file:
+                CUSTOM_RESPONSES = json.load(file)
+        except FileNotFoundError:
+            logging.warning("No custom responses file for {}.".format(self.root))
+            CUSTOM_RESPONSES = {}
+        except Exception:
+            # Any errors else
+            logging.error("Unknown errors when reading custom responses of {}.".format(self.root))
+            logging.error(traceback.format_exc())
+            CUSTOM_RESPONSES = {}
+
+        # then merge with custom responses
+        RESPONSES = self.deepMergeDict(RESPONSES, CUSTOM_RESPONSES)
+
         self.last_warning = defaultdict(int)
         self.owner_list = CONFIG['owner_list']
         self.ignore_list = CONFIG['ignore_list']
@@ -469,6 +488,35 @@ class TwitchBot():
 
             oldmsg = newmsg
         return newmsg
+
+    def deepMergeDict(self, base, custom, dictPath=""):
+        """
+            Intended to merge dictionaries created from JSON.load().
+            We try to preserve the structure of base, while merging custom to base.
+            The rule for merging is:
+            - if custom[key] exists but base[key] doesn't, append to base[key]
+            - if BOTH custom[key] and base[key] exist, but their type is different, raise TypeError
+            - if BOTH custom[key] and base[key] exist, but their type is same ...
+              - if both are dictionary, merge recursively
+              - else use custom[key]
+        """
+        for k in custom.keys():
+            if k not in base.keys():
+                # entry in custom but not base, append it
+                base[k] = custom[k]
+            else:
+                dictPath+="[{}]".format(k)
+                if type(base[k]) != type(custom[k]):
+                    raise TypeError("Different type of data found on merging key{}".format(dictPath))
+                else:
+                    # Have same key and same type of data
+                    # Do recursive merge for dictionary
+                    if isinstance(custom[k], dict):
+                        base[k] = self.deepMergeDict(base[k], custom[k], dictPath)
+                    else:
+                        base[k] = custom[k]
+
+        return copy.deepcopy(base)
 
     def write(self, msg):
         """Write a message."""
