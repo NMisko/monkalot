@@ -766,7 +766,7 @@ class Pyramid(Command):
             if bot.get_permission(user) in [Permission.User, Permission.Subscriber]:
                 var = {"<USER>": bot.displayName(user), "<PRONOUN0>": bot.pronoun(user)[0]}
                 bot.write(bot.replace_vars(self.responses["plebpyramid"]["msg"], var))
-                bot.write("/timeout " + user + " 60")
+                bot.timeout(user, 60)
             else:
                 var = {"<USER>": bot.displayName(user), "<PRONOUN0>": bot.pronoun(user)[0]}
                 bot.write(bot.replace_vars(self.responses["mod_plebpyramid"]["msg"], var))
@@ -776,7 +776,7 @@ class Pyramid(Command):
             bot.write(bot.replace_vars(self.responses["multi_plebpyramid"]["msg"], var))
             for u in uniqueUsers:
                 if bot.get_permission(u) in [Permission.User, Permission.Subscriber]:
-                    bot.write("/timeout " + u + " 60")
+                    bot.timeout(u, 60)
 
     def sendSuccessMessage(self, bot):
         """Send a message for a successful pyramid."""
@@ -1306,8 +1306,8 @@ class BanMe(Command):
         bot.antispeech = True
         self.responses = bot.responses["BanMe"]
         if bot.get_permission(user) in [Permission.User, Permission.Subscriber]:
-            bot.write("/ban " + user)
-            bot.write("/unban " + user)
+            bot.ban(user)
+            bot.unban(user)
             bot.write("@" + user + " " + self.responses["success"]["msg"])
         else:
             """A mod want to get banned/unmodded, but monkalot can't unmod them anyway"""
@@ -1628,7 +1628,7 @@ class StreamInfo(Command):
             created_at = self.stream["stream"]["created_at"]
             streamstart = TwitchTime2datetime(created_at)
             now = datetime.utcnow()
-            elapsed_time =  now - streamstart
+            elapsed_time = now - streamstart
             seconds = int(elapsed_time.total_seconds())
             hours = seconds // 3600
             minutes = (seconds % 3600) // 60

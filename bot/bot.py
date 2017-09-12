@@ -137,7 +137,7 @@ class TwitchBot():
         try:
             with open(CUSTOM_RESPONSES_PATH.format(self.root), 'r', encoding="utf-8") as file:
                 CUSTOM_RESPONSES = json.load(file)
-        except FileNotFoundError:
+        except FileNotFoundError:   #noqa
             logging.warning("No custom responses file for {}.".format(self.root))
             CUSTOM_RESPONSES = {}
         except Exception:
@@ -505,7 +505,7 @@ class TwitchBot():
                 # entry in custom but not base, append it
                 base[k] = custom[k]
             else:
-                dictPath+="[{}]".format(k)
+                dictPath += "[{}]".format(k)
                 if type(base[k]) != type(custom[k]):
                     raise TypeError("Different type of data found on merging key{}".format(dictPath))
                 else:
@@ -524,3 +524,35 @@ class TwitchBot():
             self.irc.write(self.channel, msg)
         else:
             logging.warning("The bot {} in channel {} wanted to say something, but irc isn't set.".format(self.nickname, self.channel))
+
+    def whisper(self, msg, user):
+        """Whisper a message to a user."""
+        whisper = "/w {} {}".format(user, msg)
+        if self.irc is not None:
+            self.irc.write(self.channel, whisper)
+        else:
+            logging.warning("The bot {} in channel {} wanted to whisper to {}, but irc isn't set.".format(self.nickname, self.channel, user))
+
+    def timeout(self, user, time):
+        """Timout a user for a certain time in the channel."""
+        timeout = "/timeout {} {}".format(user, time)
+        if self.irc is not None:
+            self.irc.write(self.channel, timeout)
+        else:
+            logging.warning("The bot {} in channel {} wanted to timout {}, but irc isn't set.".format(self.nickname, self.channel, user))
+
+    def ban(self, user):
+        """Bans a user from the channel."""
+        ban = "/ban {}".format(user)
+        if self.irc is not None:
+            self.irc.write(self.channel, ban)
+        else:
+            logging.warning("The bot {} in channel {} wanted to ban {}, but irc isn't set.".format(self.nickname, self.channel, user))
+
+    def unban(self, user):
+        """Unbans a user for the channel."""
+        unban = "/unban {}".format(user)
+        if self.irc is not None:
+            self.irc.write(self.channel, unban)
+        else:
+            logging.warning("The bot {} in channel {} wanted to unban {}, but irc isn't set.".format(self.nickname, self.channel, user))
