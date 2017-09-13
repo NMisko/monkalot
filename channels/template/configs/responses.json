@@ -561,6 +561,13 @@
         }
     },
     "StreamInfo": {
+        "bttv_msg": {
+            "msg": "Available BTTV emotes: <MULTIEMOTES>",
+            "info": "Display all channel specific BTTV emotes.",
+            "args_info": {
+                "<MULTIEMOTES>": "List of channel specific BTTV emotes."
+            }
+        },
         "stream_off": {
             "msg": "Stream is not running at the moment.",
             "info": "Display if stream is offline while someone tries to access stream informations.",

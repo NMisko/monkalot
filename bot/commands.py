@@ -116,7 +116,7 @@ class SlapHug(Command):
             if len(cmd) == 2:
                 target = cmd[1].lower().strip()
                 """Check if user is in chat."""
-                if target in bot.users and target is not bot.nickname.lower():
+                if (target in bot.users and target is not bot.nickname.lower()):
                     return True
         return False
 
@@ -766,7 +766,7 @@ class Pyramid(Command):
             if bot.get_permission(user) in [Permission.User, Permission.Subscriber]:
                 var = {"<USER>": bot.displayName(user), "<PRONOUN0>": bot.pronoun(user)[0]}
                 bot.write(bot.replace_vars(self.responses["plebpyramid"]["msg"], var))
-                bot.write("/timeout " + user + " 60")
+                bot.timeout(user, 60)
             else:
                 var = {"<USER>": bot.displayName(user), "<PRONOUN0>": bot.pronoun(user)[0]}
                 bot.write(bot.replace_vars(self.responses["mod_plebpyramid"]["msg"], var))
@@ -776,7 +776,7 @@ class Pyramid(Command):
             bot.write(bot.replace_vars(self.responses["multi_plebpyramid"]["msg"], var))
             for u in uniqueUsers:
                 if bot.get_permission(u) in [Permission.User, Permission.Subscriber]:
-                    bot.write("/timeout " + u + " 60")
+                    bot.timeout(u, 60)
 
     def sendSuccessMessage(self, bot):
         """Send a message for a successful pyramid."""
@@ -1306,8 +1306,8 @@ class BanMe(Command):
         bot.antispeech = True
         self.responses = bot.responses["BanMe"]
         if bot.get_permission(user) in [Permission.User, Permission.Subscriber]:
-            bot.write("/ban " + user)
-            bot.write("/unban " + user)
+            bot.ban(user)
+            bot.unban(user)
             bot.write("@" + user + " " + self.responses["success"]["msg"])
         else:
             """A mod want to get banned/unmodded, but monkalot can't unmod them anyway"""
@@ -1607,7 +1607,7 @@ class StreamInfo(Command):
     def match(self, bot, user, msg):
         """Match if a stream information command is triggered."""
         cmd = msg.lower()
-        return (cmd.startswith("!fps") or cmd.startswith("!uptime"))
+        return (cmd.startswith("!fps") or cmd.startswith("!uptime") or cmd.startswith("!bttv"))
 
     def run(self, bot, user, msg):
         """Get stream object and return requested information."""
@@ -1615,21 +1615,23 @@ class StreamInfo(Command):
         cmd = msg.lower()
         self.stream = bot.getStream(bot.channelID)
 
-        if self.stream["stream"] is None:
+        if cmd.startswith("!bttv"):
+            var = {"<MULTIEMOTES>": EmoteListToString(bot.channel_bttvemotes)}
+            bot.write(bot.replace_vars(self.responses["bttv_msg"]["msg"], var))
+        elif self.stream["stream"] is None:
             bot.write(self.responses["stream_off"]["msg"])
-        else:
-            if cmd.startswith("!fps"):
-                fps = format(self.stream["stream"]["average_fps"], '.2f')
-                var = {"<FPS>": fps}
-                bot.write(bot.replace_vars(self.responses["fps_msg"]["msg"], var))
-            elif cmd.startswith("!uptime"):
-                created_at = self.stream["stream"]["created_at"]
-                streamstart = TwitchTime2datetime(created_at)
-                now = datetime.utcnow()
-                elapsed_time = now - streamstart
-                seconds = int(elapsed_time.total_seconds())
-                hours = seconds // 3600
-                minutes = (seconds % 3600) // 60
-                seconds = seconds % 60
-                var = {"<HOURS>": hours, "<MINUTES>": minutes, "<SECONDS>": seconds}
-                bot.write(bot.replace_vars(self.responses["uptime"]["msg"], var))
+        elif cmd.startswith("!fps"):
+            fps = format(self.stream["stream"]["average_fps"], '.2f')
+            var = {"<FPS>": fps}
+            bot.write(bot.replace_vars(self.responses["fps_msg"]["msg"], var))
+        elif cmd.startswith("!uptime"):
+            created_at = self.stream["stream"]["created_at"]
+            streamstart = TwitchTime2datetime(created_at)
+            now = datetime.utcnow()
+            elapsed_time = now - streamstart
+            seconds = int(elapsed_time.total_seconds())
+            hours = seconds // 3600
+            minutes = (seconds % 3600) // 60
+            seconds = seconds % 60
+            var = {"<HOURS>": hours, "<MINUTES>": minutes, "<SECONDS>": seconds}
+            bot.write(bot.replace_vars(self.responses["uptime"]["msg"], var))

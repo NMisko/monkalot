@@ -10,6 +10,7 @@ import bot.ranking
 import bot.emotecounter
 import json
 import time
+import copy
 from importlib import reload
 
 USERLIST_API = "http://tmi.twitch.tv/group/user/{}/chatters"
@@ -22,7 +23,8 @@ EMOJI_API = "https://raw.githubusercontent.com/github/gemoji/master/db/emoji.jso
 TRUSTED_MODS_PATH = '{}data/trusted_mods.json'
 PRONOUNS_PATH = '{}data/pronouns.json'
 CONFIG_PATH = '{}configs/bot_config.json'
-RESPONSES_PATH = '{}configs/responses.json'
+CUSTOM_RESPONSES_PATH = '{}configs/responses.json'
+TEMPLATE_RESPONSES_PATH = 'channels/template/configs/responses.json'
 
 
 class TwitchBot():
@@ -119,8 +121,8 @@ class TwitchBot():
         self.reloadConfig()
 
     def setResponses(self, responses):
-        """Write the responses file and reload."""
-        with open(RESPONSES_PATH.format(self.root), 'w', encoding="utf-8") as file:
+        """Write the custom responses file and reload."""
+        with open(CUSTOM_RESPONSES_PATH.format(self.root), 'w', encoding="utf-8") as file:
             json.dump(responses, file, indent=4)
         self.reloadConfig()
 
@@ -128,8 +130,25 @@ class TwitchBot():
         """Reload the entire config."""
         with open(CONFIG_PATH.format(self.root), 'r', encoding="utf-8") as file:
             CONFIG = json.load(file)
-        with open(RESPONSES_PATH.format(self.root), 'r', encoding="utf-8") as file:
+        # load template responses first
+        with open(TEMPLATE_RESPONSES_PATH, 'r', encoding="utf-8") as file:
             RESPONSES = json.load(file)
+        # load custom responses
+        try:
+            with open(CUSTOM_RESPONSES_PATH.format(self.root), 'r', encoding="utf-8") as file:
+                CUSTOM_RESPONSES = json.load(file)
+        except FileNotFoundError:   #noqa
+            logging.warning("No custom responses file for {}.".format(self.root))
+            CUSTOM_RESPONSES = {}
+        except Exception:
+            # Any errors else
+            logging.error("Unknown errors when reading custom responses of {}.".format(self.root))
+            logging.error(traceback.format_exc())
+            CUSTOM_RESPONSES = {}
+
+        # then merge with custom responses
+        RESPONSES = self.deepMergeDict(RESPONSES, CUSTOM_RESPONSES)
+
         self.last_warning = defaultdict(int)
         self.owner_list = CONFIG['owner_list']
         self.ignore_list = CONFIG['ignore_list']
@@ -470,9 +489,70 @@ class TwitchBot():
             oldmsg = newmsg
         return newmsg
 
+    def deepMergeDict(self, base, custom, dictPath=""):
+        """
+            Intended to merge dictionaries created from JSON.load().
+            We try to preserve the structure of base, while merging custom to base.
+            The rule for merging is:
+            - if custom[key] exists but base[key] doesn't, append to base[key]
+            - if BOTH custom[key] and base[key] exist, but their type is different, raise TypeError
+            - if BOTH custom[key] and base[key] exist, but their type is same ...
+              - if both are dictionary, merge recursively
+              - else use custom[key]
+        """
+        for k in custom.keys():
+            if k not in base.keys():
+                # entry in custom but not base, append it
+                base[k] = custom[k]
+            else:
+                dictPath += "[{}]".format(k)
+                if type(base[k]) != type(custom[k]):
+                    raise TypeError("Different type of data found on merging key{}".format(dictPath))
+                else:
+                    # Have same key and same type of data
+                    # Do recursive merge for dictionary
+                    if isinstance(custom[k], dict):
+                        base[k] = self.deepMergeDict(base[k], custom[k], dictPath)
+                    else:
+                        base[k] = custom[k]
+
+        return copy.deepcopy(base)
+
     def write(self, msg):
         """Write a message."""
         if self.irc is not None:
             self.irc.write(self.channel, msg)
         else:
             logging.warning("The bot {} in channel {} wanted to say something, but irc isn't set.".format(self.nickname, self.channel))
+
+    def whisper(self, msg, user):
+        """Whisper a message to a user."""
+        whisper = "/w {} {}".format(user, msg)
+        if self.irc is not None:
+            self.irc.write(self.channel, whisper)
+        else:
+            logging.warning("The bot {} in channel {} wanted to whisper to {}, but irc isn't set.".format(self.nickname, self.channel, user))
+
+    def timeout(self, user, time):
+        """Timout a user for a certain time in the channel."""
+        timeout = "/timeout {} {}".format(user, time)
+        if self.irc is not None:
+            self.irc.write(self.channel, timeout)
+        else:
+            logging.warning("The bot {} in channel {} wanted to timout {}, but irc isn't set.".format(self.nickname, self.channel, user))
+
+    def ban(self, user):
+        """Bans a user from the channel."""
+        ban = "/ban {}".format(user)
+        if self.irc is not None:
+            self.irc.write(self.channel, ban)
+        else:
+            logging.warning("The bot {} in channel {} wanted to ban {}, but irc isn't set.".format(self.nickname, self.channel, user))
+
+    def unban(self, user):
+        """Unbans a user for the channel."""
+        unban = "/unban {}".format(user)
+        if self.irc is not None:
+            self.irc.write(self.channel, unban)
+        else:
+            logging.warning("The bot {} in channel {} wanted to unban {}, but irc isn't set.".format(self.nickname, self.channel, user))
