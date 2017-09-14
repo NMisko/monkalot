@@ -11,6 +11,8 @@ import argparse
 from bot.bot import TwitchBot
 from bot.multibot_irc_client import MultiBotIRCClient
 import os
+from bot.web import WebAPI
+import signal
 
 
 logging.config.fileConfig('config/logging.conf')
@@ -27,7 +29,7 @@ class BotFactory(protocol.ClientFactory):
 
     def clientConnectionLost(self, connector, reason):
         """Log and reload bot."""
-        logging.error("Lost connection, reconnecting")
+        logging.error("Lost connection")
 
         self.protocol = MultiBotIRCClient
 
@@ -40,6 +42,15 @@ class BotFactory(protocol.ClientFactory):
         time.sleep(self.wait_time)
         self.wait_time = min(512, self.wait_time * 2)
         connector.connect()
+
+
+def stop(signal, frame):
+    """Stop everything."""
+    if port is not None:
+        logging.warning("Stopping web server")
+        web.stop()
+    logging.warning("Stopping irc client")
+    reactor.stop()
 
 
 if __name__ == "__main__":
@@ -61,6 +72,13 @@ if __name__ == "__main__":
 
     # Statically set the bots used by the MultiBotIRCClient
     MultiBotIRCClient.bots = bots
+
+    if port is not None:
+        # Start the Web API
+        web = WebAPI(bots, port)
+
+    # On interrupt shut down the reactor and webserver
+    signal.signal(signal.SIGINT, stop)
 
     # Start the client
     reactor.connectTCP('irc.twitch.tv', 6667, BotFactory())
