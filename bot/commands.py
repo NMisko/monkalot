@@ -495,21 +495,21 @@ class outputStats(Command):
             cmd = msg.strip()
             cmd = cmd.split(' ', 1)
             emote = cmd[1]
-            count = bot.ecount.returnTotalcount(emote)
+            count = bot.ecount.getTotalcount(emote)
             response = self.responses["total_reply"]["msg"]
         elif cmd.startswith('!minute '):
             cmd = msg.strip()
             cmd = cmd.split(' ', 1)
             emote = cmd[1]
-            count = bot.ecount.returnMinutecount(emote)
+            count = bot.ecount.getMinuteCount(emote)
             response = self.responses["minute_reply"]["msg"]
         elif cmd == '!tkp':
             emote = 'Kappa'
-            count = bot.ecount.returnTotalcount(emote)
+            count = bot.ecount.getTotalcount(emote)
             response = self.responses["total_reply"]["msg"]
         elif cmd == '!kpm':
             emote = 'Kappa'
-            count = bot.ecount.returnMinutecount(emote)
+            count = bot.ecount.getMinuteCount(emote)
             response = self.responses["minute_reply"]["msg"]
 
         var = {"<EMOTE>": emote, "<AMOUNT>": count}

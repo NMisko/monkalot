@@ -110,8 +110,8 @@ class TwitchBot():
             except KeyError:
                 pass    # No Emoji found.
 
-        # Initialize emotecounter
-        self.ecount = bot.emotecounter.EmoteCounter(self)
+        # Initialize emote counter
+        self.ecount = bot.emotecounter.EmoteCounterForBot(self)
         self.ecount.startCPM()
 
     def setConfig(self, config):
@@ -265,7 +265,7 @@ class TwitchBot():
         self.cmdExecuted = False
 
         """Emote Count Function"""
-        self.ecount.process_msg(msg)
+        self.ecount.processMessage(msg)
 
         """Limit pleb bot spam. Only allow certain commands to be processed by plebs, if plebcmds on cooldown."""
         cmdlist = self.select_commands(perm)
