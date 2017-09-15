@@ -137,7 +137,7 @@ class TwitchBot():
         try:
             with open(CUSTOM_RESPONSES_PATH.format(self.root), 'r', encoding="utf-8") as file:
                 CUSTOM_RESPONSES = json.load(file)
-        except FileNotFoundError:   #noqa
+        except FileNotFoundError:
             logging.warning("No custom responses file for {}.".format(self.root))
             CUSTOM_RESPONSES = {}
         except Exception:
@@ -506,7 +506,7 @@ class TwitchBot():
                 base[k] = custom[k]
             else:
                 dictPath += "[{}]".format(k)
-                if type(base[k]) != type(custom[k]):
+                if type(base[k]) != type(custom[k]): # noqa - intended, we check for same type
                     raise TypeError("Different type of data found on merging key{}".format(dictPath))
                 else:
                     # Have same key and same type of data
