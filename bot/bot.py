@@ -211,6 +211,7 @@ class TwitchBot():
                 self.subs.discard(name)
 
         if 'user-type' in tags:
+            # This also works #if tags['user-type'] == 'mod':
             if tags['mod'] == '1':
                 self.mods.add(name)
             elif name in self.mods:
