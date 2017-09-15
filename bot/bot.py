@@ -174,14 +174,9 @@ class TwitchBot():
         self.reload_commands()
 
     def modeChanged(self, user, channel, added, modes, args):
-        """Update mod list when mod joins or leaves."""
-        # Keep mod list up to date
-        func = 'add' if added else 'discard'
-        for name in args:
-            getattr(self.mods, func)(name)
-
+        """Update IRC mod list when mod joins or leaves. Seems not useful"""
         change = 'added' if added else 'removed'
-        info_msg = "[{}] Mod {}: {}".format(channel, change, ', '.join(args))
+        info_msg = "[{}] IRC Mod {}: {}".format(channel, change, ', '.join(args))
         logging.warning(info_msg)
 
     def pronoun(self, user):
@@ -216,7 +211,7 @@ class TwitchBot():
                 self.subs.discard(name)
 
         if 'user-type' in tags:
-            if tags['user-type'] == 'mod':
+            if tags['mod'] == '1':
                 self.mods.add(name)
             elif name in self.mods:
                 self.mods.discard(name)
