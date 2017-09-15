@@ -186,6 +186,13 @@ class WebAPI(object):
 
         bot.reloadConfig()
 
+    @route('/getTwitchUsername', method='POST')
+    def getUserNameI():
+        """Get the username based on an id_token. Also verifies token."""
+        WebAPI.checkIfFormExists(['auth'])
+        auth = request.forms.get('auth').replace('"', '')
+        return {"username": WebAPI.getUserNameAndVerifyToken(auth)}
+
     def checkIfFormExists(keys):
         """Get all forms for the given keys."""
         for k in keys:
@@ -215,6 +222,20 @@ class WebAPI(object):
                 return True
 
         # If auth doesn't match password, assume id_token is submitted. Verify it.
+        id_token_username = WebAPI.getUserNameAndVerifyToken(auth)
+
+        # Compare username from id_token with given username
+        return username == id_token_username
+
+    def hasBotPermission(username, bot):
+        """Check if the user is allowed to access the bot."""
+        with open(CONFIG_PATH.format(bot.root), 'r', encoding="utf-8") as file:
+            CONFIG = json.load(file)
+        admins = str(CONFIG['owner_list'])
+        return username in admins
+
+    def getUserNameAndVerifyToken(auth):
+        """Verify id_token and returns the username."""
         r = requests.get('https://api.twitch.tv/api/oidc/keys')
         if r.status_code != 200:
             abort(503, "Cannot reach twitch api.")
@@ -226,6 +247,8 @@ class WebAPI(object):
             ET = jwt.JWT(key=key, jwt=auth)
         except (jws.InvalidJWSObject, ValueError):
             abort(403, "Token format unrecognized or bad password.")
+        except (jwt.JWTExpired):
+            abort(403, "Token expired.")
         user_id = json.loads(ET.claims)['sub']
 
         # Get username for id
@@ -234,12 +257,4 @@ class WebAPI(object):
         if r.status_code != 200:
             abort(503, "Cannot reach twitch api.")
 
-        # Compare username from id_token with given username
-        return username == r.json()['name']
-
-    def hasBotPermission(username, bot):
-        """Check if the user is allowed to access the bot."""
-        with open(CONFIG_PATH.format(bot.root), 'r', encoding="utf-8") as file:
-            CONFIG = json.load(file)
-        admins = str(CONFIG['owner_list'])
-        return username in admins
+        return r.json()['name']
