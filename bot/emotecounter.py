@@ -1,5 +1,7 @@
 """Class that counts the emotes from chat messages."""
 from collections import deque
+from json import JSONDecodeError
+import logging
 import time
 import json
 STATISTIC_FILE = '{}data/emote_stats.json'
@@ -85,11 +87,11 @@ class EmoteCounterForBot(EmoteCounter):
         self.__initTotalCount()
 
     def getTotalcount(self, emote):
-        """Return the Total count of an emote. Assume emote is in emote list"""
+        """Return the Total count of an emote."""
         with open(STATISTIC_FILE.format(self.bot.root)) as file:
             totalCount = json.load(file)
 
-        return totalCount.get(emote, None)
+        return totalCount.get(emote, 0)
 
     def processMessage(self, msg):
         """Process an incoming chatmessage."""
@@ -101,25 +103,33 @@ class EmoteCounterForBot(EmoteCounter):
 
     def __initTotalCount(self):
         """Create a emote stat JSON if there aren't one already."""
-        createNewFile = True
+
+        # True when need to create or add new emote to file
+        refreshFile = False
         try:
             with open(STATISTIC_FILE.format(self.bot.root)) as file:
                 try:
-                    json.load(file)
-                except ValueError:
-                    print("Broken EmoteCountFile found, creating new one.")
-                except Exception:
-                    print("Other errors occurs when loading EmoteCountFile, create a new one.")
+                    totalData = json.load(file)
+                except JSONDecodeError:
+                    logging.info("Broken EmoteCountFile found, creating new one.")
+                    totalData = self.__createEmptyTotalList()
+                    refreshFile = True
                 else:
-                    # No error if reaches here
-                    createNewFile = False
-        except FileNotFoundError:
-            print("No EmoteCountFile found, creating new one.")
+                    # If there are new emotes, add them here
+                    for emote in self.emoteList:
+                        if emote not in totalData:
+                            logging.info("New emote {} added to Twitch, adding it to count file".format(emote))
+                            totalData[emote] = 0
+                            refreshFile = True
 
-        if createNewFile:
-            emptyList = self.__createEmptyTotalList()
+        except FileNotFoundError:
+            logging.info("No EmoteCountFile found, creating new one.")
+            totalData = self.__createEmptyTotalList()
+            refreshFile = True
+
+        if refreshFile:
             with open(STATISTIC_FILE.format(self.bot.root), 'w+') as file:
-                json.dump(emptyList, file, indent=4)
+                json.dump(totalData, file, indent=4)
 
     def __createEmptyTotalList(self):
         """Create an emote-statistic-dictionary and set all values to 0.
