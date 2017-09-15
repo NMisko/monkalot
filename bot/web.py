@@ -123,7 +123,7 @@ class WebAPI(object):
 
     @route('/file', method='POST')
     def getFile():
-        """Return the json of a specific file."""
+        """Return the content of a specific file."""
         WebAPI.checkIfFormExists(['user', 'bot', 'file', 'auth'])
         username = request.forms.get('user').replace('"', '')
         botname = request.forms.get('bot').replace('"', '')
@@ -148,7 +148,8 @@ class WebAPI(object):
 
         with open(path) as fp:
             data = json.load(fp)
-        return data
+
+        return {'content': data}
 
     @route('/setfile', method='POST')
     def setFile():
@@ -192,6 +193,29 @@ class WebAPI(object):
         WebAPI.checkIfFormExists(['auth'])
         auth = request.forms.get('auth').replace('"', '')
         return {"username": WebAPI.getUserNameAndVerifyToken(auth)}
+
+    @route('/pause', method='POST')
+    def pause():
+        """Pause or unpause a bot."""
+        WebAPI.checkIfFormExists(['user', 'bot', 'auth', 'pause'])
+        username = request.forms.get('user').replace('"', '')
+        botname = request.forms.get('bot').replace('"', '')
+        auth = request.forms.get('auth').replace('"', '')
+        pause = request.forms.get('pause').replace('"', '')
+
+        bot = WebAPI.getBot(botname)
+        if not WebAPI.hasUserPermission(username, auth):
+            abort(403, "Bad authentication")
+
+        if not WebAPI.hasBotPermission(username, bot):
+            abort(403, "User doesn't have access to this bot.")
+
+        if pause == 'True':
+            bot.pause = True
+        elif pause == 'False':
+            bot.pause = False
+        else:
+            abort(400, "pause must be either 'True' or 'False'")
 
     def checkIfFormExists(keys):
         """Get all forms for the given keys."""
