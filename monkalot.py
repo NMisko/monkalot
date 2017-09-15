@@ -58,9 +58,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Start the bot.")
     parser.add_argument("-p", help="Port for the api webserver. If no port is given, no webserver is started.")
     parser.add_argument("-c", help="Folder containing the channel data and configs.", default="channels")
+    parser.add_argument("-s", help="Secret password for using the api without having to login to twitch.")
     args = parser.parse_args()
     port = args.p
     config_folder = args.c
+    password = args.s
 
     # Read config folder for different bot configurations
     bots = []
@@ -75,7 +77,7 @@ if __name__ == "__main__":
 
     if port is not None:
         # Start the Web API
-        web = WebAPI(bots, port)
+        web = WebAPI(bots, port, password)
 
     # On interrupt shut down the reactor and webserver
     signal.signal(signal.SIGINT, stop)
