@@ -171,6 +171,7 @@ class TwitchBot():
         self.PYRAMIDP = CONFIG["points"]["pyramid"]
         self.GAMESTARTP = CONFIG["points"]["game_start"]
         self.AUTO_GAME_INTERVAL = CONFIG["auto_game_interval"]
+        self.NOTIFICATION_INTERVAL = CONFIG["notification_interval"]    # time between notification posts
         self.reload_commands()
 
     def modeChanged(self, user, channel, added, modes, args):
@@ -365,6 +366,7 @@ class TwitchBot():
             cmds.outputStats(self),
             cmds.Calculator(self),
             cmds.AutoGames(self),
+            cmds.Notifications(self),
             cmds.PyramidReply(self),
             cmds.EmoteReply(self),
             cmds.TentaReply(self),

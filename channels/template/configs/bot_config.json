@@ -19,6 +19,7 @@
 		"factor": 1.2,
 		"ranks": 25
 	},
+	"notification_interval": 600,
 	"auto_game_interval": 10,
 	"pleb_cooldown": 6,
 	"pleb_gametimer": 600,
@@ -26,5 +27,6 @@
 		"Kappa", "PogChamp", "DansGame", "EleGiggle", "WutFace", "BibleThump", 
 		"4Head", "SMOrc", "KappaPride", "BabyRage", "MingLee", "FailFish", "Keepo",
 		"ResidentSleeper", "BrokeBack", "SwiftRage", "LUL", "FeelsBadMan", "Jebaited",
-		"gachiGASM", "FeelsGoodMan", "haHAA", "monkaS", "EZ", "OMEGALUL"]
+		"gachiGASM", "FeelsGoodMan", "haHAA", "monkaS", "EZ", "OMEGALUL"
+	]
 }
