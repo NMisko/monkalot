@@ -255,7 +255,7 @@ class WebAPI(object):
         """Check if the user is allowed to access the bot."""
         with open(CONFIG_PATH.format(bot.root), 'r', encoding="utf-8") as file:
             CONFIG = json.load(file)
-        admins = str(CONFIG['owner_list'])
+        admins = CONFIG['owner_list']
         return username in admins
 
     def getUserNameAndVerifyToken(auth):
