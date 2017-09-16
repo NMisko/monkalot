@@ -255,7 +255,7 @@ class WebAPI(object):
         """Check if the user is allowed to access the bot."""
         with open(CONFIG_PATH.format(bot.root), 'r', encoding="utf-8") as file:
             CONFIG = json.load(file)
-        admins = str(CONFIG['owner_list'])
+        admins = CONFIG['owner_list']
         return username in admins
 
     def getUserNameAndVerifyToken(auth):
@@ -274,6 +274,10 @@ class WebAPI(object):
         except (jwt.JWTExpired):
             abort(403, "Token expired.")
         user_id = json.loads(ET.claims)['sub']
+
+        # Check that audience in token is same as clientid
+        if json.loads(ET.claims)['aud'] != clientID:
+            abort(403, "Token not issued to this client.")
 
         # Get username for id
         headers = {'Client-id': clientID, 'Accept': 'application/vnd.twitchtv.v5+json'}

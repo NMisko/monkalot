@@ -5,3 +5,4 @@ six
 pyparsing
 colorlog
 bottle
+jwcrypto

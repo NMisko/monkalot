@@ -1,6 +1,5 @@
 """Class that counts the emotes from chat messages."""
 from collections import deque
-from json import JSONDecodeError
 import logging
 import time
 import json
@@ -110,7 +109,7 @@ class EmoteCounterForBot(EmoteCounter):
             with open(STATISTIC_FILE.format(self.bot.root)) as file:
                 try:
                     totalData = json.load(file)
-                except JSONDecodeError:
+                except ValueError:
                     logging.info("Broken EmoteCountFile found, creating new one.")
                     totalData = self.__createEmptyTotalList()
                     refreshFile = True
