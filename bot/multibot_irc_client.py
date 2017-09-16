@@ -8,6 +8,7 @@ CONFIG_PATH = '{}configs/bot_config.json'
 
 class MultiBotIRCClient(irc.IRCClient, object):
     """Irc Client that distributes messages to bots, based on the channel they're from."""
+    # Twitch IRC reference: https://dev.twitch.tv/docs/v5/guides/irc
 
     # Set this globally, by using MultiBotIRCClient.bots = x
     bots = []
@@ -115,7 +116,7 @@ class MultiBotIRCClient(irc.IRCClient, object):
         elif cmd == "notice":
             self.notice(prefix, tags, args)
         elif cmd == "privmsg":
-            self.userState(prefix, tags)
+            self.userState(prefix, tags, args)
         # used in Twitch only, seems non-standard in IRC
         # elif cmd == "whisper":
         # pass
@@ -131,13 +132,17 @@ class MultiBotIRCClient(irc.IRCClient, object):
         # Then we let IRCClient handle the rest
         super().lineReceived(line)
 
-    def userState(self, prefix, tags):
+    def userState(self, prefix, tags, args):
+        # NOTE: In Twitch IRC, USERSTATE can be called in 2 ways:
+        # part of PRIVMSG (in this function) or called directly if we define irc_USERSTATE()
         """Update user list when user leaves."""
         name = prefix.split("!")[0]
         self.tags[name].update(tags)
 
-        channel = prefix.split("@")[1].split(".")[0]
+        # args[0] is "#CHANNELNAME", args[1] is message from user
+        channel = args[0]
         for b in MultiBotIRCClient.bots:
+            # our bot store channel starting with '#'
             if b.channel == channel:
                 b.userState(prefix, tags)
 

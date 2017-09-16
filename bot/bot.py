@@ -137,7 +137,7 @@ class TwitchBot():
         try:
             with open(CUSTOM_RESPONSES_PATH.format(self.root), 'r', encoding="utf-8") as file:
                 CUSTOM_RESPONSES = json.load(file)
-        except FileNotFoundError:   #noqa
+        except FileNotFoundError:
             logging.warning("No custom responses file for {}.".format(self.root))
             CUSTOM_RESPONSES = {}
         except Exception:
@@ -174,14 +174,9 @@ class TwitchBot():
         self.reload_commands()
 
     def modeChanged(self, user, channel, added, modes, args):
-        """Update mod list when mod joins or leaves."""
-        # Keep mod list up to date
-        func = 'add' if added else 'discard'
-        for name in args:
-            getattr(self.mods, func)(name)
-
+        """Update IRC mod list when mod joins or leaves. Seems not useful"""
         change = 'added' if added else 'removed'
-        info_msg = "[{}] Mod {}: {}".format(channel, change, ', '.join(args))
+        info_msg = "[{}] IRC Mod {}: {}".format(channel, change, ', '.join(args))
         logging.warning(info_msg)
 
     def pronoun(self, user):
@@ -216,7 +211,8 @@ class TwitchBot():
                 self.subs.discard(name)
 
         if 'user-type' in tags:
-            if tags['user-type'] == 'mod':
+            # This also works #if tags['user-type'] == 'mod':
+            if tags['mod'] == '1':
                 self.mods.add(name)
             elif name in self.mods:
                 self.mods.discard(name)
@@ -506,7 +502,7 @@ class TwitchBot():
                 base[k] = custom[k]
             else:
                 dictPath += "[{}]".format(k)
-                if type(base[k]) != type(custom[k]):
+                if type(base[k]) != type(custom[k]): # noqa - intended, we check for same type
                     raise TypeError("Different type of data found on merging key{}".format(dictPath))
                 else:
                     # Have same key and same type of data
