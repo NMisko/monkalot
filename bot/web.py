@@ -275,6 +275,10 @@ class WebAPI(object):
             abort(403, "Token expired.")
         user_id = json.loads(ET.claims)['sub']
 
+        # Check that audience in token is same as clientid
+        if json.loads(ET.claims)['aud'] != clientID:
+            abort(403, "Token not issued to this client.")
+
         # Get username for id
         headers = {'Client-id': clientID, 'Accept': 'application/vnd.twitchtv.v5+json'}
         r = requests.get('https://api.twitch.tv/kraken/users/{}'.format(user_id), headers=headers)
