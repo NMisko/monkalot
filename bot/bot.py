@@ -52,7 +52,7 @@ class TwitchBot():
 
         with open(TRUSTED_MODS_PATH.format(self.root)) as fp:
             self.trusted_mods = json.load(fp)
-            
+
         with open(IGNORED_USERS_PATH.format(self.root)) as fp:
             self.ignored_users = json.load(fp)
 
@@ -519,7 +519,7 @@ class TwitchBot():
                         base[k] = custom[k]
 
         return copy.deepcopy(base)
-        
+
     def dumpIgnoredUsersFile(self):
         """Output ignored users file."""
         with open(IGNORED_USERS_PATH.format(self.root), 'w') as file:
