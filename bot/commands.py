@@ -117,7 +117,7 @@ class SlapHug(Command):
             if len(cmd) == 2:
                 target = cmd[1].lower().strip()
                 """Check if user is in chat."""
-                if (target in bot.users and target is not bot.nickname.lower()):
+                if (target in bot.users and target != bot.nickname.lower()):
                     return True
         return False
 

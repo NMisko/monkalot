@@ -75,7 +75,7 @@ class EmoteCounter(object):
 
 
 class EmoteCounterForBot(EmoteCounter):
-    """Emote counter class for bot, inherit from EmoteCounter """
+    """Emote counter class for bot including total count, inherit from EmoteCounter """
     def __init__(self, bot, t=60):
         super().__init__(t)
 
