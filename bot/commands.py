@@ -1762,33 +1762,33 @@ class UserIgnore(Command):
         return False
 
     def run(self, bot, user, msg):
-
         bot.antispeech = True
         cmd = msg.lower().strip().split(" ")
         target = cmd[1].lower().strip()
 
         if cmd[0].strip() == "!ignore":
             ignoreReply = self.responses["ignore"]
-            # bot can ignore ANYONE, we just add the name to bot.ignore_list
+            # bot can ignore ANYONE, we just add the name to bot.ignored_users
             # IMPORTNT: ANYONE includes owner, mod and the bot itself, we do the checking here to prevent it
 
             if (target in bot.owner_list + bot.trusted_mods) or (target is bot.nickname):
                 reply = ignoreReply["privileged"]
-            elif (target in bot.ignore_list):
+            elif (target in bot.ignored_users):
                 # already ignored
                 reply = ignoreReply["already"]
             else:
-                bot.ignore_list.append(target)
+                bot.ignored_users.append(target)
                 reply = ignoreReply["success"]
-                # NOTE: pemenantly save ignore setting to config if we have this function
-                # bot.saveCurrentConfig()
+                # To make the change temporary (before bot reboot) comment out next line
+                bot.dumpIgnoredUsersFile()
 
         elif cmd[0].strip() == "!unignore":
             unignoreReply = self.responses["unignore"]
-            if (target in bot.ignore_list):
-                bot.ignore_list.remove(target)
+            if (target in bot.ignored_users):
+                bot.ignored_users.remove(target)
                 reply = unignoreReply["success"]
-                # bot.saveCurrentConfig()
+                # To make the change temporary (before bot reboot) comment out next line
+                bot.dumpIgnoredUsersFile()
             else:
                 reply = unignoreReply["already"]
 
