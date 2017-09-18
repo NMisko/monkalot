@@ -379,6 +379,7 @@ class TwitchBot():
             cmds.Questions(self),
             cmds.Oralpleasure(self),
             cmds.BanMe(self),
+            cmds.UserIgnore(self),
             cmds.Speech(self),
             cmds.SimpleReply(self),
             cmds.PyramidBlock(self),
