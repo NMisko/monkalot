@@ -1748,7 +1748,7 @@ class StreamInfo(Command):
 
 class UserIgnore(Command):
     """Let mods to make bot ignore/unignore a user"""
-    perm = Permission.Admin
+    perm = Permission.Moderator
 
     def __init__(self, bot):
         self.responses = bot.responses["userignore"]
