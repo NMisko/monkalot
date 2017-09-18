@@ -646,5 +646,46 @@
                 "<RANK>": "Legend Rank of the user."
             }
         }
+    },
+    "userignore": {
+        "ignore": {
+            "privileged": {
+                "msg": "Stop trolling, <USER> can't be ignored DansGame",
+                "info": "Error message of trying to ignore mods/bots/owners.",
+                "args_info": {
+                    "<USER>": "That unignorable user."
+                }
+            },
+            "already": {
+                "msg": "<USER> is already ignored FeelsBadMan",
+                "info": "Error message of trying to ignore users already ignored.",
+                "args_info": {
+                    "<USER>": "That poor already ignored user."
+                }
+            },
+            "success": {
+                "msg": "A mod tells me to ignore <USER>. BibleThump",
+                "info": "Success message of trying to ignore a user.",
+                "args_info": {
+                    "<USER>": "That user to ignore."
+                }
+            }
+        },
+        "unignore": {
+            "success": {
+                "msg": "I can talk to <USER> again now FeelsGoodMan",
+                "info": "Message to unignore ignored users.",
+                "args_info": {
+                    "<USER>": "That user."
+                }
+            },
+            "already": {
+                "msg": "<USER> is not ignored at all DansGame",
+                "info": "Error message of trying to unignore unignored users.",
+                "args_info": {
+                    "<USER>": "That user."
+                }
+            }
+        }
     }
 }

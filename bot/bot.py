@@ -21,6 +21,7 @@ HEARTHSTONE_CARD_API = "http://api.hearthstonejson.com/v1/latest/enUS/cards.coll
 EMOJI_API = "https://raw.githubusercontent.com/github/gemoji/master/db/emoji.json"
 
 TRUSTED_MODS_PATH = '{}data/trusted_mods.json'
+IGNORED_USERS_PATH = '{}data/ignored_users.json'
 PRONOUNS_PATH = '{}data/pronouns.json'
 CONFIG_PATH = '{}configs/bot_config.json'
 CUSTOM_RESPONSES_PATH = '{}configs/responses.json'
@@ -51,6 +52,9 @@ class TwitchBot():
 
         with open(TRUSTED_MODS_PATH.format(self.root)) as fp:
             self.trusted_mods = json.load(fp)
+
+        with open(IGNORED_USERS_PATH.format(self.root)) as fp:
+            self.ignored_users = json.load(fp)
 
         with open(PRONOUNS_PATH.format(self.root)) as fp:
             self.pronouns = json.load(fp)
@@ -151,7 +155,6 @@ class TwitchBot():
 
         self.last_warning = defaultdict(int)
         self.owner_list = CONFIG['owner_list']
-        self.ignore_list = CONFIG['ignore_list']
         self.nickname = str(CONFIG['username'])
         self.clientID = str(CONFIG['clientID'])
         self.password = str(CONFIG['oauth_key'])
@@ -247,7 +250,7 @@ class TwitchBot():
     def process_command(self, user, msg):
         """Process messages and call commands."""
         # Ignore messages by ignored user
-        if user in self.ignore_list:
+        if user in self.ignored_users:
             return
 
         self.ranking.incrementPoints(user, 1, self)
@@ -379,6 +382,7 @@ class TwitchBot():
             cmds.Questions(self),
             cmds.Oralpleasure(self),
             cmds.BanMe(self),
+            cmds.UserIgnore(self),
             cmds.Speech(self),
             cmds.SimpleReply(self),
             cmds.PyramidBlock(self),
@@ -515,6 +519,11 @@ class TwitchBot():
                         base[k] = custom[k]
 
         return copy.deepcopy(base)
+
+    def dumpIgnoredUsersFile(self):
+        """Output ignored users file."""
+        with open(IGNORED_USERS_PATH.format(self.root), 'w') as file:
+            json.dump(self.ignored_users, file, indent=4)
 
     def write(self, msg):
         """Write a message."""
