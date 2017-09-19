@@ -232,7 +232,7 @@ class TwitchBot():
         return Permission.User
 
     def select_commands(self, perm):
-        """If a game is active and plebcommands on colldown, only iterate through game list.
+        """If a game is active and plebcommands on cooldown, only iterate through game list.
 
         If no game is active only allow 'passive games' a.k.a PyramidGame
         """
@@ -289,7 +289,7 @@ class TwitchBot():
                     if (perm is 0 and cmd not in self.games):   # Only reset plebtimer if no game was played
                         self.last_plebcmd = time.time()
                     cmd.run(self, user, msg)
-            except ValueError or TypeError:  # Not sure which Errors might happen here.
+            except (ValueError, TypeError):  # Not sure which Errors might happen here.
                 logging.error(traceback.format_exc())
         """Reset antispeech for next command"""
         self.antispeech = False
@@ -335,7 +335,7 @@ class TwitchBot():
         for cmd in self.commands:
             try:
                 cmd.close(self)
-            except TypeError or ValueError:  # Not sure which Errors might happen here.
+            except (TypeError, ValueError):  # Not sure which Errors might happen here.
                 logging.error(traceback.format_exc())
 
     def reload_commands(self):
@@ -413,7 +413,8 @@ class TwitchBot():
 
         try:
             return requests.get(url, headers=headers).json()["users"][0]["display_name"]
-        except IndexError or KeyError:
+        except (IndexError, KeyError):
+            logging.error(traceback.format_exc())
             return user
 
     def getuserTag(self, username):
@@ -423,7 +424,8 @@ class TwitchBot():
 
         try:
             return requests.get(url, headers=headers).json()
-        except IndexError or KeyError:
+        except (IndexError, KeyError):
+            logging.error(traceback.format_exc())
             pass
 
     def getuserID(self, username):
@@ -437,7 +439,8 @@ class TwitchBot():
         data = requests.get(url, headers=headers).json()
         try:
             emotelist = data['emoticon_sets']
-        except IndexError or KeyError:
+        except (IndexError, KeyError):
+            logging.error(traceback.format_exc())
             print("Error in getting emotes from userID")
 
         emotelist.pop('0', None)
@@ -460,7 +463,8 @@ class TwitchBot():
 
         try:
             return requests.get(url, headers=headers).json()
-        except IndexError or KeyError:
+        except (IndexError, KeyError):
+            logging.error(traceback.format_exc())
             print("Channel object could not be fetched.")
 
     def getStream(self, channelID):
@@ -470,7 +474,8 @@ class TwitchBot():
 
         try:
             return requests.get(url, headers=headers).json()
-        except IndexError or KeyError:
+        except (IndexError, KeyError):
+            logging.error(traceback.format_exc())
             print("Stream object could not be fetched.")
 
     def setlast_plebgame(self, last_plebgame):

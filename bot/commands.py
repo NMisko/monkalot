@@ -646,7 +646,7 @@ class Calculator(Command):
         except pyparsing.ParseException:
             var = {"<USER>": bot.displayName(user)}
             bot.write(bot.replace_vars(self.responses["wrong_input"]["msg"], var))
-        except TypeError or ValueError:  # Not sure which Errors might happen here.
+        except (TypeError, ValueError):  # Not sure which Errors might happen here.
             var = {"<USER>": bot.displayName(user), "<EXPRESSION>": expr}
             bot.write(bot.replace_vars(self.responses["default_error"]["msg"], var))
 
