@@ -289,7 +289,7 @@ class TwitchBot():
                     if (perm is 0 and cmd not in self.games):   # Only reset plebtimer if no game was played
                         self.last_plebcmd = time.time()
                     cmd.run(self, user, msg)
-            except ValueError or TypeError:  # Not sure which Errors might happen here.
+            except (ValueError, TypeError):  # Not sure which Errors might happen here.
                 logging.error(traceback.format_exc())
         """Reset antispeech for next command"""
         self.antispeech = False
