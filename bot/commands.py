@@ -13,6 +13,7 @@ from datetime import datetime
 
 import re
 
+NOTIFICATIONS_FILE = '{}data/notifications.json'
 QUOTES_FILE = '{}data/quotes.json'
 REPLIES_FILE = '{}data/sreply_cmds.json'
 SMORC_FILE = '{}data/smorc.json'
@@ -116,7 +117,7 @@ class SlapHug(Command):
             if len(cmd) == 2:
                 target = cmd[1].lower().strip()
                 """Check if user is in chat."""
-                if (target in bot.users and target is not bot.nickname.lower()):
+                if (target in bot.users and target != bot.nickname.lower()):
                     return True
         return False
 
@@ -495,21 +496,21 @@ class outputStats(Command):
             cmd = msg.strip()
             cmd = cmd.split(' ', 1)
             emote = cmd[1]
-            count = bot.ecount.returnTotalcount(emote)
+            count = bot.ecount.getTotalcount(emote)
             response = self.responses["total_reply"]["msg"]
         elif cmd.startswith('!minute '):
             cmd = msg.strip()
             cmd = cmd.split(' ', 1)
             emote = cmd[1]
-            count = bot.ecount.returnMinutecount(emote)
+            count = bot.ecount.getMinuteCount(emote)
             response = self.responses["minute_reply"]["msg"]
         elif cmd == '!tkp':
             emote = 'Kappa'
-            count = bot.ecount.returnTotalcount(emote)
+            count = bot.ecount.getTotalcount(emote)
             response = self.responses["total_reply"]["msg"]
         elif cmd == '!kpm':
             emote = 'Kappa'
-            count = bot.ecount.returnMinutecount(emote)
+            count = bot.ecount.getMinuteCount(emote)
             response = self.responses["minute_reply"]["msg"]
 
         var = {"<EMOTE>": emote, "<AMOUNT>": count}
@@ -645,7 +646,7 @@ class Calculator(Command):
         except pyparsing.ParseException:
             var = {"<USER>": bot.displayName(user)}
             bot.write(bot.replace_vars(self.responses["wrong_input"]["msg"], var))
-        except TypeError or ValueError:  # Not sure which Errors might happen here.
+        except (TypeError, ValueError):  # Not sure which Errors might happen here.
             var = {"<USER>": bot.displayName(user), "<EXPRESSION>": expr}
             bot.write(bot.replace_vars(self.responses["default_error"]["msg"], var))
 
@@ -1120,7 +1121,7 @@ class AutoGames(Command):
 
     def match(self, bot, user, msg):
         """Match if message starts with !games."""
-        return msg.lower().startswith("!games ")
+        return (msg.lower().startswith("!games on") or msg.lower().startswith("!games off"))
 
     def run(self, bot, user, msg):
         """Start/stop automatic games."""
@@ -1143,6 +1144,114 @@ class AutoGames(Command):
                 bot.write(self.responses["autogames_deactivate"]["msg"])
             else:
                 bot.write(self.responses["autogames_already_off"]["msg"])
+
+    def close(self, bot):
+        """Close the game."""
+        if is_callID_active(self.callID):
+            self.callID.cancel()
+        self.active = False
+
+
+class Notifications(Command):
+    """Send out notifications from a list in a set amount of time and
+    add or remove notifications from the list.
+    """
+
+    perm = Permission.Moderator
+
+    def __init__(self, bot):
+        """Initialize variables."""
+        self.responses = bot.responses["Notifications"]
+        self.active = False  # It should be configured by the user if the notifications are on or off by default.
+        self.callID = None
+        self.listindex = 0
+        with open(NOTIFICATIONS_FILE.format(bot.root)) as file:
+            self.notifications = json.load(file)
+
+        """If notifications are enabled by default, start the threading."""
+        if self.active:
+            self.callID = reactor.callLater(bot.NOTIFICATION_INTERVAL, self.writeNotification, bot)
+
+    def raiselistindex(self):
+        """Raise the listindex by 1 if it's exceeding the list's length reset the index.
+        Maybe randomizing the list after each run could make sense?
+        """
+        self.listindex += 1
+        if self.listindex >= len(self.notifications):
+            self.listindex = 0
+
+    def writeNotification(self, bot):
+        """Write a notification in chat."""
+        if not self.active:
+            return
+        elif len(self.notifications) == 0:
+            self.active = False
+            bot.write(self.responses["empty_list"]["msg"])
+            return
+
+        """Only write notifications if the bot is unpaused."""
+        if not bot.pause:
+            bot.write(self.notifications[self.listindex])
+            self.raiselistindex()
+
+        """Threading to keep notifications running, if class active."""
+        self.callID = reactor.callLater(bot.NOTIFICATION_INTERVAL, self.writeNotification, bot)
+
+    def addnotification(self, bot, arg):
+        """Add a new notification to the list."""
+
+        if arg not in self.notifications:
+            self.notifications.append(arg)
+            with open(NOTIFICATIONS_FILE.format(bot.root), 'w') as file:
+                json.dump(self.notifications, file, indent=4)
+            bot.write(self.responses["notification_added"]["msg"])
+        else:
+            bot.write(self.responses["notification_exists"]["msg"])
+
+    def delnotification(self, bot, arg):
+        """Add a new notification to the list."""
+
+        if arg in self.notifications:
+            self.notifications.remove(arg)
+            with open(NOTIFICATIONS_FILE.format(bot.root), 'w') as file:
+                json.dump(self.notifications, file, indent=4)
+            bot.write(self.responses["notification_removed"]["msg"])
+        else:
+            bot.write(self.responses["notification_not_found"]["msg"])
+
+    def match(self, bot, user, msg):
+        """Match if a user is a trusted mod or admin and wants to turn notifications on or off.
+        Or if they want add or remove a notification from the list.
+        """
+        if user in bot.trusted_mods or bot.get_permission(user) == 3:
+            if msg.lower().startswith("!notifications on") or msg.lower().startswith("!notifications off"):
+                return True
+            elif msg.lower().startswith("!addnotification ") or msg.lower().startswith("!delnotification ") and len(msg.split(" ")) > 1:
+                return True
+        return False
+
+    def run(self, bot, user, msg):
+        """Start/stop notifications or add/remove notifications from the list."""
+
+        if msg.lower().startswith("!notifications on"):
+            if not self.active:
+                self.active = True
+                self.callID = reactor.callLater(bot.NOTIFICATION_INTERVAL, self.writeNotification, bot)
+                bot.write(self.responses["notifications_activate"]["msg"])
+            else:
+                bot.write(self.responses["notifications_already_on"]["msg"])
+        elif msg.lower().startswith("!notifications off"):
+            if is_callID_active(self.callID):
+                self.callID.cancel()
+            if self.active:
+                self.active = False
+                bot.write(self.responses["notifications_deactivate"]["msg"])
+            else:
+                bot.write(self.responses["notifications_already_off"]["msg"])
+        elif msg.lower().startswith("!addnotification "):
+            self.addnotification(bot, msg.split(" ", 1)[1])
+        elif msg.lower().startswith("!delnotification "):
+            self.delnotification(bot, msg.split(" ", 1)[1])
 
     def close(self, bot):
         """Close the game."""
@@ -1347,7 +1456,7 @@ class Speech(Command):
 
     def run(self, bot, user, msg):
         """Send message to cleverbot only if no other command got triggered."""
-        if bot.antispeech is not True:
+        if not bot.antispeech:
             msg = msg.lower()
             msg = msg.replace("@", '')
             msg = msg.replace(bot.nickname, '')
@@ -1509,7 +1618,7 @@ class MonkalotParty(Command):
 
     def selectGame(self, bot):
         """Select a game to play next."""
-        if self.active is False:
+        if not self.active:
             return
 
         game = random.choice(list(self.mp.games))
@@ -1635,3 +1744,53 @@ class StreamInfo(Command):
             seconds = seconds % 60
             var = {"<HOURS>": hours, "<MINUTES>": minutes, "<SECONDS>": seconds}
             bot.write(bot.replace_vars(self.responses["uptime"]["msg"], var))
+
+
+class UserIgnore(Command):
+    """Let mods to make bot ignore/unignore a user"""
+    perm = Permission.Moderator
+
+    def __init__(self, bot):
+        self.responses = bot.responses["userignore"]
+
+    def match(self, bot, user, msg):
+        # copied from hug/slap
+        if (msg.lower().strip().startswith("!ignore ") or msg.lower().strip().startswith("!unignore ")):
+            cmd = msg.split(" ")
+            if len(cmd) == 2:
+                return True
+        return False
+
+    def run(self, bot, user, msg):
+        bot.antispeech = True
+        cmd = msg.lower().strip().split(" ")
+        target = cmd[1].lower().strip()
+
+        if cmd[0].strip() == "!ignore":
+            ignoreReply = self.responses["ignore"]
+            # bot can ignore ANYONE, we just add the name to bot.ignored_users
+            # IMPORTNT: ANYONE includes owner, mod and the bot itself, we do the checking here to prevent it
+            if (target == bot.nickname) or any(target in coll for coll in (bot.owner_list, bot.trusted_mods)):
+                reply = ignoreReply["privileged"]
+            elif (target in bot.ignored_users):
+                # already ignored
+                reply = ignoreReply["already"]
+            else:
+                bot.ignored_users.append(target)
+                reply = ignoreReply["success"]
+                # To make the change temporary (before bot reboot) comment out next line
+                bot.dumpIgnoredUsersFile()
+
+        elif cmd[0].strip() == "!unignore":
+            unignoreReply = self.responses["unignore"]
+            if (target in bot.ignored_users):
+                bot.ignored_users.remove(target)
+                reply = unignoreReply["success"]
+                # To make the change temporary (before bot reboot) comment out next line
+                bot.dumpIgnoredUsersFile()
+            else:
+                reply = unignoreReply["already"]
+
+        var = {"<USER>": target}
+        output = bot.replace_vars(reply["msg"], var)
+        bot.write(output)

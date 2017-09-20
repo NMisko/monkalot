@@ -71,7 +71,7 @@ class Ranking():
         self.executeCommand(sql_command, [points, username])
 
         """Check for legend rank if user was not legend before."""
-        if legend is False:
+        if not legend:
             rank = self.getHSRank(points)
             if "Legend" in rank:
                 var = {"<USER>": bot.displayName(username), "<RANK>": rank}

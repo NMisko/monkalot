@@ -21,6 +21,7 @@ HEARTHSTONE_CARD_API = "http://api.hearthstonejson.com/v1/latest/enUS/cards.coll
 EMOJI_API = "https://raw.githubusercontent.com/github/gemoji/master/db/emoji.json"
 
 TRUSTED_MODS_PATH = '{}data/trusted_mods.json'
+IGNORED_USERS_PATH = '{}data/ignored_users.json'
 PRONOUNS_PATH = '{}data/pronouns.json'
 CONFIG_PATH = '{}configs/bot_config.json'
 CUSTOM_RESPONSES_PATH = '{}configs/responses.json'
@@ -51,6 +52,9 @@ class TwitchBot():
 
         with open(TRUSTED_MODS_PATH.format(self.root)) as fp:
             self.trusted_mods = json.load(fp)
+
+        with open(IGNORED_USERS_PATH.format(self.root)) as fp:
+            self.ignored_users = json.load(fp)
 
         with open(PRONOUNS_PATH.format(self.root)) as fp:
             self.pronouns = json.load(fp)
@@ -110,8 +114,8 @@ class TwitchBot():
             except KeyError:
                 pass    # No Emoji found.
 
-        # Initialize emotecounter
-        self.ecount = bot.emotecounter.EmoteCounter(self)
+        # Initialize emote counter
+        self.ecount = bot.emotecounter.EmoteCounterForBot(self)
         self.ecount.startCPM()
 
     def setConfig(self, config):
@@ -137,7 +141,7 @@ class TwitchBot():
         try:
             with open(CUSTOM_RESPONSES_PATH.format(self.root), 'r', encoding="utf-8") as file:
                 CUSTOM_RESPONSES = json.load(file)
-        except FileNotFoundError:   #noqa
+        except FileNotFoundError:
             logging.warning("No custom responses file for {}.".format(self.root))
             CUSTOM_RESPONSES = {}
         except Exception:
@@ -151,7 +155,6 @@ class TwitchBot():
 
         self.last_warning = defaultdict(int)
         self.owner_list = CONFIG['owner_list']
-        self.ignore_list = CONFIG['ignore_list']
         self.nickname = str(CONFIG['username'])
         self.clientID = str(CONFIG['clientID'])
         self.password = str(CONFIG['oauth_key'])
@@ -171,17 +174,13 @@ class TwitchBot():
         self.PYRAMIDP = CONFIG["points"]["pyramid"]
         self.GAMESTARTP = CONFIG["points"]["game_start"]
         self.AUTO_GAME_INTERVAL = CONFIG["auto_game_interval"]
+        self.NOTIFICATION_INTERVAL = CONFIG["notification_interval"]    # time between notification posts
         self.reload_commands()
 
     def modeChanged(self, user, channel, added, modes, args):
-        """Update mod list when mod joins or leaves."""
-        # Keep mod list up to date
-        func = 'add' if added else 'discard'
-        for name in args:
-            getattr(self.mods, func)(name)
-
+        """Update IRC mod list when mod joins or leaves. Seems not useful"""
         change = 'added' if added else 'removed'
-        info_msg = "[{}] Mod {}: {}".format(channel, change, ', '.join(args))
+        info_msg = "[{}] IRC Mod {}: {}".format(channel, change, ', '.join(args))
         logging.warning(info_msg)
 
     def pronoun(self, user):
@@ -216,7 +215,8 @@ class TwitchBot():
                 self.subs.discard(name)
 
         if 'user-type' in tags:
-            if tags['user-type'] == 'mod':
+            # This also works #if tags['user-type'] == 'mod':
+            if tags['mod'] == '1':
                 self.mods.add(name)
             elif name in self.mods:
                 self.mods.discard(name)
@@ -232,11 +232,11 @@ class TwitchBot():
         return Permission.User
 
     def select_commands(self, perm):
-        """If a game is active and plebcommands on colldown, only iterate through game list.
+        """If a game is active and plebcommands on cooldown, only iterate through game list.
 
         If no game is active only allow 'passive games' a.k.a PyramidGame
         """
-        if perm is 0:
+        if perm == 0:
             if (time.time() - self.last_plebcmd < self.pleb_cooldowntime):
                 if self.gameRunning:
                     return self.games
@@ -250,7 +250,7 @@ class TwitchBot():
     def process_command(self, user, msg):
         """Process messages and call commands."""
         # Ignore messages by ignored user
-        if user in self.ignore_list:
+        if user in self.ignored_users:
             return
 
         self.ranking.incrementPoints(user, 1, self)
@@ -265,7 +265,7 @@ class TwitchBot():
         self.cmdExecuted = False
 
         """Emote Count Function"""
-        self.ecount.process_msg(msg)
+        self.ecount.processMessage(msg)
 
         """Limit pleb bot spam. Only allow certain commands to be processed by plebs, if plebcmds on cooldown."""
         cmdlist = self.select_commands(perm)
@@ -286,10 +286,10 @@ class TwitchBot():
                     reply = "{}: You don't have access to that command. Minimum level is {}."
                     self.write(reply.format(user, perm_levels[cmd.perm]))
                 else:
-                    if (perm is 0 and cmd not in self.games):   # Only reset plebtimer if no game was played
+                    if (perm == 0 and cmd not in self.games):   # Only reset plebtimer if no game was played
                         self.last_plebcmd = time.time()
                     cmd.run(self, user, msg)
-            except ValueError or TypeError:  # Not sure which Errors might happen here.
+            except (ValueError, TypeError):  # Not sure which Errors might happen here.
                 logging.error(traceback.format_exc())
         """Reset antispeech for next command"""
         self.antispeech = False
@@ -335,7 +335,7 @@ class TwitchBot():
         for cmd in self.commands:
             try:
                 cmd.close(self)
-            except TypeError or ValueError:  # Not sure which Errors might happen here.
+            except (TypeError, ValueError):  # Not sure which Errors might happen here.
                 logging.error(traceback.format_exc())
 
     def reload_commands(self):
@@ -369,6 +369,7 @@ class TwitchBot():
             cmds.outputStats(self),
             cmds.Calculator(self),
             cmds.AutoGames(self),
+            cmds.Notifications(self),
             cmds.PyramidReply(self),
             cmds.EmoteReply(self),
             cmds.TentaReply(self),
@@ -381,6 +382,7 @@ class TwitchBot():
             cmds.Questions(self),
             cmds.Oralpleasure(self),
             cmds.BanMe(self),
+            cmds.UserIgnore(self),
             cmds.Speech(self),
             cmds.SimpleReply(self),
             cmds.PyramidBlock(self),
@@ -411,7 +413,8 @@ class TwitchBot():
 
         try:
             return requests.get(url, headers=headers).json()["users"][0]["display_name"]
-        except IndexError or KeyError:
+        except (IndexError, KeyError):
+            logging.error(traceback.format_exc())
             return user
 
     def getuserTag(self, username):
@@ -421,7 +424,8 @@ class TwitchBot():
 
         try:
             return requests.get(url, headers=headers).json()
-        except IndexError or KeyError:
+        except (IndexError, KeyError):
+            logging.error(traceback.format_exc())
             pass
 
     def getuserID(self, username):
@@ -435,7 +439,8 @@ class TwitchBot():
         data = requests.get(url, headers=headers).json()
         try:
             emotelist = data['emoticon_sets']
-        except IndexError or KeyError:
+        except (IndexError, KeyError):
+            logging.error(traceback.format_exc())
             print("Error in getting emotes from userID")
 
         emotelist.pop('0', None)
@@ -458,7 +463,8 @@ class TwitchBot():
 
         try:
             return requests.get(url, headers=headers).json()
-        except IndexError or KeyError:
+        except (IndexError, KeyError):
+            logging.error(traceback.format_exc())
             print("Channel object could not be fetched.")
 
     def getStream(self, channelID):
@@ -468,7 +474,8 @@ class TwitchBot():
 
         try:
             return requests.get(url, headers=headers).json()
-        except IndexError or KeyError:
+        except (IndexError, KeyError):
+            logging.error(traceback.format_exc())
             print("Stream object could not be fetched.")
 
     def setlast_plebgame(self, last_plebgame):
@@ -506,7 +513,7 @@ class TwitchBot():
                 base[k] = custom[k]
             else:
                 dictPath += "[{}]".format(k)
-                if type(base[k]) != type(custom[k]):
+                if type(base[k]) != type(custom[k]): # noqa - intended, we check for same type
                     raise TypeError("Different type of data found on merging key{}".format(dictPath))
                 else:
                     # Have same key and same type of data
@@ -517,6 +524,11 @@ class TwitchBot():
                         base[k] = custom[k]
 
         return copy.deepcopy(base)
+
+    def dumpIgnoredUsersFile(self):
+        """Output ignored users file."""
+        with open(IGNORED_USERS_PATH.format(self.root), 'w') as file:
+            json.dump(self.ignored_users, file, indent=4)
 
     def write(self, msg):
         """Write a message."""

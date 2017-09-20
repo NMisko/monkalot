@@ -1,0 +1,174 @@
+{
+    "notifications": {
+        "active": "False",
+        "displayname": "Notifications",
+        "info": "Enables the use of notifications that appear every X seconds in chat.",
+        "subfeatures": {}
+    },
+    "replycommands": {
+        "active": "False",
+        "displayname": "Reply Commands",
+        "info": "A set of commands that reply certain messages depending on input.",
+        "subfeatures": {
+            "SimpleReply": {
+                "active": "False",
+                "displayname": "Simple Reply Commands",
+                "info": "Allows to add/delete simple reply commands via '!addcommand'/'!delcommand'.",
+                "subfeatures": {}
+            },
+            "Smorc": {
+                "active": "False",
+                "displayname": "SMOrc Command",
+                "info": "Sends a random SMOrc message in chat.",
+                "subfeatures": {}
+            },
+            "EmoteReply": {
+                "active": "False",
+                "displayname": "Emote Reply Commands",
+                "info": "Commands that reply with multiple emotes ('!call', '!any', '!word').",
+                "subfeatures": {}
+            },
+            "PyramidReply": {
+                "active": "False",
+                "displayname": "Pyramid Reply",
+                "info": "Reply to chat with a pyramid (for now only '!pjsalt').",
+                "subfeatures": {}
+            },
+            "SlapHug": {
+                "active": "False",
+                "displayname": "Slap/Hug Command",
+                "info": "Reply to with a specific slap or hug message.",
+                "subfeatures": {}
+            },
+            "BanMe": {
+                "active": "False",
+                "displayname": "Ban Me Command",
+                "info": "If a user tags the bot and includes 'ban me', the user gets a fake ban.",
+                "subfeatures": {}
+            },
+            "Oralpleasure": {
+                "active": "False",
+                "displayname": "Oralpleassure",
+                "info": "Enables oralpleassure in chat, must have command! Kappa",
+                "subfeatures": {}
+            },
+            "TentaReply": {
+                "active": "False",
+                "displayname": "Tenta/Penta/Hentai Commands",
+                "info": "Replies with specific emotes to a given input.",
+                "subfeatures": {}
+            }
+        }
+    },
+    "streamdata": {
+        "active": "False",
+        "displayname": "Stream Informations",
+        "info": "A set of commands that allow to get informations about the stream/chat.",
+        "subfeatures": {
+            "StreamInfo": {
+                "active": "False",
+                "displayname": "Uptime and FPS",
+                "info": "Enables commands to check the uptime and FPS of the stream.",
+                "subfeatures": {}
+            },
+            "Active": {
+                "active": "False",
+                "displayname": "Stream Informations",
+                "info": "Command that returns the amount of active chat users.",
+                "subfeatures": {}
+            },
+            "outputStats": {
+                "active": "False",
+                "displayname": "Emoticon Statistics",
+                "info": "Enables emoticon statistics for twitch.tv and BTTV emotes.",
+                "subfeatures": {}
+            }
+        }
+    },
+    "chatgames": {
+        "active": "False",
+        "displayname": "Chat Games",
+        "info": "Different games that can be played in the chat.",
+        "subfeatures": {
+            "AutoGames": {
+                "active": "False",
+                "displayname": "Automatic Games",
+                "info": "Enables commands to check the uptime and FPS of the stream.",
+                "subfeatures": {}
+            },
+            "Pyramid": {
+                "active": "False",
+                "displayname": "Chat Pyramids",
+                "info": "Upon creating emote pyramids in chat the creators will get points.",
+                "subfeatures": {
+                    "PyramidBlock": {
+                        "active": "False",
+                        "displayname": "Pyramid Blocking",
+                        "info": "Enables a command that interrupts users trying to make pyramids in chat.",
+                        "subfeatures": {}
+                    }
+                }
+            },
+            "KappaGame": {
+                "active": "False",
+                "displayname": "Kappa Game",
+                "info": "Enables the Kappa game, where the chatters have to guess the right amount of Kappa's to win.",
+                "subfeatures": {}
+            },
+            "GuessEmoteGame": {
+                "active": "False",
+                "displayname": "Guess Emote Game",
+                "info": "Enables the Guess Emote Game, where the chatters have to guess a random emote from a list.",
+                "subfeatures": {}
+            },
+            "GuessMinionGame": {
+                "active": "False",
+                "displayname": "Guess Minion Game",
+                "info": "Enables the Guess Minion Game, where the chatters have to guess the right Hearthstone minion from clues.",
+                "subfeatures": {}
+            },
+            "MonkalotParty": {
+                "active": "False",
+                "displayname": "Monkalot Party",
+                "info": "Enables the Monkalot Party Game, where the chatters play a series of different minigames.",
+                "subfeatures": {}
+            }
+        }
+    },
+    "quotes": {
+        "active": "False",
+        "displayname": "Quotes",
+        "info": "Quotes can be added to a list and then called by chatters.",
+        "subfeatures": {}
+    },
+    "Spam": {
+        "active": "False",
+        "displayname": "Bot Spam",
+        "info": "Makes the bot sometimes join in on chat spam.",
+        "subfeatures": {}
+    },
+    "Calculator": {
+        "active": "False",
+        "displayname": "Calculator",
+        "info": "Enables a calculator that can be used with '!calc'.",
+        "subfeatures": {}
+    },
+    "Speech": {
+        "active": "False",
+        "displayname": "Native Speech",
+        "info": "Enables native speech responses if users tag the bot in their messages.",
+        "subfeatures": {}
+    },
+    "Questions": {
+        "active": "False",
+        "displayname": "Questions",
+        "info": "Specific questions can be asked by tagging the bot in the message.",
+        "subfeatures": {}
+    },
+    "ranking": {
+        "active": "False",
+        "displayname": "Points and Ranking",
+        "info": "Enables a point and ranking system where users can gain chatpoints and gain different by doing so.",
+        "subfeatures": {}
+    }
+}

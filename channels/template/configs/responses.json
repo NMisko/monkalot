@@ -424,6 +424,53 @@
             "args_info": {}
         }
     },
+    "Notifications": {
+        "empty_list": {
+            "msg": "WARNING: No notifications found! Turning off notifications.",
+            "info": "Write message if the bot tries to send a notification in chat, but the list is empty.",
+            "args_info": {}
+        },
+        "notifications_activate": {
+            "msg": "Notifications activated",
+            "info": "Write message if Notifications get activated.",
+            "args_info": {}
+        },
+        "notifications_already_on": {
+            "msg": "Notifications are already on.",
+            "info": "Write message if user tries to activate Notifications while they are already on.",
+            "args_info": {}
+        },
+        "notifications_deactivate": {
+            "msg": "Notifications deactivated.",
+            "info": "Write message if Notifications get deactivated.",
+            "args_info": {}
+        },
+        "notifications_already_off": {
+            "msg": "Notifications were already off.",
+            "info": "Write message if user tries to deactivate Notifications while they're not on.",
+            "args_info": {}
+        },
+        "notification_added": {
+            "msg": "Notification added!",
+            "info": "Reply if a notification has been added. ('!addnotification <NOTIFICATION>')",
+            "args_info": {}
+        },
+        "notification_exists": {
+            "msg": "Notification already in the list!",
+            "info": "Reply if user tries to add a notification that's already in the list.",
+            "args_info": {}
+        },
+        "notification_removed": {
+            "msg": "Notification deleted!",
+            "info": "Reply if a notification has been deleted. ('!delnotification <NOTIFICATION>')",
+            "args_info": {}
+        },
+        "notification_not_found": {
+            "msg": "Notification not in the list!",
+            "info": "Reply if user tries to remove a notification that's not in the list.",
+            "args_info": {}
+        }
+    },
     "Active": {
         "msg_active_users": {
             "msg": "<USER>: There is <AMOUNT> active user<PLURAL> in chat.",
@@ -597,6 +644,47 @@
             "args_info": {
                 "<USER>": "User who just reached legend.",
                 "<RANK>": "Legend Rank of the user."
+            }
+        }
+    },
+    "userignore": {
+        "ignore": {
+            "privileged": {
+                "msg": "Stop trolling, <USER> can't be ignored DansGame",
+                "info": "Error message of trying to ignore mods/bots/owners.",
+                "args_info": {
+                    "<USER>": "That unignorable user."
+                }
+            },
+            "already": {
+                "msg": "<USER> is already ignored FeelsBadMan",
+                "info": "Error message of trying to ignore users already ignored.",
+                "args_info": {
+                    "<USER>": "That poor already ignored user."
+                }
+            },
+            "success": {
+                "msg": "A mod tells me to ignore <USER>. BibleThump",
+                "info": "Success message of trying to ignore a user.",
+                "args_info": {
+                    "<USER>": "That user to ignore."
+                }
+            }
+        },
+        "unignore": {
+            "success": {
+                "msg": "I can talk to <USER> again now FeelsGoodMan",
+                "info": "Message to unignore ignored users.",
+                "args_info": {
+                    "<USER>": "That user."
+                }
+            },
+            "already": {
+                "msg": "<USER> is not ignored at all DansGame",
+                "info": "Error message of trying to unignore unignored users.",
+                "args_info": {
+                    "<USER>": "That user."
+                }
             }
         }
     }

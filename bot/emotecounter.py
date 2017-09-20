@@ -1,151 +1,173 @@
 """Class that counts the emotes from chat messages."""
-
+from collections import deque
+import logging
 import time
 import json
-from twisted.internet import reactor
-
-
 STATISTIC_FILE = '{}data/emote_stats.json'
 
 
 class EmoteCounter(object):
-    """Counts emotes posted in a channel."""
+    """ Generic class to handle emote per minute."""
+    def __init__(self, t=60):
+        # Queue to stores emote entries (tuples)
+        self.emoteRecord = deque()
+        self.on = False
+        # only store records within (holding time) secs, 60 on default
+        self.holdingTime = t
 
-    freq = 60   # Frequency with which stats are calculated (freq / minute), for now: Can't be higher than 60!
+        # Store the accumulated emote count within holding time
+        # Cannot be wrong in single-threaded env
+        self.emoteCount = {}
 
-    def __init__(self, bot):
-        """Initialize emote count structure."""
+    def stopCPM(self):
+        self.on = False
+
+    def startCPM(self):
+        self.on = True
+
+    def addEntry(self, emoteDict):
+        if not self.on:
+            return
+
+        self.emoteRecord.append(self.__createEmoteEntry(emoteDict))
+        self.__updateTotalCount(emoteDict)
+        self.__updateRecord()
+
+    # for debugging only
+    # def showRecord(self):
+        # return self.emoteRecord
+
+    # NOTE: Not minute if holdingTime is not 60
+    def getMinuteCount(self, emote):
+        self.__updateRecord()
+        return self.emoteCount.get(emote, 0)
+
+    def __updateRecord(self):
+        """Cleanup emoteRecord by removing older(smaller) entries."""
+        timeLimit = self.__getCurrentTime() - self.holdingTime
+
+        # This is like Priority Queue (priority, task), we have (time, emote)
+        # The order of content (emote) is unimportant for this case
+        while(len(self.emoteRecord) > 0 and timeLimit > self.emoteRecord[0][0]):
+            emoteEntry = self.emoteRecord.popleft()[1]
+            self.__updateTotalCount(emoteEntry, minus=True)
+
+    def __createEmoteEntry(self, emoteDict):
+        """Create a tuple of timestamp and emote dictionary."""
+        return (self.__getCurrentTime(), emoteDict)
+
+    def __getCurrentTime(self):
+        """Get Unix Second as int."""
+        return int(time.time())
+
+    def __updateTotalCount(self, emoteEntry, minus=False):
+        # if minus is True, we want to minus the total count instead
+        multiplier = 1
+        if minus:
+            multiplier = -1
+        for k in emoteEntry:
+            if k not in self.emoteCount:
+                if minus:
+                    raise ValueError("Attempt to minus count on non-exist entries of {} in emoteCount".format(k))
+                else:
+                    self.emoteCount[k] = 0
+            self.emoteCount[k] += emoteEntry[k] * multiplier
+
+
+class EmoteCounterForBot(EmoteCounter):
+    """Emote counter class for bot including total count, inherit from EmoteCounter """
+    def __init__(self, bot, t=60):
+        super().__init__(t)
+
+        # emoteList is list of valid emotes(string)
         self.bot = bot
-        self.emotelist = self.bot.emotes
-        self.minutestats = []
-        self.count_per_minute_on = False
+        self.emoteList = self.bot.emotes
 
-        emptylist = self.EmptyStatList()
+        self.__initTotalCount()
 
-        """If there is no EmoteStatList, one will be created."""
-        self.initTotalcount()
+    def getTotalcount(self, emote):
+        """Return the Total count of an emote."""
+        with open(STATISTIC_FILE.format(self.bot.root)) as file:
+            totalCount = json.load(file)
 
-        """Create empty EmotePerMinuteDictionaryMatrix #Titlegore"""
-        for i in range(self.freq):
-            self.minutestats.append(emptylist.copy())
+        return totalCount.get(emote, 0)
 
-        self.dummycounter = emptylist.copy()  # Dummy emotecounter dictionary
+    def processMessage(self, msg):
+        """Process an incoming chatmessage."""
+        emoteDict = self.__countEmotes(msg)
 
-    def EmptyStatList(self):
+        if len(emoteDict) >= 1:
+            self.__updateTotalCount(emoteDict)
+            self.addEntry(emoteDict)
+
+    def __initTotalCount(self):
+        """Create a emote stat JSON if there aren't one already."""
+
+        # True when need to create or add new emote to file
+        refreshFile = False
+        try:
+            with open(STATISTIC_FILE.format(self.bot.root)) as file:
+                try:
+                    totalData = json.load(file)
+                except ValueError:
+                    logging.info("Broken EmoteCountFile found, creating new one.")
+                    totalData = self.__createEmptyTotalList()
+                    refreshFile = True
+                else:
+                    # If there are new emotes, add them here
+                    for emote in self.emoteList:
+                        if emote not in totalData:
+                            logging.info("New emote {} added to Twitch, adding it to count file".format(emote))
+                            totalData[emote] = 0
+                            refreshFile = True
+
+        except FileNotFoundError:
+            logging.info("No EmoteCountFile found, creating new one.")
+            totalData = self.__createEmptyTotalList()
+            refreshFile = True
+
+        if refreshFile:
+            with open(STATISTIC_FILE.format(self.bot.root), 'w+') as file:
+                json.dump(totalData, file, indent=4)
+
+    def __createEmptyTotalList(self):
         """Create an emote-statistic-dictionary and set all values to 0.
 
         Return the dictionary
         """
-        emptylist = {}
+        emptyList = {}
 
-        for key in self.emotelist:
-            entry = {key: 0}
-            emptylist.update(entry)
+        for emote in self.emoteList:
+            emptyList[emote] = 0
 
-        return emptylist
+        return emptyList
 
-    def addCountDicts(self, dict1, dict2):
-        """Add the emote counts of dict1 to dict2."""
-        for key in dict2:
-            if key in dict1:
-                dict2[key] += dict1[key]
-
-    def countEmotes(self, msg):
-        """Count the Emotes of the message.
-
-        Return EmoteDictionary with emote counts
-        """
-        emotes = self.EmptyStatList()
-
-        splitmsg = msg.strip()
-        splitmsg = splitmsg.split(' ')
-
-        for i in range(len(splitmsg)):
-            if splitmsg[i] in emotes.keys():
-                emotes[splitmsg[i]] += 1
-
-        return emotes
-
-    def startCPM(self):
-        """Activate count per minute, kickstart swapDummy()."""
-        self.count_per_minute_on = True
-        self.swapDummy()
-
-    def stopCPM(self):
-        """Deactivate count per minute."""
-        self.count_per_minute_on = False
-
-    def swapDummy(self):
-        """Swap the Dummy Counter Dictionary with the current Time Counter Dictionary."""
-        if self.count_per_minute_on:
-            now = time.time()
-            frame = int(now % self.freq)   # get the current timeframe (for freq = 60 -> seconds)
-
-            """Replace frame with dummy, reset dummy"""
-            if frame <= len(self.minutestats):
-                self.minutestats[frame] = self.dummycounter.copy()
-            else:
-                print('ERROR: Minutestats out of bounds!')  # Should never happen.
-            self.dummycounter = self.EmptyStatList()
-
-            """Keep the loop running."""
-            self.callID = reactor.callLater(1, self.swapDummy, )
-
-    def returnMinutecount(self, emote):
-        """Return the Emotecount per minute."""
-        count = 0
-
-        for i in range(len(self.minutestats)):
-            count += self.minutestats[i][emote]
-
-        return count
-
-    def initTotalcount(self):
-        """Check for TotalCountFile, else create one."""
-        try:
-            with open(STATISTIC_FILE.format(self.bot.root)) as file:
-                try:
-                    totalcount = json.load(file)
-                except ValueError:
-                    totalcount = {}
-                    print("Broken EmoteCountFile found, creating new one.")
-        except FileNotFoundError:   #noqa
-            totalcount = {}
-            print("No EmoteCountFile found, creating new one.")
-
-        emptylist = self.EmptyStatList()
-        self.addCountDicts(totalcount, emptylist)
-
-        with open(STATISTIC_FILE.format(self.bot.root), 'w+') as file:
-            json.dump(emptylist, file, indent=4)
-
-    def returnTotalcount(self, emote):
-        """Return the Total count of an emote."""
-        with open(STATISTIC_FILE.format(self.bot.root)) as file:
-            totalcount = json.load(file)
-
-        if emote in totalcount:
-            return totalcount[emote]
-        else:
-            return
-
-    def updateTotalcount(self, emotecount):
+    def __updateTotalCount(self, emoteDict):
         """Update the total emote count."""
         with open(STATISTIC_FILE.format(self.bot.root)) as file:
-            totalcount = json.load(file)
+            totalCount = json.load(file)
 
-        newtotal = emotecount.copy()
-
-        self.addCountDicts(totalcount, newtotal)
+        for emote in emoteDict:
+            totalCount[emote] += emoteDict[emote]
 
         with open(STATISTIC_FILE.format(self.bot.root), 'w') as file:
-            json.dump(newtotal, file, indent=4)
+            json.dump(totalCount, file, indent=4)
 
-    def process_msg(self, msg):
-        """Process an incoming chatmessage."""
-        emotecount = self.countEmotes(msg)
+    def __countEmotes(self, msg):
+        """Count the Emotes of the message.
 
-        self.updateTotalcount(emotecount)
+        Return a dictionary with emote count
+        """
 
-        """Update EmotesPerMinute dummydictionary"""
-        self.addCountDicts(emotecount, self.dummycounter)
+        emoteDict = {}
+        splitMsg = msg.strip()
+        splitMsg = splitMsg.split(' ')
+
+        for m in splitMsg:
+            if m in self.emoteList:
+                if m in emoteDict:
+                    emoteDict[m] += 1
+                else:
+                    emoteDict[m] = 1
+
+        return emoteDict

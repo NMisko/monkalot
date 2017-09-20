@@ -1,9 +1,14 @@
 """Allows to control the bot via REST calls."""
 
-from bottle import route, run, ServerAdapter, request, abort
-from os import listdir
-import threading
 import json
+import os
+import threading
+import requests
+
+from bottle import ServerAdapter, abort, request, route, run
+from jwcrypto import jwk, jwt, jws
+
+CONFIG_PATH = '{}configs/bot_config.json'
 
 
 class StoppableWSGIRefServer(ServerAdapter):
@@ -25,17 +30,42 @@ class StoppableWSGIRefServer(ServerAdapter):
         self.server.shutdown()
 
 
-class WebAPI(object):
-    """Create a REST API that allows control over the bot."""
+class Singleton(type):
+    """Singleton, allows a class to be initiated only once."""
 
-    def __init__(self, bot, lport):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        """."""
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+class WebAPI(object):
+    """Create a REST API that allows control over a list of bots."""
+
+    __metaclass = Singleton
+
+    def __init__(self, bots, lport, password=None):
         """Initiate Web API."""
-        global api_bot
-        api_bot = bot
+        global api_bots
+        api_bots = bots
+
         global api_server
         api_server = StoppableWSGIRefServer(host='localhost', port=lport)
+
         global api_port
         api_port = lport
+
+        global api_password
+        api_password = password
+
+        global clientID
+        with open(CONFIG_PATH.format(bots[0].root), 'r', encoding="utf-8") as file:
+            CONFIG = json.load(file)
+        clientID = str(CONFIG['clientID'])
+
         threading.Thread(target=run, kwargs=dict(server=api_server,)).start()
 
     def stop(self):
@@ -47,54 +77,212 @@ class WebAPI(object):
         """Return hw."""
         return "Hello World!\n"
 
-    @route('/config')
-    def getconfig():
-        """Return the config."""
-        return api_bot.config
+    @route('/bots', method='POST')
+    def getBots():
+        """Return list of all bots for given user."""
+        WebAPI.checkIfFormExists(['user', 'auth'])
+        username = request.forms.get('user').replace('"', '')
+        auth = request.forms.get('auth').replace('"', '')
 
-    @route('/setconfig', method='POST')
-    def setconfig():
-        """Set the config."""
-        config = request.forms.get('config')
+        if not WebAPI.hasUserPermission(username, auth):
+            abort(403, "Bad authentication")
 
-        try:
-            json_config = json.loads(config)
-            api_bot.setConfig(json_config)
-            return "Successfully set configuration.\n"
-        except ValueError:
-            abort(400, "A json dictionary is required.\n")
+        bots = []
+        for bot in api_bots:
+            if WebAPI.hasBotPermission(username, bot):
+                bots.append(bot)
 
-    @route('/datafiles')
-    def getDataFiles():
-        """Return list of all data files."""
-        data = listdir('data')
         out = []
-        for d in data:
+        for bot in bots:
+            out.append(WebAPI.getBotName(bot))
+        return json.dumps(out)
+
+    @route('/files', method='POST')
+    def getFiles():
+        """Return list of all modifiable files for a given bot."""
+        WebAPI.checkIfFormExists(['user', 'bot', 'auth'])
+        username = request.forms.get('user').replace('"', '')
+        botname = request.forms.get('bot').replace('"', '')
+        auth = request.forms.get('auth').replace('"', '')
+
+        bot = WebAPI.getBot(botname)
+
+        if not WebAPI.hasUserPermission(username, auth):
+            abort(403, "Bad authentication")
+
+        if not WebAPI.hasBotPermission(username, bot):
+            abort(403, "User doesn't have access to this bot.")
+
+        data = os.listdir(bot.root + 'data')
+        configs = os.listdir(bot.root + 'configs')
+        out = []
+        for d in data + configs:
             if '.json' in d:
                 out.append(d)
         return json.dumps(out)
 
-    @route('/data', method='POST')
-    def getData():
-        """Return the json of a specific file."""
-        name = request.forms.get('name')
-        name = name.replace('"', '')
+    @route('/file', method='POST')
+    def getFile():
+        """Return the content of a specific file."""
+        WebAPI.checkIfFormExists(['user', 'bot', 'file', 'auth'])
+        username = request.forms.get('user').replace('"', '')
+        botname = request.forms.get('bot').replace('"', '')
+        filename = request.forms.get('file').replace('"', '')
+        auth = request.forms.get('auth').replace('"', '')
 
-        with open('data/' + name) as fp:
+        bot = WebAPI.getBot(botname)
+        if not WebAPI.hasUserPermission(username, auth):
+            abort(403, "Bad authentication")
+
+        if not WebAPI.hasBotPermission(username, bot):
+            abort(403, "User doesn't have access to this bot.")
+
+        path = None
+        if os.path.isfile(bot.root + 'config/' + filename):
+            path = bot.root + 'config/' + filename
+        if os.path.isfile(bot.root + 'data/' + filename):
+            path = bot.root + 'data/' + filename
+
+        if path is None:
+            abort(404, "File not found.")
+
+        with open(path) as fp:
             data = json.load(fp)
-        return data
 
-    @route('/setdata', method='POST')
-    def setData():
+        return {'content': data}
+
+    @route('/setfile', method='POST')
+    def setFile():
         """Set the json of a specific file."""
-        name = request.forms.get('name')
-        name = name.replace('"', '')
-        data = request.forms.get('data')
-        try:
-            json_data = json.loads(data)
-        except ValueError:
-            abort(400, "A json dictionary is required.\n")
+        WebAPI.checkIfFormExists(['user', 'bot', 'file', 'content', 'auth'])
+        username = request.forms.get('user').replace('"', '')
+        botname = request.forms.get('bot').replace('"', '')
+        filename = request.forms.get('file').replace('"', '')
+        content = request.forms.get('content')
+        auth = request.forms.get('auth').replace('"', '')
 
-        with open('data/' + name, 'w') as file:
+        bot = WebAPI.getBot(botname)
+        if not WebAPI.hasUserPermission(username, auth):
+            abort(403, "Bad authentication")
+
+        if not WebAPI.hasBotPermission(username, bot):
+            abort(403, "User doesn't have access to this bot.")
+
+        try:
+            json_data = json.loads(content)
+        except ValueError:
+            abort(400, "A json dictionary is required.\n Given:\n" + str(content))
+
+        path = None
+        if os.path.isfile(bot.root + 'config/' + filename):
+            path = bot.root + 'config/' + filename
+        if os.path.isfile(bot.root + 'data/' + filename):
+            path = bot.root + 'data/' + filename
+
+        if path is None:
+            abort(404, "File not found.")
+
+        with open(path, mode='w') as file:
             json.dump(json_data, file, indent=4)
-        api_bot.reloadConfig()
+
+        bot.reloadConfig()
+
+    @route('/getTwitchUsername', method='POST')
+    def getUserNameI():
+        """Get the username based on an id_token. Also verifies token."""
+        WebAPI.checkIfFormExists(['auth'])
+        auth = request.forms.get('auth').replace('"', '')
+        return {"username": WebAPI.getUserNameAndVerifyToken(auth)}
+
+    @route('/pause', method='POST')
+    def pause():
+        """Pause or unpause a bot."""
+        WebAPI.checkIfFormExists(['user', 'bot', 'auth', 'pause'])
+        username = request.forms.get('user').replace('"', '')
+        botname = request.forms.get('bot').replace('"', '')
+        auth = request.forms.get('auth').replace('"', '')
+        pause = request.forms.get('pause').replace('"', '')
+
+        bot = WebAPI.getBot(botname)
+        if not WebAPI.hasUserPermission(username, auth):
+            abort(403, "Bad authentication")
+
+        if not WebAPI.hasBotPermission(username, bot):
+            abort(403, "User doesn't have access to this bot.")
+
+        if pause == 'True':
+            bot.pause = True
+        elif pause == 'False':
+            bot.pause = False
+        else:
+            abort(400, "pause must be either 'True' or 'False'")
+
+    def checkIfFormExists(keys):
+        """Get all forms for the given keys."""
+        for k in keys:
+            if k not in request.forms:
+                abort(400, "Bad Request, expecting the following data:\n" + str(keys))
+
+    def getBot(botname):
+        """Return the correct bot, based on its directory name."""
+        bot = None
+        for b in api_bots:
+            if WebAPI.getBotName(b) == botname:
+                bot = b
+        if bot is None:
+            abort(404, "Bot not found.\n")
+
+        return bot
+
+    def getBotName(bot):
+        """Return the correct bot name, based on its bot."""
+        return bot.root.split('/')[len(bot.root.split('/')) - 2]
+
+    def hasUserPermission(username, auth):
+        """Check if the user is authenticated."""
+        # Check for password
+        if api_password is not None:
+            if auth == api_password:
+                return True
+
+        # If auth doesn't match password, assume id_token is submitted. Verify it.
+        id_token_username = WebAPI.getUserNameAndVerifyToken(auth)
+
+        # Compare username from id_token with given username
+        return username == id_token_username
+
+    def hasBotPermission(username, bot):
+        """Check if the user is allowed to access the bot."""
+        with open(CONFIG_PATH.format(bot.root), 'r', encoding="utf-8") as file:
+            CONFIG = json.load(file)
+        admins = CONFIG['owner_list']
+        return username in admins
+
+    def getUserNameAndVerifyToken(auth):
+        """Verify id_token and returns the username."""
+        r = requests.get('https://api.twitch.tv/api/oidc/keys')
+        if r.status_code != 200:
+            abort(503, "Cannot reach twitch api.")
+
+        # Verify id_token
+        k = r.json()['keys'][0]
+        key = jwk.JWK(**k)
+        try:
+            ET = jwt.JWT(key=key, jwt=auth)
+        except (jws.InvalidJWSObject, ValueError):
+            abort(403, "Token format unrecognized or bad password.")
+        except (jwt.JWTExpired):
+            abort(403, "Token expired.")
+        user_id = json.loads(ET.claims)['sub']
+
+        # Check that audience in token is same as clientid
+        if json.loads(ET.claims)['aud'] != clientID:
+            abort(403, "Token not issued to this client.")
+
+        # Get username for id
+        headers = {'Client-id': clientID, 'Accept': 'application/vnd.twitchtv.v5+json'}
+        r = requests.get('https://api.twitch.tv/kraken/users/{}'.format(user_id), headers=headers)
+        if r.status_code != 200:
+            abort(503, "Cannot reach twitch api.")
+
+        return r.json()['name']
