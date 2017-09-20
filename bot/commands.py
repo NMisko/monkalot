@@ -1169,7 +1169,7 @@ class Notifications(Command):
             self.notifications = json.load(file)
 
         """If notifications are enabled by default, start the threading."""
-        if self.active is True:
+        if self.active:
             self.callID = reactor.callLater(bot.NOTIFICATION_INTERVAL, self.writeNotification, bot)
 
     def raiselistindex(self):
@@ -1190,7 +1190,7 @@ class Notifications(Command):
             return
 
         """Only write notifications if the bot is unpaused."""
-        if bot.pause is not True:
+        if not bot.pause:
             bot.write(self.notifications[self.listindex])
             self.raiselistindex()
 
@@ -1456,7 +1456,7 @@ class Speech(Command):
 
     def run(self, bot, user, msg):
         """Send message to cleverbot only if no other command got triggered."""
-        if bot.antispeech is not True:
+        if not bot.antispeech:
             msg = msg.lower()
             msg = msg.replace("@", '')
             msg = msg.replace(bot.nickname, '')
@@ -1618,7 +1618,7 @@ class MonkalotParty(Command):
 
     def selectGame(self, bot):
         """Select a game to play next."""
-        if self.active is False:
+        if not self.active:
             return
 
         game = random.choice(list(self.mp.games))
@@ -1770,8 +1770,7 @@ class UserIgnore(Command):
             ignoreReply = self.responses["ignore"]
             # bot can ignore ANYONE, we just add the name to bot.ignored_users
             # IMPORTNT: ANYONE includes owner, mod and the bot itself, we do the checking here to prevent it
-
-            if (target in bot.owner_list + bot.trusted_mods) or (target is bot.nickname):
+            if (target == bot.nickname) or any(target in coll for coll in (bot.owner_list, bot.trusted_mods)):
                 reply = ignoreReply["privileged"]
             elif (target in bot.ignored_users):
                 # already ignored
