@@ -236,7 +236,7 @@ class TwitchBot():
 
         If no game is active only allow 'passive games' a.k.a PyramidGame
         """
-        if perm is 0:
+        if perm == 0:
             if (time.time() - self.last_plebcmd < self.pleb_cooldowntime):
                 if self.gameRunning:
                     return self.games
@@ -286,7 +286,7 @@ class TwitchBot():
                     reply = "{}: You don't have access to that command. Minimum level is {}."
                     self.write(reply.format(user, perm_levels[cmd.perm]))
                 else:
-                    if (perm is 0 and cmd not in self.games):   # Only reset plebtimer if no game was played
+                    if (perm == 0 and cmd not in self.games):   # Only reset plebtimer if no game was played
                         self.last_plebcmd = time.time()
                     cmd.run(self, user, msg)
             except (ValueError, TypeError):  # Not sure which Errors might happen here.
