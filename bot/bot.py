@@ -15,8 +15,8 @@ from importlib import reload
 
 USERLIST_API = "http://tmi.twitch.tv/group/user/{}/chatters"
 TWITCHEMOTES_API = "http://api.twitch.tv/kraken/chat/emoticon_images?emotesets=0"
-GLOBAL_BTTVEMOTES_API = "http://api.betterttv.net/2/emotes"
-CHANNEL_BTTVEMOTES_API = "http://api.betterttv.net/2/channels/{}"
+GLOBAL_BTTVEMOTES_API = "https://api.betterttv.net/2/emotes"
+CHANNEL_BTTVEMOTES_API = "https://api.betterttv.net/2/channels/{}"
 HEARTHSTONE_CARD_API = "http://api.hearthstonejson.com/v1/latest/enUS/cards.collectible.json"
 EMOJI_API = "https://raw.githubusercontent.com/github/gemoji/master/db/emoji.json"
 
