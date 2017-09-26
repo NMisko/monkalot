@@ -371,7 +371,7 @@ class TwitchBot():
             cmds.AutoGames(self),
             cmds.Notifications(self),
             cmds.PyramidReply(self),
-            cmds.EmoteReply(self),
+            #cmds.EmoteReply(self),     # Deactivated due to request from IGetNoKick in Zetalot's channel 26.09.2017
             cmds.TentaReply(self),
             cmds.Smorc(self),
             cmds.SlapHug(self),
