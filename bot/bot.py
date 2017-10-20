@@ -15,8 +15,8 @@ from importlib import reload
 
 USERLIST_API = "http://tmi.twitch.tv/group/user/{}/chatters"
 TWITCHEMOTES_API = "http://api.twitch.tv/kraken/chat/emoticon_images?emotesets=0"
-GLOBAL_BTTVEMOTES_API = "http://api.betterttv.net/2/emotes"
-CHANNEL_BTTVEMOTES_API = "http://api.betterttv.net/2/channels/{}"
+GLOBAL_BTTVEMOTES_API = "https://api.betterttv.net/2/emotes"
+CHANNEL_BTTVEMOTES_API = "https://api.betterttv.net/2/channels/{}"
 HEARTHSTONE_CARD_API = "http://api.hearthstonejson.com/v1/latest/enUS/cards.collectible.json"
 EMOJI_API = "https://raw.githubusercontent.com/github/gemoji/master/db/emoji.json"
 
@@ -371,7 +371,7 @@ class TwitchBot():
             cmds.AutoGames(self),
             cmds.Notifications(self),
             cmds.PyramidReply(self),
-            cmds.EmoteReply(self),
+            #cmds.EmoteReply(self),     # Deactivated due to request from IGetNoKick in Zetalot's channel 26.09.2017
             cmds.TentaReply(self),
             cmds.Smorc(self),
             cmds.SlapHug(self),
