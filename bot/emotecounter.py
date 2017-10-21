@@ -30,7 +30,7 @@ class EmoteCounter(object):
             return
 
         self.emoteRecord.append(self.__createEmoteEntry(emoteDict))
-        self.__updateTotalCount(emoteDict)
+        self.__updateMinuteCount(emoteDict)
         self.__updateRecord()
 
     # for debugging only
@@ -50,7 +50,7 @@ class EmoteCounter(object):
         # The order of content (emote) is unimportant for this case
         while(len(self.emoteRecord) > 0 and timeLimit > self.emoteRecord[0][0]):
             emoteEntry = self.emoteRecord.popleft()[1]
-            self.__updateTotalCount(emoteEntry, minus=True)
+            self.__updateMinuteCount(emoteEntry, minus=True)
 
     def __createEmoteEntry(self, emoteDict):
         """Create a tuple of timestamp and emote dictionary."""
@@ -60,8 +60,8 @@ class EmoteCounter(object):
         """Get Unix Second as int."""
         return int(time.time())
 
-    def __updateTotalCount(self, emoteEntry, minus=False):
-        # if minus is True, we want to minus the total count instead
+    def __updateMinuteCount(self, emoteEntry, minus=False):
+        # if minus is True, we want to minus the minute count instead
         multiplier = 1
         if minus:
             multiplier = -1
