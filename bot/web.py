@@ -165,9 +165,6 @@ class WebAPI(object):
         content = urllib.parse.unquote(request.forms.get('content'))
         auth = urllib.parse.unquote(request.forms.get('auth'))
 
-        print("Setting file: " + filename)
-        print("Content: " + content)
-
         bot = WebAPI.getBot(botname)
         if not WebAPI.hasUserPermission(username, auth):
             abort(403, "Bad authentication")
