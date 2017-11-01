@@ -1,6 +1,7 @@
 """Allows to control the bot via REST calls."""
 
 import json
+import logging
 import os
 import threading
 import requests
@@ -88,6 +89,7 @@ class WebAPI(object):
         if not WebAPI.hasUserPermission(username, auth):
             abort(403, "Bad authentication")
 
+        logging.info("[API] [User: {}] /bots ".format(username))
         bots = []
         for bot in api_bots:
             if WebAPI.hasBotPermission(username, bot):
@@ -113,6 +115,8 @@ class WebAPI(object):
 
         if not WebAPI.hasBotPermission(username, bot):
             abort(403, "User doesn't have access to this bot.")
+
+        logging.info("[API] [#{}] [User: {}] /files ".format(botname, username))
 
         data = os.listdir(bot.root + 'data')
         configs = os.listdir(bot.root + 'configs')
@@ -140,6 +144,8 @@ class WebAPI(object):
 
         # For security
         filename = os.path.split(filename)[1]
+
+        logging.info("[API] [#{}] [User: {}] /file {} ".format(botname, username, filename))
 
         path = None
         if os.path.isfile(bot.root + 'configs/' + filename):
@@ -180,6 +186,8 @@ class WebAPI(object):
         # For security
         filename = os.path.split(filename)[1]
 
+        logging.info("[API] [#{}] [User: {}] /setfile {} ".format(botname, username, filename))
+
         path = None
         if os.path.isfile(bot.root + 'configs/' + filename):
             path = bot.root + 'configs/' + filename
@@ -199,7 +207,11 @@ class WebAPI(object):
         """Get the username based on an id_token. Also verifies token."""
         WebAPI.checkIfFormExists(['auth'])
         auth = urllib.parse.unquote(request.forms.get('auth'))
-        return {"username": WebAPI.getUserNameAndVerifyToken(auth)}
+
+        username = WebAPI.getUserNameAndVerifyToken(auth)
+        logging.info("[API] /getTwitchUsername => {} ".format(username))
+
+        return {"username": username}
 
     @route('/pause', method='POST')
     def pause():
@@ -216,6 +228,8 @@ class WebAPI(object):
 
         if not WebAPI.hasBotPermission(username, bot):
             abort(403, "User doesn't have access to this bot.")
+
+        logging.info("[API] [#{}] [User: {}] /pause {}".format(botname, username, pause))
 
         if pause == 'true':
             bot.pause = True
