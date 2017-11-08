@@ -157,8 +157,8 @@ def setup_common_data_for_bots():
     twitch_emotes_json = load_JSON_then_save_file(TWITCHEMOTES_API, json_file_path)
     emotelist = twitch_emotes_json['emoticon_sets']['0']
 
-    for i in range(len(emotelist)):
-        emote = emotelist[i]['code'].strip()
+    for emoteEntry in emotelist:
+        emote = emoteEntry['code'].strip()
 
         if ('\\') not in emote:
             #print("Simple single word twitch emote", emote)
@@ -173,8 +173,8 @@ def setup_common_data_for_bots():
     global_bttv_emote_json = load_JSON_then_save_file(GLOBAL_BTTVEMOTES_API, json_file_path)
     emotelist = global_bttv_emote_json['emotes']
 
-    for i in range(len(emotelist)):
-        emote = emotelist[i]['code'].strip()
+    for emoteEntry in emotelist:
+        emote = emoteEntry['code'].strip()
         data["global_bttvemotes"].append(emote)
 
     # Get all HS cards

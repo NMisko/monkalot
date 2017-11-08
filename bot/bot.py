@@ -82,7 +82,7 @@ class TwitchBot():
         emotelist = global_bttv_emote_json.get("emotes", [])
 
         self.channel_bttvemotes = []
-        for emoteEntry in range(len(emotelist)):
+        for emoteEntry in emotelist:
             emote = emoteEntry['code'].strip()
             self.channel_bttvemotes.append(emote)
 
