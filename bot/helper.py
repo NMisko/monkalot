@@ -100,8 +100,8 @@ def load_JSON_then_save_file(url, filePath, valid_duration=DEFAULT_VALID_DURATIO
     # Also, we can just pass big valid_duration to make them not to fetch data
 
     # check for expiry first
-    #if not check_json_file_expired(filePath, valid_duration):
-    #    return load_saved_JSON_file(filePath)
+    if not check_json_file_expired(filePath, valid_duration):
+        return load_saved_JSON_file(filePath)
 
     # load JSON from URL as usual first
     try:
