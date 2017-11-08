@@ -12,13 +12,10 @@ import json
 import time
 import copy
 from importlib import reload
+from bot.json_helper import load_JSON_then_save_file
 
 USERLIST_API = "http://tmi.twitch.tv/group/user/{}/chatters"
-TWITCHEMOTES_API = "http://api.twitch.tv/kraken/chat/emoticon_images?emotesets=0"
-GLOBAL_BTTVEMOTES_API = "https://api.betterttv.net/2/emotes"
 CHANNEL_BTTVEMOTES_API = "https://api.betterttv.net/2/channels/{}"
-HEARTHSTONE_CARD_API = "http://api.hearthstonejson.com/v1/latest/enUS/cards.collectible.json"
-EMOJI_API = "https://raw.githubusercontent.com/github/gemoji/master/db/emoji.json"
 
 TRUSTED_MODS_PATH = '{}data/trusted_mods.json'
 IGNORED_USERS_PATH = '{}data/ignored_users.json'
@@ -27,6 +24,7 @@ CONFIG_PATH = '{}configs/bot_config.json'
 CUSTOM_RESPONSES_PATH = '{}configs/responses.json'
 TEMPLATE_RESPONSES_PATH = 'channels/template/configs/responses.json'
 
+JSON_DATA_PATH = '{}api_json_data/{}'
 
 class TwitchBot():
     """TwitchBot extends the IRCClient to interact with Twitch.tv."""
@@ -44,9 +42,15 @@ class TwitchBot():
     # This needs to be set, in order for the bot to be able to answer
     irc = None
 
-    def __init__(self, root):
+    def __init__(self, root, common_data):
         """Initialize bot."""
         self.root = root
+
+        # user related:
+        # We get these user data from userState()
+        self.userNametoID = {}
+        self.userNametoDisplayName = {}
+
         self.reloadConfig()
         self.ranking = bot.ranking.Ranking(self)
 
@@ -59,60 +63,34 @@ class TwitchBot():
         with open(PRONOUNS_PATH.format(self.root)) as fp:
             self.pronouns = json.load(fp)
 
-        # Get user list
+        # Get user list, seems better not to cache
         url = USERLIST_API.format(self.channel[1:])
         data = requests.get(url).json()
         self.users = set(sum(data['chatters'].values(), []))
         self.mods = set()
         self.subs = set()
 
-        # Get twitchtv-emotelist
-        url = TWITCHEMOTES_API
-        data = requests.get(url).json()
-        emotelist = data['emoticon_sets']['0']
-
-        self.twitchemotes = []
-        for i in range(0, len(emotelist)):
-            emote = emotelist[i]['code'].strip()
-            if ('\\') not in emote:
-                self.twitchemotes.append(emote)
-
-        # Get global_BTTV-emotelist
-        url = GLOBAL_BTTVEMOTES_API
-        data = requests.get(url).json()
-        emotelist = data['emotes']
-
-        self.global_bttvemotes = []
-        for i in range(0, len(emotelist)):
-            emote = emotelist[i]['code'].strip()
-            self.global_bttvemotes.append(emote)
+        self.twitchemotes = common_data["twitchemotes"]
+        self.global_bttvemotes = common_data["global_bttvemotes"]
 
         # On first start, get channel_BTTV-emotelist
-        url = CHANNEL_BTTVEMOTES_API.format(self.channel[1:])
-        data = requests.get(url).json()
-        emotelist = data.get("emotes", [])
+        bttv_channel_emote_url = CHANNEL_BTTVEMOTES_API.format(self.channel[1:])
+        bttv_channel_json_path = JSON_DATA_PATH.format(self.root, "channel_bttv.json")
+
+        # Have to add fail safe return object since it returns 404 (don't have BTTV in my channel)
+        global_bttv_emote_json = load_JSON_then_save_file(bttv_channel_emote_url, bttv_channel_json_path, fail_safe_return_object={})
+        emotelist = global_bttv_emote_json.get("emotes", [])
 
         self.channel_bttvemotes = []
-        for i in range(0, len(emotelist)):
-            emote = emotelist[i]['code'].strip()
+        for emoteEntry in emotelist:
+            emote = emoteEntry['code'].strip()
             self.channel_bttvemotes.append(emote)
 
         # All available emotes in one list
         self.emotes = self.twitchemotes + self.global_bttvemotes + self.channel_bttvemotes
 
-        # Get all hearthstone cards
-        url = HEARTHSTONE_CARD_API
-        self.cards = requests.get(url).json()
-
-        # On first start get all emojis
-        url = EMOJI_API
-        self.emojilist = requests.get(url).json()
-        self.emojis = []
-        for i in range(0, len(self.emojilist)):
-            try:
-                self.emojis.append(self.emojilist[i]['emoji'])
-            except KeyError:
-                pass    # No Emoji found.
+        self.cards = common_data["cards"]
+        self.emojis = common_data["emojis"]
 
         # Initialize emote counter
         self.ecount = bot.emotecounter.EmoteCounterForBot(self)
@@ -206,7 +184,19 @@ class TwitchBot():
 
     def userState(self, prefix, tags):
         """Track user tags."""
-        name = prefix.split("!")[0]
+
+        # NOTE: params in PRIVMSG() are already processed and does not contains these data,
+        # so we have to get them from lineReceived() -> manually called userState() to parse the tags.
+        # Also I don't want to crash the original PRIVMSG() functions by modifing them
+
+        twitch_user_tag = prefix.split("!")[0]
+        twitch_user_id = tags["user-id"]
+        display_name = tags["display-name"]
+
+        name = twitch_user_tag
+
+        self.userNametoID[name] = twitch_user_id
+        self.userNametoDisplayName[name] = display_name
 
         if 'subscriber' in tags:
             if tags['subscriber'] == '1':
@@ -406,19 +396,17 @@ class TwitchBot():
         """Terminate bot."""
         self.close_commands()
 
-    def displayName(self, user):
+    def displayName(self, username):
         """Get the proper capitalization of a twitch user."""
-        url = "https://api.twitch.tv/kraken/users?login=" + user
-        headers = {'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': self.password}
-
-        try:
-            return requests.get(url, headers=headers).json()["users"][0]["display_name"]
-        except (IndexError, KeyError):
-            logging.error(traceback.format_exc())
-            return user
+        if username in self.userNametoDisplayName:
+            return self.userNametoDisplayName[username]
+        else:
+            # or just return username instead
+            logging.info("User data not in cache when trying to access user display name: user tag {}".format(username))
+            return self.getuserTag(username)["users"][0]["display_name"]
 
     def getuserTag(self, username):
-        """Get the twitch-userTag from username."""
+        """Get the full data of user from username."""
         url = "https://api.twitch.tv/kraken/users?login=" + username
         headers = {'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': self.clientID, 'Authorization': self.password}
 
@@ -426,11 +414,14 @@ class TwitchBot():
             return requests.get(url, headers=headers).json()
         except (IndexError, KeyError):
             logging.error(traceback.format_exc())
-            pass
 
     def getuserID(self, username):
-        """Get the twitch-userTag from username."""
-        return self.getuserTag(username)["users"][0]["_id"]
+        """Get the twitch id (numbers) from username."""
+        if username in self.userNametoID:
+            return self.userNametoID[username]
+        else:
+            logging.info("User data not in cache when trying to access user ID: user tag {}".format(username))
+            return self.getuserTag(username)["users"][0]["_id"]
 
     def getuserEmotes(self, userID):
         """Get the emotes a user can use from userID without the global emoticons."""
