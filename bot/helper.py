@@ -57,19 +57,24 @@ def update_json_index_file(filePath):
 
             json.dump(json_index_data, file, indent=4)
 
+    except FileNotFoundError as e:
+        logging.error("JSON Index file not found, create a new one")
+        create_new_json_index_file(filePath, current_ts)
+
     except ValueError as e:
         # JSON error when loading files
         logging.error("JSON Index file cannot be parsed, create a new one")
+        create_new_json_index_file(filePath, current_ts)
 
-        json_index_data = dict()
-        json_index_data[filePath] = current_ts
+def create_new_json_index_file(key, timeStamp):
+    json_index_data = dict()
+    json_index_data[key] = timeStamp
 
-        # 'w+' mode truncate current file
-        with open(JSON_FILE_INDEX_PATH, 'w+') as file:
-            json.dump(json_index_data, file, indent=4)
+    # 'w+' mode truncate current file
+    with open(JSON_FILE_INDEX_PATH, 'w+') as file:
+        json.dump(json_index_data, file, indent=4)
 
-
-def load_saved_JSON_file(filePath):
+def load_saved_JSON_file(filePath, fail_safe_return_object=None):
     try:
         with open(filePath, "r", encoding="utf-8") as file:
             json_data = json.load(file)
@@ -77,24 +82,30 @@ def load_saved_JSON_file(filePath):
     # If we can't get from file ... then it fails completely
     except FileNotFoundError as e:
         logging.error("File not found when looking for backup JSON file. Path: {}".format(filePath))
+
+        if fail_safe_return_object is not None:
+            logging.info("Have a fail safe object to return, returning that object")
+            return fail_safe_return_object
         raise e
 
     # Mostly JSON parsing error
     except ValueError as e:
         logging.error("Errors when parsing backup JSON file. Path: {}".format(filePath))
+
+        if fail_safe_return_object is not None:
+            logging.info("Have a fail safe object to return, returning that object")
+            return fail_safe_return_object
         raise e
 
     else:
         # no errors
         return json_data
 
-
-def load_JSON_then_save_file(url, filePath, valid_duration=DEFAULT_VALID_DURATION):
+def load_JSON_then_save_file(url, filePath, valid_duration=DEFAULT_VALID_DURATION, fail_safe_return_object=None):
     """ Return data as JSON in url if not expired, while trying to save that JSON in file,
     and load from filePath if failed to get from the url.
 
     """
-
     # About valid_duration:
     # We can just delete the index file, or pass in 0 or negative numbers to force fetch on API datas
     # Also, we can just pass big valid_duration to make them not to fetch data
@@ -110,6 +121,7 @@ def load_JSON_then_save_file(url, filePath, valid_duration=DEFAULT_VALID_DURATIO
 
         # get JSON without problem, also save the JSON to filePath
         json_data = r.json()
+
         with open(filePath, 'w', encoding="utf-8") as file:
             json.dump(json_data, file, indent=4)
 
@@ -123,7 +135,8 @@ def load_JSON_then_save_file(url, filePath, valid_duration=DEFAULT_VALID_DURATIO
         logging.warning("Call reqeust failed, now fallback to load saved JSON")
         logging.warning(e)
 
-        return load_saved_JSON_file(filePath)
+        return load_saved_JSON_file(filePath, fail_safe_return_object)
+
 
 def setup_common_data_for_bots():
     TWITCHEMOTES_API = "http://api.twitch.tv/kraken/chat/emoticon_images?emotesets=0"
