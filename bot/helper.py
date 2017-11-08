@@ -48,17 +48,14 @@ def update_json_index_file(filePath):
     current_ts = datetime.now().isoformat(timespec='seconds')
 
     try:
-        with open(JSON_FILE_INDEX_PATH, 'r', encoding="utf-8") as file:
+        with open(JSON_FILE_INDEX_PATH, 'r+', encoding="utf-8") as file:
             json_index_data = json.load(file)
             json_index_data[filePath] = current_ts
 
-        with open(JSON_FILE_INDEX_PATH, 'w', encoding="utf-8") as file:
-            # don't really know why we can't use r+ to do the work
-            json.dump(json_index_data, file, indent=4)
+            # Will create invalid JSON file without this line
+            file.seek(0)
 
-        # need to test on this
-        with open(JSON_FILE_INDEX_PATH, 'r+', encoding="utf-8") as file:
-            json_index_data = json.load(file) # get nothing !! why
+            json.dump(json_index_data, file, indent=4)
 
     except ValueError as e:
         # JSON error when loading files
@@ -144,7 +141,6 @@ def setup_common_data_for_bots():
 
     # Twitch emotes
     json_file_path = common_API_json_data_path.format("twitch_emotes.json")
-    print("before loading twitch emotes")
     twitch_emotes_json = load_JSON_then_save_file(TWITCHEMOTES_API, json_file_path)
     emotelist = twitch_emotes_json['emoticon_sets']['0']
 
@@ -161,7 +157,6 @@ def setup_common_data_for_bots():
 
     # global BTTV emotes
     json_file_path = common_API_json_data_path.format("global_bttv_emote.json")
-    print("before loading global emotes")
     global_bttv_emote_json = load_JSON_then_save_file(GLOBAL_BTTVEMOTES_API, json_file_path)
     emotelist = global_bttv_emote_json['emotes']
 
@@ -171,13 +166,11 @@ def setup_common_data_for_bots():
 
     # Get all HS cards
     json_file_path = common_API_json_data_path.format("hs_card.json")
-    print("before loading cards")
     cards_json = load_JSON_then_save_file(HEARTHSTONE_CARD_API, json_file_path)
     data["cards"] = cards_json
 
     # Get emojis
     json_file_path = common_API_json_data_path.format("emoji.json")
-    print("before loading emotes")
     emojis_json = load_JSON_then_save_file(EMOJI_API, json_file_path)
 
     for e in emojis_json:

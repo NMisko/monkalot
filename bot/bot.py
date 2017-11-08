@@ -14,11 +14,7 @@ import copy
 from importlib import reload
 
 USERLIST_API = "http://tmi.twitch.tv/group/user/{}/chatters"
-TWITCHEMOTES_API = "http://api.twitch.tv/kraken/chat/emoticon_images?emotesets=0"
-GLOBAL_BTTVEMOTES_API = "https://api.betterttv.net/2/emotes"
 CHANNEL_BTTVEMOTES_API = "https://api.betterttv.net/2/channels/{}"
-HEARTHSTONE_CARD_API = "http://api.hearthstonejson.com/v1/latest/enUS/cards.collectible.json"
-EMOJI_API = "https://raw.githubusercontent.com/github/gemoji/master/db/emoji.json"
 
 TRUSTED_MODS_PATH = '{}data/trusted_mods.json'
 IGNORED_USERS_PATH = '{}data/ignored_users.json'
@@ -44,7 +40,7 @@ class TwitchBot():
     # This needs to be set, in order for the bot to be able to answer
     irc = None
 
-    def __init__(self, root):
+    def __init__(self, root, common_data):
         """Initialize bot."""
         self.root = root
         self.reloadConfig()
@@ -66,26 +62,8 @@ class TwitchBot():
         self.mods = set()
         self.subs = set()
 
-        # Get twitchtv-emotelist
-        url = TWITCHEMOTES_API
-        data = requests.get(url).json()
-        emotelist = data['emoticon_sets']['0']
-
-        self.twitchemotes = []
-        for i in range(0, len(emotelist)):
-            emote = emotelist[i]['code'].strip()
-            if ('\\') not in emote:
-                self.twitchemotes.append(emote)
-
-        # Get global_BTTV-emotelist
-        url = GLOBAL_BTTVEMOTES_API
-        data = requests.get(url).json()
-        emotelist = data['emotes']
-
-        self.global_bttvemotes = []
-        for i in range(0, len(emotelist)):
-            emote = emotelist[i]['code'].strip()
-            self.global_bttvemotes.append(emote)
+        self.twitchemotes = common_data["twitchemotes"]
+        self.global_bttvemotes = common_data["global_bttvemotes"]
 
         # On first start, get channel_BTTV-emotelist
         url = CHANNEL_BTTVEMOTES_API.format(self.channel[1:])
@@ -100,19 +78,8 @@ class TwitchBot():
         # All available emotes in one list
         self.emotes = self.twitchemotes + self.global_bttvemotes + self.channel_bttvemotes
 
-        # Get all hearthstone cards
-        url = HEARTHSTONE_CARD_API
-        self.cards = requests.get(url).json()
-
-        # On first start get all emojis
-        url = EMOJI_API
-        self.emojilist = requests.get(url).json()
-        self.emojis = []
-        for i in range(0, len(self.emojilist)):
-            try:
-                self.emojis.append(self.emojilist[i]['emoji'])
-            except KeyError:
-                pass    # No Emoji found.
+        self.cards = common_data["cards"]
+        self.emojis = common_data["emojis"]
 
         # Initialize emote counter
         self.ecount = bot.emotecounter.EmoteCounterForBot(self)
