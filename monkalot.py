@@ -13,7 +13,7 @@ from bot.multibot_irc_client import MultiBotIRCClient
 import os
 from bot.web import WebAPI
 import signal
-from bot.helper import setup_common_data_for_bots
+from bot.json_helper import setup_common_data_for_bots
 
 logging.config.fileConfig('config/logging.conf')
 

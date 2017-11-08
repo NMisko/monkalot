@@ -12,7 +12,7 @@ import json
 import time
 import copy
 from importlib import reload
-from bot.helper import load_JSON_then_save_file
+from bot.json_helper import load_JSON_then_save_file
 
 USERLIST_API = "http://tmi.twitch.tv/group/user/{}/chatters"
 CHANNEL_BTTVEMOTES_API = "https://api.betterttv.net/2/channels/{}"
