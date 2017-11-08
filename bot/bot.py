@@ -402,7 +402,7 @@ class TwitchBot():
             return self.userNametoDisplayName[username]
         else:
             # or just return username instead
-            logging.info("User data not in cache when trying to access user display name: user tag {}".format(user))
+            logging.info("User data not in cache when trying to access user display name: user tag {}".format(username))
             return self.getuserTag(username)["users"][0]["display_name"]
 
     def getuserTag(self, username):
