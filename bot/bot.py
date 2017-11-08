@@ -12,6 +12,7 @@ import json
 import time
 import copy
 from importlib import reload
+from bot.helper import load_JSON_then_save_file
 
 USERLIST_API = "http://tmi.twitch.tv/group/user/{}/chatters"
 CHANNEL_BTTVEMOTES_API = "https://api.betterttv.net/2/channels/{}"
@@ -23,6 +24,7 @@ CONFIG_PATH = '{}configs/bot_config.json'
 CUSTOM_RESPONSES_PATH = '{}configs/responses.json'
 TEMPLATE_RESPONSES_PATH = 'channels/template/configs/responses.json'
 
+JSON_DATA_PATH = '{}api_json_data/{}'
 
 class TwitchBot():
     """TwitchBot extends the IRCClient to interact with Twitch.tv."""
@@ -55,7 +57,7 @@ class TwitchBot():
         with open(PRONOUNS_PATH.format(self.root)) as fp:
             self.pronouns = json.load(fp)
 
-        # Get user list
+        # Get user list, seems better not to cache
         url = USERLIST_API.format(self.channel[1:])
         data = requests.get(url).json()
         self.users = set(sum(data['chatters'].values(), []))
@@ -66,13 +68,16 @@ class TwitchBot():
         self.global_bttvemotes = common_data["global_bttvemotes"]
 
         # On first start, get channel_BTTV-emotelist
-        url = CHANNEL_BTTVEMOTES_API.format(self.channel[1:])
-        data = requests.get(url).json()
-        emotelist = data.get("emotes", [])
+        bttv_channel_emote_url = CHANNEL_BTTVEMOTES_API.format(self.channel[1:])
+        bttv_channel_json_path = JSON_DATA_PATH.format(self.root, "channel_bttv.json")
+
+        # Have to add fail safe return object since it returns 404 (don't have BTTV in my channel)
+        global_bttv_emote_json = load_JSON_then_save_file(bttv_channel_emote_url, bttv_channel_json_path, fail_safe_return_object={})
+        emotelist = global_bttv_emote_json.get("emotes", [])
 
         self.channel_bttvemotes = []
-        for i in range(0, len(emotelist)):
-            emote = emotelist[i]['code'].strip()
+        for emoteEntry in range(len(emotelist)):
+            emote = emoteEntry['code'].strip()
             self.channel_bttvemotes.append(emote)
 
         # All available emotes in one list
