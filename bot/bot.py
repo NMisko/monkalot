@@ -45,6 +45,12 @@ class TwitchBot():
     def __init__(self, root, common_data):
         """Initialize bot."""
         self.root = root
+
+        # user related:
+        # We get these user data from userState()
+        self.userNametoID = {}
+        self.userNametoDisplayName = {}
+
         self.reloadConfig()
         self.ranking = bot.ranking.Ranking(self)
 
@@ -178,7 +184,19 @@ class TwitchBot():
 
     def userState(self, prefix, tags):
         """Track user tags."""
-        name = prefix.split("!")[0]
+
+        # NOTE: params in PRIVMSG() are already processed and does not contains these data,
+        # so we have to get them from lineReceived() -> manually called userState() to parse the tags.
+        # Also I don't want to crash the original PRIVMSG() functions by modifing them
+
+        twitch_user_tag = prefix.split("!")[0]
+        twitch_user_id = tags["user-id"]
+        display_name = tags["display-name"]
+
+        name = twitch_user_tag
+
+        self.userNametoID[name] = twitch_user_id
+        self.userNametoDisplayName[name] = display_name
 
         if 'subscriber' in tags:
             if tags['subscriber'] == '1':
@@ -378,19 +396,17 @@ class TwitchBot():
         """Terminate bot."""
         self.close_commands()
 
-    def displayName(self, user):
+    def displayName(self, username):
         """Get the proper capitalization of a twitch user."""
-        url = "https://api.twitch.tv/kraken/users?login=" + user
-        headers = {'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': self.password}
-
-        try:
-            return requests.get(url, headers=headers).json()["users"][0]["display_name"]
-        except (IndexError, KeyError):
-            logging.error(traceback.format_exc())
-            return user
+        if username in self.userNametoDisplayName:
+            return self.userNametoDisplayName[username]
+        else:
+            # or just return username instead
+            logging.info("User data not in cache when trying to access user display name: user tag {}".format(user))
+            return self.getuserTag(username)["users"][0]["display_name"]
 
     def getuserTag(self, username):
-        """Get the twitch-userTag from username."""
+        """Get the full data of user from username."""
         url = "https://api.twitch.tv/kraken/users?login=" + username
         headers = {'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': self.clientID, 'Authorization': self.password}
 
@@ -398,11 +414,14 @@ class TwitchBot():
             return requests.get(url, headers=headers).json()
         except (IndexError, KeyError):
             logging.error(traceback.format_exc())
-            pass
 
     def getuserID(self, username):
-        """Get the twitch-userTag from username."""
-        return self.getuserTag(username)["users"][0]["_id"]
+        """Get the twitch id (numbers) from username."""
+        if username in self.userNametoID:
+            return self.userNametoID[username]
+        else:
+            logging.info("User data not in cache when trying to access user ID: user tag {}".format(username))
+            return self.getuserTag(username)["users"][0]["_id"]
 
     def getuserEmotes(self, userID):
         """Get the emotes a user can use from userID without the global emoticons."""

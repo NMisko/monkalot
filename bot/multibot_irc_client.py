@@ -47,6 +47,9 @@ class MultiBotIRCClient(irc.IRCClient, object):
         """Log when channel is joined."""
         logging.warning("Joined %s" % channel)
 
+    # def irc_PRIVMSG(self, prefix, params):
+        # super().irc_PRIVMSG(prefix, params)
+
     def privmsg(self, user, channel, msg):
         """React to messages in a channel."""
         # Note: if msg is too long, it will not even get in to this function
