@@ -1,6 +1,7 @@
 """Commands: "!rank [username]"."""
 from .command import Command
 from .utilities.permission import Permission
+from .utilities.user_helper import sanitizeUserName
 
 
 class Rank(Command):
@@ -29,7 +30,7 @@ class Rank(Command):
         """
         self.responses = bot.responses["Rank"]
         if msg.startswith('!rank '):
-            user = msg.split(' ')[1]
+            user = sanitizeUserName(msg.split(' ')[1])
         points = bot.ranking.getPoints(user)
         var = {"<USER>": bot.displayName(user), "<RANK>": bot.ranking.getHSRank(points), "<POINTS>": points}
         bot.write(bot.replace_vars(self.responses["display_rank"]["msg"], var))

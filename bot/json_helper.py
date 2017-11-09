@@ -1,26 +1,25 @@
+"""Module to cache data in json format."""
 import requests
 from requests import RequestException
 import logging
 import json
 from datetime import datetime
 
-DEFAULT_VALID_DURATION = 21600 # 6 hrs in secs
+DEFAULT_VALID_DURATION = 21600  # 6 hrs in secs
 common_API_json_data_path = "data/common_api_json_data/{}"
 JSON_FILE_INDEX_PATH = common_API_json_data_path.format("json_index.json")
 
 # not sure if they are thread-safe or not
 
+
 def check_json_file_expired(filePath, valid_duration):
-    """ Return True if file is expired in index file
-
-    """
-
+    """Return True if file is expired in index file."""
     # load last writing time from index file, if any errors occurs. Just mark as expired
     # and let other functions to re-create the index file
     try:
         with open(JSON_FILE_INDEX_PATH, 'r', encoding="utf-8") as file:
-          json_index_data = json.load(file)
-          last_write_time = json_index_data[filePath]
+            json_index_data = json.load(file)
+            last_write_time = json_index_data[filePath]
 
     except KeyError:
         # just in case we add new JSON source but index file has not updated yet
@@ -31,7 +30,7 @@ def check_json_file_expired(filePath, valid_duration):
         logging.error("JSON Index file cannot be parsed when checking expiry time.")
         return True
 
-    except FileNotFoundError as e:
+    except FileNotFoundError as e: # noqa
         logging.error("JSON Index file not found when checking expiry time.")
         return True
 
@@ -44,7 +43,9 @@ def check_json_file_expired(filePath, valid_duration):
 
     return expired
 
+
 def update_json_index_file(filePath):
+    """Update an index file."""
     # Use ISO 8601 timestamp
     current_ts = datetime.now().isoformat(timespec='seconds')
 
@@ -58,16 +59,18 @@ def update_json_index_file(filePath):
 
             json.dump(json_index_data, file, indent=4)
 
-    except FileNotFoundError as e:
+    except FileNotFoundError: #noqa
         logging.error("JSON Index file not found, create a new one")
         create_new_json_index_file(filePath, current_ts)
 
-    except ValueError as e:
+    except ValueError:
         # JSON error when loading files
         logging.error("JSON Index file cannot be parsed, create a new one")
         create_new_json_index_file(filePath, current_ts)
 
+
 def create_new_json_index_file(key, timeStamp):
+    """Create a new index file."""
     json_index_data = dict()
     json_index_data[key] = timeStamp
 
@@ -75,13 +78,15 @@ def create_new_json_index_file(key, timeStamp):
     with open(JSON_FILE_INDEX_PATH, 'w+') as file:
         json.dump(json_index_data, file, indent=4)
 
+
 def load_saved_JSON_file(filePath, fail_safe_return_object=None):
+    """Load a saved index file."""
     try:
         with open(filePath, "r", encoding="utf-8") as file:
             json_data = json.load(file)
 
     # If we can't get from file ... then it fails completely
-    except FileNotFoundError as e:
+    except FileNotFoundError as e: # noqa
         logging.error("File not found when looking for backup JSON file. Path: {}".format(filePath))
 
         if fail_safe_return_object is not None:
@@ -102,11 +107,9 @@ def load_saved_JSON_file(filePath, fail_safe_return_object=None):
         # no errors
         return json_data
 
-def load_JSON_then_save_file(url, filePath, valid_duration=DEFAULT_VALID_DURATION, fail_safe_return_object=None):
-    """ Return data as JSON in url if not expired, while trying to save that JSON in file,
-    and load from filePath if failed to get from the url.
 
-    """
+def load_JSON_then_save_file(url, filePath, valid_duration=DEFAULT_VALID_DURATION, fail_safe_return_object=None):
+    """Return data as JSON in url if not expired, while trying to save that JSON in file, and load from filePath if failed to get from the url."""
     # About valid_duration:
     # We can just delete the index file, or pass in 0 or negative numbers to force fetch on API datas
     # Also, we can just pass big valid_duration to make them not to fetch data
@@ -140,6 +143,10 @@ def load_JSON_then_save_file(url, filePath, valid_duration=DEFAULT_VALID_DURATIO
 
 
 def setup_common_data_for_bots():
+    """Setup common(shared) data between bots.
+
+    Includes emotes, bttv emotes, hearthstone cards and emojis.
+    """
     TWITCHEMOTES_API = "http://api.twitch.tv/kraken/chat/emoticon_images?emotesets=0"
     GLOBAL_BTTVEMOTES_API = "https://api.betterttv.net/2/emotes"
     HEARTHSTONE_CARD_API = "http://api.hearthstonejson.com/v1/latest/enUS/cards.collectible.json"
@@ -165,11 +172,11 @@ def setup_common_data_for_bots():
         emote = emoteEntry['code'].strip()
 
         if ('\\') not in emote:
-            #print("Simple single word twitch emote", emote)
+            # print("Simple single word twitch emote", emote)
             data["twitchemotes"].append(emote)
         else:
             # They are all regex, for example :p, :P, :-p, :-P have the same id of 12, there are many ways to input this emote
-            #print("Complex twitch emotes that we can't handle", emote)
+            # print("Complex twitch emotes that we can't handle", emote)
             pass
 
     # global BTTV emotes

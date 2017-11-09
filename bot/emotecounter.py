@@ -7,9 +7,11 @@ STATISTIC_FILE = '{}data/emote_stats.json'
 
 
 class EmoteCounter(object):
-    """ Generic class to handle emote per minute."""
+    """Generic class to handle emote per minute."""
+
     def __init__(self, t=60):
-        # Queue to stores emote entries (tuples)
+        """Set up counters."""
+        # Queue to store emote entries (tuples)
         self.emoteRecord = deque()
         self.on = False
         # only store records within (holding time) secs, 60 on default
@@ -20,12 +22,15 @@ class EmoteCounter(object):
         self.emoteCount = {}
 
     def stopCPM(self):
+        """Stop counter."""
         self.on = False
 
     def startCPM(self):
+        """Star counter."""
         self.on = True
 
     def addEntry(self, emoteDict):
+        """Add a new entry (if on)."""
         if not self.on:
             return
 
@@ -39,6 +44,7 @@ class EmoteCounter(object):
 
     # NOTE: Not minute if holdingTime is not 60
     def getMinuteCount(self, emote):
+        """Get emote count for last minute (or custom holdingTime)."""
         self.__updateRecord()
         return self.emoteCount.get(emote, 0)
 
@@ -75,8 +81,10 @@ class EmoteCounter(object):
 
 
 class EmoteCounterForBot(EmoteCounter):
-    """Emote counter class for bot including total count, inherit from EmoteCounter """
+    """Emote counter class for bot including total count, inherit from EmoteCounter."""
+
     def __init__(self, bot, t=60):
+        """Initialize counter."""
         super().__init__(t)
 
         # emoteList is list of valid emotes(string)
@@ -102,7 +110,6 @@ class EmoteCounterForBot(EmoteCounter):
 
     def __initTotalCount(self):
         """Create a emote stat JSON if there aren't one already."""
-
         # True when need to create or add new emote to file
         refreshFile = False
         try:
@@ -121,7 +128,7 @@ class EmoteCounterForBot(EmoteCounter):
                             totalData[emote] = 0
                             refreshFile = True
 
-        except FileNotFoundError:
+        except FileNotFoundError: # noqa
             logging.info("No EmoteCountFile found, creating new one.")
             totalData = self.__createEmptyTotalList()
             refreshFile = True
@@ -158,7 +165,6 @@ class EmoteCounterForBot(EmoteCounter):
 
         Return a dictionary with emote count
         """
-
         emoteDict = {}
         splitMsg = msg.strip()
         splitMsg = splitMsg.split(' ')

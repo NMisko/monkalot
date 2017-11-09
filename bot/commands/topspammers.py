@@ -21,8 +21,10 @@ class TopSpammers(Command):
         self.responses = bot.responses["TopSpammers"]
         ranking = bot.ranking.getTopSpammers(5)
         out = self.responses["heading"]["msg"]
+        result = ""
         if len(ranking) > 0:
-            for i in range(0, len(ranking)-1):
-                out = out + bot.displayName(ranking[i][0]) + ": Rank " + bot.ranking.getHSRank(ranking[i][1]) + ", "
-            out = out + bot.displayName(ranking[len(ranking)-1][0]) + ": Rank " + bot.ranking.getHSRank(ranking[len(ranking)-1][1]) + "."
+            # TODO: use a template string to do this?
+            result = ", ".join(["{}: Rank {}".format(bot.displayName(name), bot.ranking.getHSRank(point)) for (name, point) in ranking])
+            result += "."
+        out += result
         bot.write(out)

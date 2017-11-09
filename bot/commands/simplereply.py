@@ -16,7 +16,7 @@ class SimpleReply(Command):
 
     def __init__(self, bot):
         """Load command list."""
-        with open(REPLIES_FILE.format(bot.root)) as fp:
+        with open(REPLIES_FILE.format(bot.root), "r", encoding="utf-8") as fp:
             self.replies = json.load(fp)
 
     def match(self, bot, user, msg):

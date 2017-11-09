@@ -13,7 +13,7 @@ import bot.emotecounter
 import bot.ranking
 import requests
 from bot.json_helper import load_JSON_then_save_file
-from bot.user_helper import sanitizeUserName
+from bot.commands.utilities.user_helper import sanitizeUserName
 from requests import RequestException
 
 USERLIST_API = "http://tmi.twitch.tv/group/user/{}/chatters"

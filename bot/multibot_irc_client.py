@@ -7,10 +7,12 @@ CONFIG_PATH = '{}configs/bot_config.json'
 
 
 class MultiBotIRCClient(irc.IRCClient, object):
-    """Irc Client that distributes messages to bots, based on the channel they're from."""
-    # Twitch IRC reference: https://dev.twitch.tv/docs/v5/guides/irc
+    """Irc Client that distributes messages to bots, based on the channel they're from.
 
+    # Twitch IRC reference: https://dev.twitch.tv/docs/v5/guides/irc
     # Set this globally, by using MultiBotIRCClient.bots = x
+    """
+
     bots = []
 
     def __init__(self):

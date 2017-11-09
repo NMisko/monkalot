@@ -17,7 +17,7 @@ class EditCommandList(Command):
     def __init__(self, bot):
         """Load command list."""
         self.responses = {}
-        with open(REPLIES_FILE.format(bot.root)) as file:
+        with open(REPLIES_FILE.format(bot.root), "r", encoding="utf-8") as file:
             self.replies = json.load(file)
 
     def addcommand(self, bot, cmd):
