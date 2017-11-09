@@ -26,7 +26,7 @@ CONFIG_PATH = '{}configs/bot_config.json'
 CUSTOM_RESPONSES_PATH = '{}configs/responses.json'
 TEMPLATE_RESPONSES_PATH = 'channels/template/configs/responses.json'
 
-JSON_DATA_PATH = '{}api_json_data/{}'
+JSON_DATA_PATH = '{}data/api_json_data/{}'
 CHANNEL_BTTV_EMOTE_JSON_FILE_NAME = 'channel_bttv.json'
 
 class TwitchBot():

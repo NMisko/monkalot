@@ -5,7 +5,8 @@ import json
 from datetime import datetime
 
 DEFAULT_VALID_DURATION = 21600 # 6 hrs in secs
-JSON_FILE_INDEX_PATH = "bot/common_api_json_data/json_index.json"
+common_API_json_data_path = "data/common_api_json_data/{}"
+JSON_FILE_INDEX_PATH = common_API_json_data_path.format("json_index.json")
 
 # not sure if they are thread-safe or not
 
@@ -144,7 +145,6 @@ def setup_common_data_for_bots():
     HEARTHSTONE_CARD_API = "http://api.hearthstonejson.com/v1/latest/enUS/cards.collectible.json"
     EMOJI_API = "https://raw.githubusercontent.com/github/gemoji/master/db/emoji.json"
 
-    common_API_json_data_path = "bot/common_api_json_data/{}"
     TWITCH_EMOTE_JSON_FILE_NAME = "twitch_emotes.json"
     GLOBAL_BTTV_EMOTE_JSON_FILE_NAME = "global_bttv_emote.json"
     HS_CARD_JSON_FILE_NAME = "hs_card.json"
