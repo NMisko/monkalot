@@ -1,0 +1,33 @@
+"""Commands: "!tenta [emote]", "!penta [emote]"."""
+from .command import Command
+from .utilities.permission import Permission
+
+
+class TentaReply(Command):
+    """Reply with squid emotes or penta emotes."""
+
+    perm = Permission.User
+
+    def match(self, bot, user, msg):
+        """Match if the message starts with '!tenta ' or '!penta ' followed by an emote."""
+        cmd = msg.split(" ")
+        if (msg.lower().strip().startswith("!tenta ") or msg.lower().strip().startswith("!penta ") or msg.lower().strip().startswith("!hentai ")):
+            if len(cmd) == 2:
+                arg = cmd[1].strip()
+                """Check if arg is an emote."""
+                if arg in bot.emotes:
+                    return True
+        return False
+
+    def run(self, bot, user, msg):
+        """Reply with squid or penta message."""
+        cmd = msg.split(" ")
+        emote = cmd[1].strip()
+
+        if msg.lower().strip().startswith("!tenta"):
+            s = "Squid1 Squid2 " + emote + " Squid2 Squid4"
+        elif msg.lower().strip().startswith("!penta"):
+            s = emote + " " + emote + " " + emote + " " + emote + " " + emote
+        elif msg.lower().strip().startswith("!hentai"):
+            s = "gachiGASM Squid4 " + emote + " Squid1 Jebaited"
+        bot.write(s)

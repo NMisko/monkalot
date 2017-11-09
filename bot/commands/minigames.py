@@ -2,7 +2,7 @@
 
 import json
 import random
-from random import shuffle, randint
+from random import randint, shuffle
 
 DATA_OBJECT = '{}data/monkalot_party.json'
 

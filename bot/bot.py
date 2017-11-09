@@ -1,17 +1,17 @@
 """Module for Twitch bot and threaded logging."""
 
-from collections import defaultdict
-from bot.commands import Permission
-import traceback
-import requests
-import logging
-import bot.commands
-import bot.ranking
-import bot.emotecounter
-import json
-import time
 import copy
-from importlib import reload
+import json
+import logging
+import time
+import traceback
+from collections import defaultdict
+from bot.commands.utilities.permission import Permission
+
+import bot.commands
+import bot.emotecounter
+import bot.ranking
+import requests
 from bot.json_helper import load_JSON_then_save_file
 from bot.user_helper import sanitizeUserName
 from requests import RequestException
@@ -28,6 +28,7 @@ TEMPLATE_RESPONSES_PATH = 'channels/template/configs/responses.json'
 
 JSON_DATA_PATH = '{}data/api_json_data/{}'
 CHANNEL_BTTV_EMOTE_JSON_FILE_NAME = 'channel_bttv.json'
+
 
 class TwitchBot():
     """TwitchBot extends the IRCClient to interact with Twitch.tv."""
@@ -124,7 +125,7 @@ class TwitchBot():
         try:
             with open(CUSTOM_RESPONSES_PATH.format(self.root), 'r', encoding="utf-8") as file:
                 CUSTOM_RESPONSES = json.load(file)
-        except FileNotFoundError:
+        except FileNotFoundError:  # noqa
             logging.warning("No custom responses file for {}.".format(self.root))
             CUSTOM_RESPONSES = {}
         except Exception:
@@ -161,7 +162,7 @@ class TwitchBot():
         self.reload_commands()
 
     def modeChanged(self, user, channel, added, modes, args):
-        """Update IRC mod list when mod joins or leaves. Seems not useful"""
+        """Update IRC mod list when mod joins or leaves. Seems not useful."""
         change = 'added' if added else 'removed'
         info_msg = "[{}] IRC Mod {}: {}".format(channel, change, ', '.join(args))
         logging.warning(info_msg)
@@ -189,12 +190,11 @@ class TwitchBot():
 
     def userState(self, prefix, tags):
         """Track user tags."""
-
         # NOTE: params in PRIVMSG() are already processed and does not contains these data,
         # so we have to get them from lineReceived() -> manually called userState() to parse the tags.
         # Also I don't want to crash the original PRIVMSG() functions by modifing them
 
-        twitch_user_tag = prefix.split("!")[0] # also known as login id
+        twitch_user_tag = prefix.split("!")[0]  # also known as login id
         twitch_user_id = tags["user-id"]
         display_name = tags["display-name"]
 
@@ -340,57 +340,18 @@ class TwitchBot():
         # Reload commands
         self.close_commands()
 
-        cmds = reload(bot.commands)
-
-        """Number of games.
-        Games have to be on the top of the list!!!
-        Passive Games have to be on the very top!!! -> Maybe we need Game-classes
-        """
-        ngames = 5          # first ngames are 'games'
+        self.commands = []
         self.games = []
-        npassivegames = 1   # first npassivegames are 'always active games' (e.g. PyramidGame)
         self.passivegames = []
 
-        self.commands = [
-            cmds.Pyramid(self),
-            cmds.KappaGame(self),
-            cmds.GuessEmoteGame(self),
-            cmds.GuessMinionGame(self),
-            cmds.MonkalotParty(self),
-            cmds.Sleep(self),
-            cmds.EditCommandList(self),
-            cmds.editQuoteList(self),
-            cmds.outputQuote(self),
-            cmds.outputStats(self),
-            cmds.Calculator(self),
-            cmds.AutoGames(self),
-            cmds.Notifications(self),
-            cmds.PyramidReply(self),
-            #cmds.EmoteReply(self),     # Deactivated due to request from IGetNoKick in Zetalot's channel 26.09.2017
-            cmds.TentaReply(self),
-            cmds.Smorc(self),
-            cmds.SlapHug(self),
-            cmds.Rank(self),
-            cmds.EditCommandMods(self),
-            cmds.Active(self),
-            cmds.Pronouns(self),
-            cmds.Questions(self),
-            cmds.Oralpleasure(self),
-            cmds.BanMe(self),
-            cmds.UserIgnore(self),
-            cmds.Speech(self),
-            cmds.SimpleReply(self),
-            cmds.PyramidBlock(self),
-            cmds.Spam(self),
-            cmds.TopSpammers(self),
-            cmds.StreamInfo(self)
-        ]
+        for cmd in bot.commands.commands:
+            cmdInstance = cmd(self)
+            self.commands.append(cmdInstance)
 
-        for i in range(0, ngames):
-            self.games.append(self.commands[i])
-
-        for i in range(0, npassivegames):
-            self.passivegames.append(self.commands[i])
+            if cmd in bot.commands.games:
+                self.games.append(cmdInstance)
+            if cmd in bot.commands.passivegames:
+                self.passivegames.append(cmdInstance)
 
     def reload(self):
         """Reload bot."""
@@ -414,7 +375,7 @@ class TwitchBot():
                 # save the record as well
                 self.userNametoDisplayName[username] = name
                 return name
-            except (RequestException, IndexError, KeyError) as e:
+            except (RequestException, IndexError, KeyError):
                 logging.info("Cannot get user info from API call, have to return username directly")
                 return username
 
@@ -525,15 +486,15 @@ class TwitchBot():
         return newmsg
 
     def deepMergeDict(self, base, custom, dictPath=""):
-        """
-            Intended to merge dictionaries created from JSON.load().
-            We try to preserve the structure of base, while merging custom to base.
-            The rule for merging is:
-            - if custom[key] exists but base[key] doesn't, append to base[key]
-            - if BOTH custom[key] and base[key] exist, but their type is different, raise TypeError
-            - if BOTH custom[key] and base[key] exist, but their type is same ...
-              - if both are dictionary, merge recursively
-              - else use custom[key]
+        """Intended to merge dictionaries created from JSON.load().
+
+        We try to preserve the structure of base, while merging custom to base.
+        The rule for merging is:
+        - if custom[key] exists but base[key] doesn't, append to base[key]
+        - if BOTH custom[key] and base[key] exist, but their type is different, raise TypeError
+        - if BOTH custom[key] and base[key] exist, but their type is same ...
+          - if both are dictionary, merge recursively
+          - else use custom[key]
         """
         for k in custom.keys():
             if k not in base.keys():
@@ -582,7 +543,7 @@ class TwitchBot():
             logging.warning("The bot {} in channel {} wanted to timout {}, but irc isn't set.".format(self.nickname, self.channel, user))
 
     def ban(self, user):
-        """Bans a user from the channel."""
+        """Ban a user from the channel."""
         ban = "/ban {}".format(user)
         if self.irc is not None:
             self.irc.write(self.channel, ban)
@@ -590,7 +551,7 @@ class TwitchBot():
             logging.warning("The bot {} in channel {} wanted to ban {}, but irc isn't set.".format(self.nickname, self.channel, user))
 
     def unban(self, user):
-        """Unbans a user for the channel."""
+        """Unban a user for the channel."""
         unban = "/unban {}".format(user)
         if self.irc is not None:
             self.irc.write(self.channel, unban)
