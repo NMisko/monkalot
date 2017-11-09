@@ -10,6 +10,9 @@ import pyparsing
 from bot.minigames import MiniGames
 import time
 from datetime import datetime
+from bot.user_helper import sanitizeUserName
+import logging
+
 
 import re
 
@@ -1341,7 +1344,7 @@ class Rank(Command):
         """
         self.responses = bot.responses["Rank"]
         if msg.startswith('!rank '):
-            user = msg.split(' ')[1]
+            user = sanitizeUserName(msg.split(' ')[1])
         points = bot.ranking.getPoints(user)
         var = {"<USER>": bot.displayName(user), "<RANK>": bot.ranking.getHSRank(points), "<POINTS>": points}
         bot.write(bot.replace_vars(self.responses["display_rank"]["msg"], var))
@@ -1365,10 +1368,12 @@ class TopSpammers(Command):
         self.responses = bot.responses["TopSpammers"]
         ranking = bot.ranking.getTopSpammers(5)
         out = self.responses["heading"]["msg"]
+        result = ""
         if len(ranking) > 0:
-            for i in range(0, len(ranking)-1):
-                out = out + bot.displayName(ranking[i][0]) + ": Rank " + bot.ranking.getHSRank(ranking[i][1]) + ", "
-            out = out + bot.displayName(ranking[len(ranking)-1][0]) + ": Rank " + bot.ranking.getHSRank(ranking[len(ranking)-1][1]) + "."
+            # TODO: use a template string to do this?
+            result = ", ".join(["{}: Rank {}".format(bot.displayName(name), bot.ranking.getHSRank(point)) for (name, point) in ranking])
+            result += "."
+        out += result
         bot.write(out)
 
 
