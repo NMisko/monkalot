@@ -145,6 +145,10 @@ def setup_common_data_for_bots():
     EMOJI_API = "https://raw.githubusercontent.com/github/gemoji/master/db/emoji.json"
 
     common_API_json_data_path = "bot/common_api_json_data/{}"
+    TWITCH_EMOTE_JSON_FILE_NAME = "twitch_emotes.json"
+    GLOBAL_BTTV_EMOTE_JSON_FILE_NAME = "global_bttv_emote.json"
+    HS_CARD_JSON_FILE_NAME = "hs_card.json"
+    EMOJI_JSON_FILE_NAME = "emoji.json"
 
     data = dict()
 
@@ -153,7 +157,7 @@ def setup_common_data_for_bots():
     data["emojis"] = []
 
     # Twitch emotes
-    json_file_path = common_API_json_data_path.format("twitch_emotes.json")
+    json_file_path = common_API_json_data_path.format(TWITCH_EMOTE_JSON_FILE_NAME)
     twitch_emotes_json = load_JSON_then_save_file(TWITCHEMOTES_API, json_file_path)
     emotelist = twitch_emotes_json['emoticon_sets']['0']
 
@@ -169,7 +173,7 @@ def setup_common_data_for_bots():
             pass
 
     # global BTTV emotes
-    json_file_path = common_API_json_data_path.format("global_bttv_emote.json")
+    json_file_path = common_API_json_data_path.format(GLOBAL_BTTV_EMOTE_JSON_FILE_NAME)
     global_bttv_emote_json = load_JSON_then_save_file(GLOBAL_BTTVEMOTES_API, json_file_path)
     emotelist = global_bttv_emote_json['emotes']
 
@@ -178,12 +182,12 @@ def setup_common_data_for_bots():
         data["global_bttvemotes"].append(emote)
 
     # Get all HS cards
-    json_file_path = common_API_json_data_path.format("hs_card.json")
+    json_file_path = common_API_json_data_path.format(HS_CARD_JSON_FILE_NAME)
     cards_json = load_JSON_then_save_file(HEARTHSTONE_CARD_API, json_file_path)
     data["cards"] = cards_json
 
     # Get emojis
-    json_file_path = common_API_json_data_path.format("emoji.json")
+    json_file_path = common_API_json_data_path.format(EMOJI_JSON_FILE_NAME)
     emojis_json = load_JSON_then_save_file(EMOJI_API, json_file_path)
 
     for e in emojis_json:

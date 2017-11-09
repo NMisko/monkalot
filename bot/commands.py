@@ -149,7 +149,7 @@ class SimpleReply(Command):
 
     def __init__(self, bot):
         """Load command list."""
-        with open(REPLIES_FILE.format(bot.root)) as fp:
+        with open(REPLIES_FILE.format(bot.root), "r", encoding="utf-8") as fp:
             self.replies = json.load(fp)
 
     def match(self, bot, user, msg):
@@ -395,7 +395,7 @@ class EditCommandList(Command):
     def __init__(self, bot):
         """Load command list."""
         self.responses = {}
-        with open(REPLIES_FILE.format(bot.root)) as file:
+        with open(REPLIES_FILE.format(bot.root), "r", encoding="utf-8") as file:
             self.replies = json.load(file)
 
     def addcommand(self, bot, cmd):

@@ -27,26 +27,29 @@ CUSTOM_RESPONSES_PATH = '{}configs/responses.json'
 TEMPLATE_RESPONSES_PATH = 'channels/template/configs/responses.json'
 
 JSON_DATA_PATH = '{}api_json_data/{}'
+CHANNEL_BTTV_EMOTE_JSON_FILE_NAME = 'channel_bttv.json'
 
 class TwitchBot():
     """TwitchBot extends the IRCClient to interact with Twitch.tv."""
 
-    trusted_mods_path = TRUSTED_MODS_PATH
-    pronouns_path = PRONOUNS_PATH
-
-    host_target = False
-    pause = True
-    commands = []
-    gameRunning = False
-    antispeech = False   # if a command gets executed which conflicts with native speech
-    pyramidBlock = False
-
-    # This needs to be set, in order for the bot to be able to answer
-    irc = None
-
     def __init__(self, root, common_data):
         """Initialize bot."""
         self.root = root
+
+        # other instance variables
+        self.trusted_mods_path = TRUSTED_MODS_PATH
+        self.pronouns_path = PRONOUNS_PATH
+
+        self.host_target = False
+        self.pause = False
+        self.commands = []
+        self.gameRunning = False
+        self.antispeech = False   # if a command gets executed which conflicts with native speech
+        self.pyramidBlock = False
+
+        # This needs to be set, in order for the bot to be able to answer
+        # Currently value is given in signedOn() in multibot_irc_cilent
+        # self.irc = None
 
         # user related:
         # We get these user data from userState()
@@ -77,7 +80,7 @@ class TwitchBot():
 
         # On first start, get channel_BTTV-emotelist
         bttv_channel_emote_url = CHANNEL_BTTVEMOTES_API.format(self.channel[1:])
-        bttv_channel_json_path = JSON_DATA_PATH.format(self.root, "channel_bttv.json")
+        bttv_channel_json_path = JSON_DATA_PATH.format(self.root, CHANNEL_BTTV_EMOTE_JSON_FILE_NAME)
 
         # Have to add fail safe return object since it returns 404 (don't have BTTV in my channel)
         global_bttv_emote_json = load_JSON_then_save_file(bttv_channel_emote_url, bttv_channel_json_path, fail_safe_return_object={})
