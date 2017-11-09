@@ -13,6 +13,8 @@ import time
 import copy
 from importlib import reload
 from bot.json_helper import load_JSON_then_save_file
+from bot.user_helper import sanitizeUserName
+from requests import RequestException
 
 USERLIST_API = "http://tmi.twitch.tv/group/user/{}/chatters"
 CHANNEL_BTTVEMOTES_API = "https://api.betterttv.net/2/channels/{}"
@@ -24,27 +26,30 @@ CONFIG_PATH = '{}configs/bot_config.json'
 CUSTOM_RESPONSES_PATH = '{}configs/responses.json'
 TEMPLATE_RESPONSES_PATH = 'channels/template/configs/responses.json'
 
-JSON_DATA_PATH = '{}api_json_data/{}'
+JSON_DATA_PATH = '{}data/api_json_data/{}'
+CHANNEL_BTTV_EMOTE_JSON_FILE_NAME = 'channel_bttv.json'
 
 class TwitchBot():
     """TwitchBot extends the IRCClient to interact with Twitch.tv."""
 
-    trusted_mods_path = TRUSTED_MODS_PATH
-    pronouns_path = PRONOUNS_PATH
-
-    host_target = False
-    pause = True
-    commands = []
-    gameRunning = False
-    antispeech = False   # if a command gets executed which conflicts with native speech
-    pyramidBlock = False
-
-    # This needs to be set, in order for the bot to be able to answer
-    irc = None
-
     def __init__(self, root, common_data):
         """Initialize bot."""
         self.root = root
+
+        # other instance variables
+        self.trusted_mods_path = TRUSTED_MODS_PATH
+        self.pronouns_path = PRONOUNS_PATH
+
+        self.host_target = False
+        self.pause = False
+        self.commands = []
+        self.gameRunning = False
+        self.antispeech = False   # if a command gets executed which conflicts with native speech
+        self.pyramidBlock = False
+
+        # This needs to be set, in order for the bot to be able to answer
+        # Currently value is given in signedOn() in multibot_irc_cilent
+        # self.irc = None
 
         # user related:
         # We get these user data from userState()
@@ -75,7 +80,7 @@ class TwitchBot():
 
         # On first start, get channel_BTTV-emotelist
         bttv_channel_emote_url = CHANNEL_BTTVEMOTES_API.format(self.channel[1:])
-        bttv_channel_json_path = JSON_DATA_PATH.format(self.root, "channel_bttv.json")
+        bttv_channel_json_path = JSON_DATA_PATH.format(self.root, CHANNEL_BTTV_EMOTE_JSON_FILE_NAME)
 
         # Have to add fail safe return object since it returns 404 (don't have BTTV in my channel)
         global_bttv_emote_json = load_JSON_then_save_file(bttv_channel_emote_url, bttv_channel_json_path, fail_safe_return_object={})
@@ -189,11 +194,11 @@ class TwitchBot():
         # so we have to get them from lineReceived() -> manually called userState() to parse the tags.
         # Also I don't want to crash the original PRIVMSG() functions by modifing them
 
-        twitch_user_tag = prefix.split("!")[0]
+        twitch_user_tag = prefix.split("!")[0] # also known as login id
         twitch_user_id = tags["user-id"]
         display_name = tags["display-name"]
 
-        name = twitch_user_tag
+        name = sanitizeUserName(twitch_user_tag)
 
         self.userNametoID[name] = twitch_user_id
         self.userNametoDisplayName[name] = display_name
@@ -398,12 +403,20 @@ class TwitchBot():
 
     def displayName(self, username):
         """Get the proper capitalization of a twitch user."""
-        if username in self.userNametoDisplayName:
-            return self.userNametoDisplayName[username]
+        u_name = sanitizeUserName(username)
+
+        if u_name in self.userNametoDisplayName:
+            return self.userNametoDisplayName[u_name]
         else:
-            # or just return username instead
-            logging.info("User data not in cache when trying to access user display name: user tag {}".format(username))
-            return self.getuserTag(username)["users"][0]["display_name"]
+            try:
+                logging.info("User data not in cache when trying to access user display name, user tag is {}".format(username))
+                name = self.getuserTag(u_name)["users"][0]["display_name"]
+                # save the record as well
+                self.userNametoDisplayName[username] = name
+                return name
+            except (RequestException, IndexError, KeyError) as e:
+                logging.info("Cannot get user info from API call, have to return username directly")
+                return username
 
     def getuserTag(self, username):
         """Get the full data of user from username."""
@@ -411,17 +424,41 @@ class TwitchBot():
         headers = {'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': self.clientID, 'Authorization': self.password}
 
         try:
-            return requests.get(url, headers=headers).json()
-        except (IndexError, KeyError):
+            r = requests.get(url, headers=headers)
+            r.raise_for_status()
+            return r.json()
+        except RequestException as e:
+            # 4xx/5xx errors from server
+            logging.error("Server-side error from getting user data, status code is {}".format(r.status_code))
+            logging.error("Error message from twitch's JSON {} ".format(r.json()))
             logging.error(traceback.format_exc())
+            raise e
+
+        except ValueError as e:
+            # likely can't parse JSON
+            logging.error("Error in getting user tag JSON, status code is {}".format(r.status_code))
+            logging.error(traceback.format_exc())
+            raise e
 
     def getuserID(self, username):
         """Get the twitch id (numbers) from username."""
-        if username in self.userNametoID:
-            return self.userNametoID[username]
+        u_name = sanitizeUserName(username)
+
+        if u_name in self.userNametoID:
+            return self.userNametoID[u_name]
         else:
-            logging.info("User data not in cache when trying to access user ID: user tag {}".format(username))
-            return self.getuserTag(username)["users"][0]["_id"]
+            logging.info("User data not in cache when trying to access user ID. User tag {}".format(username))
+
+            try:
+                id = self.getuserTag(username)["users"][0]["_id"]
+
+                # save id in cache as well
+                self.userNametoID[username] = id
+                return id
+
+            except (RequestException, IndexError, KeyError) as e:
+                logging.info("Cannot get user info from API call, can't get user ID of {}".format(username))
+                raise e
 
     def getuserEmotes(self, userID):
         """Get the emotes a user can use from userID without the global emoticons."""
