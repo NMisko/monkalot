@@ -16,18 +16,9 @@ from bot.utilities.json_helper import load_JSON_then_save_file
 from bot.utilities.permission import Permission
 from bot.utilities.user_helper import sanitizeUserName
 
-USERLIST_API = "http://tmi.twitch.tv/group/user/{}/chatters"
-CHANNEL_BTTVEMOTES_API = "https://api.betterttv.net/2/channels/{}"
-
-TRUSTED_MODS_PATH = '{}data/trusted_mods.json'
-IGNORED_USERS_PATH = '{}data/ignored_users.json'
-PRONOUNS_PATH = '{}data/pronouns.json'
-CONFIG_PATH = '{}configs/bot_config.json'
-CUSTOM_RESPONSES_PATH = '{}configs/responses.json'
-TEMPLATE_RESPONSES_PATH = 'channels/template/configs/responses.json'
-
-JSON_DATA_PATH = '{}data/api_json_data/{}'
-CHANNEL_BTTV_EMOTE_JSON_FILE_NAME = 'channel_bttv.json'
+from bot.paths import (TRUSTED_MODS_PATH, IGNORED_USERS_PATH, PRONOUNS_PATH, CONFIG_PATH, CUSTOM_RESPONSES_PATH,
+                       TEMPLATE_RESPONSES_PATH, JSON_DATA_PATH, CHANNEL_BTTV_EMOTE_JSON_FILE)
+from bot.paths import USERLIST_API, CHANNEL_BTTVEMOTES_API, USER_NAME_API, USER_EMOTE_API, CHANNEL_API, STREAMS_API
 
 
 class TwitchBot():
@@ -81,7 +72,7 @@ class TwitchBot():
 
         # On first start, get channel_BTTV-emotelist
         bttv_channel_emote_url = CHANNEL_BTTVEMOTES_API.format(self.channel[1:])
-        bttv_channel_json_path = JSON_DATA_PATH.format(self.root, CHANNEL_BTTV_EMOTE_JSON_FILE_NAME)
+        bttv_channel_json_path = JSON_DATA_PATH.format(self.root, CHANNEL_BTTV_EMOTE_JSON_FILE)
 
         # Have to add fail safe return object since it returns 404 (don't have BTTV in my channel)
         global_bttv_emote_json = load_JSON_then_save_file(bttv_channel_emote_url, bttv_channel_json_path, fail_safe_return_object={})
@@ -381,7 +372,7 @@ class TwitchBot():
 
     def getuserTag(self, username):
         """Get the full data of user from username."""
-        url = "https://api.twitch.tv/kraken/users?login=" + username
+        url = USER_NAME_API.format(username)
         headers = {'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': self.clientID, 'Authorization': self.password}
 
         try:
@@ -423,7 +414,7 @@ class TwitchBot():
 
     def getuserEmotes(self, userID):
         """Get the emotes a user can use from userID without the global emoticons."""
-        url = "https://api.twitch.tv/kraken/users/{}/emotes".format(userID)
+        url = USER_EMOTE_API.format(userID)
         headers = {'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': self.clientID, 'Authorization': self.password}
         data = requests.get(url, headers=headers).json()
         try:
@@ -447,7 +438,7 @@ class TwitchBot():
 
     def getChannel(self, channelID):
         """Get the channel object from channelID."""
-        url = "https://api.twitch.tv/kraken/channels/" + channelID
+        url = CHANNEL_API.format(channelID)
         headers = {'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': self.clientID, 'Authorization': self.password}
 
         try:
@@ -458,7 +449,7 @@ class TwitchBot():
 
     def getStream(self, channelID):
         """Get the channel object from channelID."""
-        url = "https://api.twitch.tv/kraken/streams/" + channelID
+        url = STREAMS_API.format(channelID)
         headers = {'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': self.clientID, 'Authorization': self.password}
 
         try:

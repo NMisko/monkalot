@@ -2,15 +2,15 @@
 import json
 import logging
 import os
+import requests
 import threading
 import urllib.parse
 
-import requests
+from bottle import ServerAdapter, abort, request, route, run
 from jwcrypto import jwk, jws, jwt
 
-from bottle import ServerAdapter, abort, request, route, run
-
-CONFIG_PATH = '{}configs/bot_config.json'
+from bot.paths import CONFIG_PATH
+from bot.paths import OIDC_API, USER_ID_API
 
 
 class StoppableWSGIRefServer(ServerAdapter):
@@ -281,7 +281,7 @@ class WebAPI(object):
 
     def getUserNameAndVerifyToken(auth):
         """Verify id_token and returns the username."""
-        r = requests.get('https://api.twitch.tv/api/oidc/keys')
+        r = requests.get(OIDC_API)
         if r.status_code != 200:
             abort(503, "Cannot reach twitch api.")
 
@@ -302,7 +302,7 @@ class WebAPI(object):
 
         # Get username for id
         headers = {'Client-id': clientID, 'Accept': 'application/vnd.twitchtv.v5+json'}
-        r = requests.get('https://api.twitch.tv/kraken/users/{}'.format(user_id), headers=headers)
+        r = requests.get(USER_ID_API.format(user_id), headers=headers)
         if r.status_code != 200:
             abort(503, "Cannot reach twitch api.")
 

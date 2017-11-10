@@ -3,8 +3,7 @@ import json
 import logging
 import time
 from collections import deque
-
-STATISTIC_FILE = '{}data/emote_stats.json'
+from bot.paths import STATISTIC_FILE
 
 
 class EmoteCounter(object):

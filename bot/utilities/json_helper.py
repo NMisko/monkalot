@@ -5,10 +5,9 @@ import logging
 import json
 from datetime import datetime
 
-DEFAULT_VALID_DURATION = 21600  # 6 hrs in secs
-common_API_json_data_path = "data/common_api_json_data/{}"
-JSON_FILE_INDEX_PATH = common_API_json_data_path.format("json_index.json")
+from bot.paths import COMMON_API_JSON_DATA_PATH, JSON_FILE_INDEX_PATH
 
+DEFAULT_VALID_DURATION = 21600  # 6 hrs in secs
 # not sure if they are thread-safe or not
 
 
@@ -164,7 +163,7 @@ def setup_common_data_for_bots():
     data["emojis"] = []
 
     # Twitch emotes
-    json_file_path = common_API_json_data_path.format(TWITCH_EMOTE_JSON_FILE_NAME)
+    json_file_path = COMMON_API_JSON_DATA_PATH.format(TWITCH_EMOTE_JSON_FILE_NAME)
     twitch_emotes_json = load_JSON_then_save_file(TWITCHEMOTES_API, json_file_path)
     emotelist = twitch_emotes_json['emoticon_sets']['0']
 
@@ -180,7 +179,7 @@ def setup_common_data_for_bots():
             pass
 
     # global BTTV emotes
-    json_file_path = common_API_json_data_path.format(GLOBAL_BTTV_EMOTE_JSON_FILE_NAME)
+    json_file_path = COMMON_API_JSON_DATA_PATH.format(GLOBAL_BTTV_EMOTE_JSON_FILE_NAME)
     global_bttv_emote_json = load_JSON_then_save_file(GLOBAL_BTTVEMOTES_API, json_file_path)
     emotelist = global_bttv_emote_json['emotes']
 
@@ -189,12 +188,12 @@ def setup_common_data_for_bots():
         data["global_bttvemotes"].append(emote)
 
     # Get all HS cards
-    json_file_path = common_API_json_data_path.format(HS_CARD_JSON_FILE_NAME)
+    json_file_path = COMMON_API_JSON_DATA_PATH.format(HS_CARD_JSON_FILE_NAME)
     cards_json = load_JSON_then_save_file(HEARTHSTONE_CARD_API, json_file_path)
     data["cards"] = cards_json
 
     # Get emojis
-    json_file_path = common_API_json_data_path.format(EMOJI_JSON_FILE_NAME)
+    json_file_path = COMMON_API_JSON_DATA_PATH.format(EMOJI_JSON_FILE_NAME)
     emojis_json = load_JSON_then_save_file(EMOJI_API, json_file_path)
 
     for e in emojis_json:

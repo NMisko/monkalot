@@ -4,7 +4,7 @@ import logging
 
 from twisted.words.protocols import irc
 
-CONFIG_PATH = '{}configs/bot_config.json'
+from bot.paths import CONFIG_PATH
 
 
 class MultiBotIRCClient(irc.IRCClient, object):
