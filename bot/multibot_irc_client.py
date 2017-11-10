@@ -1,8 +1,9 @@
 """Module for IRC Client and threaded logging."""
+import json
+import logging
 
 from twisted.words.protocols import irc
-import logging
-import json
+
 CONFIG_PATH = '{}configs/bot_config.json'
 
 

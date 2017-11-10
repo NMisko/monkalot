@@ -1,10 +1,10 @@
 """Commands: "!estart", "!rngestart"."""
 import random
 
-from .command import Command
-from .utilities.permission import Permission
-from .utilities.startgame import startGame
-from .utilities.tools import EmoteListToString
+from bot.commands.command import Command
+from bot.utilities.permission import Permission
+from bot.utilities.startgame import startGame
+from bot.utilities.tools import EmoteListToString
 
 
 class GuessEmoteGame(Command):

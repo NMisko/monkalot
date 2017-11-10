@@ -3,11 +3,12 @@ import random
 
 from twisted.internet import reactor
 
-from .command import Command
+from bot.commands.command import Command
+from bot.utilities.permission import Permission
+from bot.utilities.startgame import startGame
+from bot.utilities.tools import formatList, is_callID_active
+
 from .minigames import MiniGames
-from .utilities.permission import Permission
-from .utilities.startgame import startGame
-from .utilities.tools import formatList, is_callID_active
 
 
 class MonkalotParty(Command):

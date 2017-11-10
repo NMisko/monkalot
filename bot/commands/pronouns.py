@@ -1,8 +1,8 @@
 """Commands: "!g [username] [subjective pronoun] [objective pronoun] [possessive pronoun]"."""
 import json
 
-from .command import Command
-from .utilities.permission import Permission
+from bot.commands.command import Command
+from bot.utilities.permission import Permission
 
 
 class Pronouns(Command):

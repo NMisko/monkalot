@@ -1,7 +1,7 @@
 """Commands: "!rank [username]"."""
-from .command import Command
-from .utilities.permission import Permission
-from .utilities.user_helper import sanitizeUserName
+from bot.commands.command import Command
+from bot.utilities.permission import Permission
+from bot.utilities.user_helper import sanitizeUserName
 
 
 class Rank(Command):

@@ -1,7 +1,7 @@
 """Contains functions to control games."""
 
 import time
-from .permission import Permission
+from bot.utilities.permission import Permission
 
 
 def startGame(bot, user, msg, cmd):

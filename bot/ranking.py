@@ -1,8 +1,7 @@
 """Stores points and ranking for games using a database."""
-
-import sqlite3
-import math
 import json
+import math
+import sqlite3
 
 DATABASE_PATH = "{}data/monkalot.db"
 CONFIG_PATH = "{}configs/bot_config.json"

@@ -1,9 +1,9 @@
 """Commands: "[emote]"."""
 import random
 
-from .command import Command
-from .utilities.permission import Permission
-from .utilities.tools import formatList
+from bot.commands.command import Command
+from bot.utilities.permission import Permission
+from bot.utilities.tools import formatList
 
 
 class Pyramid(Command):

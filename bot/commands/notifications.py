@@ -3,10 +3,10 @@ import json
 
 from twisted.internet import reactor
 
-from .command import Command
-from .paths import NOTIFICATIONS_FILE
-from .utilities.permission import Permission
-from .utilities.tools import is_callID_active
+from bot.commands.command import Command
+from bot.paths import NOTIFICATIONS_FILE
+from bot.utilities.permission import Permission
+from bot.utilities.tools import is_callID_active
 
 
 class Notifications(Command):

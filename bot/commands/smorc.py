@@ -2,9 +2,9 @@
 import json
 import random
 
-from .command import Command
-from .paths import SMORC_FILE
-from .utilities.permission import Permission
+from bot.commands.command import Command
+from bot.paths import SMORC_FILE
+from bot.utilities.permission import Permission
 
 
 class Smorc(Command):

@@ -1,6 +1,6 @@
 """Commands:."""
-from .command import Command
-from .utilities.permission import Permission
+from bot.commands.command import Command
+from bot.utilities.permission import Permission
 
 
 class Spam(Command):

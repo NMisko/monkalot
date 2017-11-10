@@ -4,8 +4,8 @@ import random
 from cleverwrap import CleverWrap
 from twisted.internet import reactor
 
-from .command import Command
-from .utilities.permission import Permission
+from bot.commands.command import Command
+from bot.utilities.permission import Permission
 
 
 class Speech(Command):

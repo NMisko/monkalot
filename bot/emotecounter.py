@@ -1,8 +1,9 @@
 """Class that counts the emotes from chat messages."""
-from collections import deque
+import json
 import logging
 import time
-import json
+from collections import deque
+
 STATISTIC_FILE = '{}data/emote_stats.json'
 
 

@@ -1,5 +1,5 @@
 """Contains base command class."""
-from .utilities.permission import Permission
+from bot.utilities.permission import Permission
 
 
 class Command(object):

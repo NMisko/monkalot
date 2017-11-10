@@ -1,7 +1,8 @@
 """Commands: "what's/whats/what is XXXXX"."""
+from bot.commands.command import Command
+from bot.utilities.permission import Permission
+
 from .calculator import Calculator
-from .command import Command
-from .utilities.permission import Permission
 
 
 class Questions(Command):

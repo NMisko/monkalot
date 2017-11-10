@@ -1,10 +1,11 @@
 """Commands: "!calc"."""
 import re
+
 import pyparsing
 
-from .command import Command
-from .utilities.math_parser import NumericStringParser
-from .utilities.permission import Permission
+from bot.commands.command import Command
+from bot.utilities.math_parser import NumericStringParser
+from bot.utilities.permission import Permission
 
 
 class Calculator(Command):

@@ -1,6 +1,6 @@
 """Command which bans users who ask to be banned."""
-from .command import Command
-from .utilities.permission import Permission
+from bot.commands.command import Command
+from bot.utilities.permission import Permission
 
 
 class BanMe(Command):

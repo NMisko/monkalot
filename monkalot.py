@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """Use this to start the bot."""
-
-from twisted.internet import protocol, reactor
-from collections import defaultdict
-
-import time
+import argparse
 import logging
 import logging.config
-import argparse
+import os
+import signal
+import time
+from collections import defaultdict
+
+from twisted.internet import protocol, reactor
+
 from bot.bot import TwitchBot
 from bot.multibot_irc_client import MultiBotIRCClient
-import os
+from bot.utilities.json_helper import setup_common_data_for_bots
 from bot.web import WebAPI
-import signal
-from bot.json_helper import setup_common_data_for_bots
 
 logging.config.fileConfig('config/logging.conf')
 

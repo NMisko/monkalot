@@ -2,9 +2,9 @@
 import json
 import random
 
-from .command import Command
-from .paths import QUOTES_FILE
-from .utilities.permission import Permission
+from bot.commands.command import Command
+from bot.paths import QUOTES_FILE
+from bot.utilities.permission import Permission
 
 
 class outputQuote(Command):

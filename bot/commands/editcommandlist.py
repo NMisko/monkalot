@@ -1,9 +1,9 @@
 """Commands: "!addcommand"."""
 import json
 
-from .command import Command
-from .paths import REPLIES_FILE
-from .utilities.permission import Permission
+from bot.commands.command import Command
+from bot.paths import REPLIES_FILE
+from bot.utilities.permission import Permission
 
 
 class EditCommandList(Command):

@@ -1,20 +1,20 @@
 """Module for Twitch bot and threaded logging."""
-
 import copy
 import json
 import logging
 import time
 import traceback
 from collections import defaultdict
-from bot.commands.utilities.permission import Permission
+
+import requests
+from requests import RequestException
 
 import bot.commands
 import bot.emotecounter
 import bot.ranking
-import requests
-from bot.json_helper import load_JSON_then_save_file
-from bot.commands.utilities.user_helper import sanitizeUserName
-from requests import RequestException
+from bot.utilities.json_helper import load_JSON_then_save_file
+from bot.utilities.permission import Permission
+from bot.utilities.user_helper import sanitizeUserName
 
 USERLIST_API = "http://tmi.twitch.tv/group/user/{}/chatters"
 CHANNEL_BTTVEMOTES_API = "https://api.betterttv.net/2/channels/{}"

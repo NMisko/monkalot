@@ -1,9 +1,9 @@
 """Commands: "!fps", "!uptime", "!bttv"."""
 from datetime import datetime
 
-from .command import Command
-from .utilities.permission import Permission
-from .utilities.tools import EmoteListToString, TwitchTime2datetime
+from bot.commands.command import Command
+from bot.utilities.permission import Permission
+from bot.utilities.tools import EmoteListToString, TwitchTime2datetime
 
 
 class StreamInfo(Command):

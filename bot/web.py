@@ -1,14 +1,14 @@
 """Allows to control the bot via REST calls."""
-
 import json
 import logging
 import os
 import threading
-import requests
 import urllib.parse
 
+import requests
+from jwcrypto import jwk, jws, jwt
+
 from bottle import ServerAdapter, abort, request, route, run
-from jwcrypto import jwk, jwt, jws
 
 CONFIG_PATH = '{}configs/bot_config.json'
 
