@@ -129,6 +129,7 @@ def db_migrate_finish(db_path):
             print("db migrate for {} is finished".format(db_path))
             print("You can remove tables 'viewer_name', 'points_backup2' and 'point_backup' once you confirm everything is fine.")
             print("You can uncomment the line of db_cleanup() while commenting out db_migrate() and db_migrate_finish() in loop of start_db_migrate() to do this")
+            print("\n")
     except sqlite3.Error as e:
         print("DB error when trying to finish db migrate in {}".format(db_path))
         print(e.args[0])
