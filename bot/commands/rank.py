@@ -5,6 +5,7 @@ from bot.utilities.user_helper import sanitizeUserName
 
 from bot.error_classes import UserNotFoundError
 
+
 class Rank(Command):
     """Get rank of a user."""
 

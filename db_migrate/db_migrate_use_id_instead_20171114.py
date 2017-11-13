@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 import sqlite3
 import requests
-import json
 import os
 from time import sleep
 
 MIN_POINTS = 100
 INVALID_VALUE = "FILL IN PLZ"
 CLIENT_ID = INVALID_VALUE
-OAuthKey  = INVALID_VALUE
+OAuthKey = INVALID_VALUE
 
 # SQL to check final result -- won't be used in this program
 SQL_FOR_CHECKING_RESULT = r"""
@@ -17,6 +16,7 @@ SQL_FOR_CHECKING_RESULT = r"""
     ON viewer_name.viewer_id = points.viewer_id
     ORDER BY amount DESC
 """
+
 
 def remove_entry_in_old_table(db_path, login_id):
     tuple_for_delete = (login_id, )
@@ -37,6 +37,7 @@ def remove_entry_in_old_table(db_path, login_id):
         print("DB error when trying to delete {}'s entry in {}".format(login_id, db_path))
         print(e.args[0])
         raise e
+
 
 def add_to_display(db_path, id, login_name):
     sql_insert_command = r"""
@@ -68,6 +69,7 @@ def add_entry(db_path, id, points):
         print("DB error when inserting entries to db (points) in {}, id and login name is: {}, {}".format(db_path, id, points))
         print(e.args[0])
         raise e
+
 
 def db_setup(db_path):
     # create 2 backup tables
@@ -102,6 +104,7 @@ def db_setup(db_path):
         print(e.args[0])
         raise e
 
+
 def db_cleanup(db_path):
     sql_drop_command = r"""
         DROP TABLE viewer_name;
@@ -115,6 +118,7 @@ def db_cleanup(db_path):
         print("DB error when cleaning up for db in {}".format(db_path))
         print(e.args[0])
         raise e
+
 
 def db_migrate_finish(db_path):
     sql_copy_and_drop_command = r"""
@@ -134,6 +138,7 @@ def db_migrate_finish(db_path):
         print("DB error when trying to finish db migrate in {}".format(db_path))
         print(e.args[0])
         raise e
+
 
 def get_logins_ids(db_path, min_points=MIN_POINTS):
     sql_select_command = r"""
@@ -155,6 +160,7 @@ def get_logins_ids(db_path, min_points=MIN_POINTS):
         print(e.args[0])
         raise e
 
+
 def fetch_user_data(url_params):
     url_prefix = "https://api.twitch.tv/kraken/users?login="
     full_url = url_prefix + url_params
@@ -164,6 +170,7 @@ def fetch_user_data(url_params):
     data = requests.get(full_url, headers=headers).json()
 
     return data
+
 
 def fetch_ids_from_login_ids(login_ids_and_points):
     # create a dict of user to tuble of points and ids, after fetching data
@@ -183,9 +190,10 @@ def fetch_ids_from_login_ids(login_ids_and_points):
 
     for u in users:
         login_id = u["name"].lower()
-        display_name_to_result[login_id] = (display_id_to_points[login_id] ,  int(u["_id"]))
+        display_name_to_result[login_id] = (display_id_to_points[login_id], int(u["_id"]))
 
     return display_name_to_result
+
 
 def update_db(db_path, login_id, points, user_id):
     # NOTE: Should actually make all these 3 SQL statement atomic -- execute and save all 3, or do nothing at all
@@ -196,13 +204,14 @@ def update_db(db_path, login_id, points, user_id):
 
     remove_entry_in_old_table(db_path, login_id)
 
+
 def db_migrate(db_path):
     print("Start db migrate in {}".format(db_path))
 
     db_setup(db_path)
 
     # NOTE: Should really use pagination if our data is big
-    login_ids_and_points = get_logins_ids(db_path) # list of tuples of (login name, points)
+    login_ids_and_points = get_logins_ids(db_path)  # list of tuples of (login name, points)
 
     # fetch ids from login name
     AMOUNT_TO_FETCH = 100
@@ -215,7 +224,7 @@ def db_migrate(db_path):
         dict_of_login_id_to_result = fetch_ids_from_login_ids(login_ids_and_points[start:end])
 
         for login_id, tuble_of_result in dict_of_login_id_to_result.items():
-            points  = tuble_of_result[0]
+            points = tuble_of_result[0]
             user_id = tuble_of_result[1]
             # update single entry
             update_db(db_path, login_id, points, user_id)
@@ -224,6 +233,7 @@ def db_migrate(db_path):
 
         # sleep to prevent hammering Twitch server
         sleep(60)
+
 
 def start_db_migrate():
     CHANNELS_DIR = "../channels"
