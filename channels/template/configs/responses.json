@@ -530,11 +530,11 @@
             "info": "Display message when plebs want to got banned",
             "args_info": {}
         },
-		"fail": {
-			"msg": "DansGame",
-			"info": "Display message when mods want to got banned",
-			"args_info": {}
-		}
+        "fail": {
+            "msg": "DansGame",
+            "info": "Display message when mods want to got banned",
+            "args_info": {}
+        }
     },
     "startGame": {
         "points_needed": {
