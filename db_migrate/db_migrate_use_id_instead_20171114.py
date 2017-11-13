@@ -6,8 +6,9 @@ import os
 from time import sleep
 
 MIN_POINTS = 100
-CLIENT_ID = "FILL IN PLZ"
-OAuthKey  = "FILL IN PLZ"
+INVALID_VALUE = "FILL IN PLZ"
+CLIENT_ID = INVALID_VALUE
+OAuthKey  = INVALID_VALUE
 
 # SQL to check final result -- won't be used in this program
 SQL_FOR_CHECKING_RESULT = r"""
@@ -101,6 +102,20 @@ def db_setup(db_path):
         print(e.args[0])
         raise e
 
+def db_cleanup(db_path):
+    sql_drop_command = r"""
+        DROP TABLE viewer_name;
+        DROP TABLE points_backup2;
+        DROP TABLE points_backup;
+    """
+    try:
+        with sqlite3.connect(db_path) as connection:
+            connection.executescript(sql_drop_command)
+    except sqlite3.Error as e:
+        print("DB error when cleaning up for db in {}".format(db_path))
+        print(e.args[0])
+        raise e
+
 def db_migrate_finish(db_path):
     sql_copy_and_drop_command = r"""
         DROP TABLE points;
@@ -112,6 +127,8 @@ def db_migrate_finish(db_path):
         with sqlite3.connect(db_path) as connection:
             connection.executescript(sql_copy_and_drop_command)
             print("db migrate for {} is finished".format(db_path))
+            print("You can remove tables 'viewer_name', 'points_backup2' and 'point_backup' once you confirm everything is fine.")
+            print("You can uncomment the line of db_cleanup() while commenting out db_migrate() and db_migrate_finish() in loop of start_db_migrate() to do this")
     except sqlite3.Error as e:
         print("DB error when trying to finish db migrate in {}".format(db_path))
         print(e.args[0])
@@ -222,8 +239,12 @@ def start_db_migrate():
 
         db_migrate(db_path)
         db_migrate_finish(db_path)
+        # db_cleanup(db_path)
 
 
 if __name__ == "__main__":
+    if CLIENT_ID == INVALID_VALUE or OAuthKey == INVALID_VALUE:
+        raise ValueError("You forget to fill in the values related to Twitch API calls")
+
     start_db_migrate()
     print("End of db migrate")
