@@ -77,7 +77,7 @@ class JSONHelper(object):
 
     def saveJSON(self):
         with open(self._path, 'w', encoding="utf-8") as file:
-            json.dump(self._jObj, file, indent=4)
+            json.dump(self._jObj, file, ensure_ascii=False, indent=4)
 
         # reload JSON object, not sure if really needed or not
         self.loadJSON()
@@ -183,8 +183,8 @@ if __name__ == "__main__":
     parser.add_argument('path',
             type=str,
             nargs='?',
-            #default=r'..\channels\template\configs\responses.json',
-            default=r'test.json',
+            default=r'..\channels\template\configs\responses.json',
+            #default=r'test.json',
             help='path to the .json file you want to edit'
     )
 
