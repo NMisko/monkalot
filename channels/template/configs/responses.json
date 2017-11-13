@@ -498,6 +498,11 @@
                 "<RANK>": "Rank of the user.",
                 "<POINTS>": "Points of the user."
             }
+        },
+        "user_not_found": {
+            "msg": "Can't find that user DansGame",
+            "info": "Message for !rank then input a person that can't be found",
+            "args_info": {}
         }
     },
     "TopSpammers": {
