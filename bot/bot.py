@@ -12,13 +12,14 @@ from requests import RequestException
 import bot.commands
 import bot.emotecounter
 import bot.ranking
+from bot.error_classes import UserNotFoundError
 from bot.utilities.json_helper import load_JSON_then_save_file
 from bot.utilities.permission import Permission
 from bot.utilities.user_helper import sanitizeUserName
 
 from bot.paths import (TRUSTED_MODS_PATH, IGNORED_USERS_PATH, PRONOUNS_PATH, CONFIG_PATH, CUSTOM_RESPONSES_PATH,
                        TEMPLATE_RESPONSES_PATH, JSON_DATA_PATH, CHANNEL_BTTV_EMOTE_JSON_FILE)
-from bot.paths import USERLIST_API, CHANNEL_BTTVEMOTES_API, USER_NAME_API, USER_EMOTE_API, CHANNEL_API, STREAMS_API
+from bot.paths import USERLIST_API, CHANNEL_BTTVEMOTES_API, USER_NAME_API, USER_ID_API, USER_EMOTE_API, CHANNEL_API, STREAMS_API
 
 
 class TwitchBot():
@@ -43,12 +44,11 @@ class TwitchBot():
         # Currently value is given in signedOn() in multibot_irc_cilent
         # self.irc = None
 
-        # user related:
-        # We get these user data from userState()
-        self.userNametoID = {}
-        self.userNametoDisplayName = {}
+        # user cache related:
+        self.setupCache()
 
         self.reloadConfig()
+
         self.ranking = bot.ranking.Ranking(self)
 
         with open(TRUSTED_MODS_PATH.format(self.root)) as fp:
@@ -133,6 +133,14 @@ class TwitchBot():
         self.nickname = str(CONFIG['username'])
         self.clientID = str(CONFIG['clientID'])
         self.password = str(CONFIG['oauth_key'])
+        # Not really part of config, but getuserID() will need this, so we use this hacky way to put it here
+
+        self.TWITCH_API_COMMON_HEADERS = {
+            'Accept': 'application/vnd.twitchtv.v5+json',
+            'Client-ID': self.clientID,
+            'Authorization': self.password
+        }
+
         self.cleverbot_key = str(CONFIG['cleverbot_key'])
         self.channel = "#" + str(CONFIG['channel'])
         self.channelID = self.getuserID(str(CONFIG['channel']))
@@ -191,8 +199,7 @@ class TwitchBot():
 
         name = sanitizeUserName(twitch_user_tag)
 
-        self.userNametoID[name] = twitch_user_id
-        self.userNametoDisplayName[name] = display_name
+        self.updateCacheData(name, display_name, twitch_user_id)
 
         if 'subscriber' in tags:
             if tags['subscriber'] == '1':
@@ -370,27 +377,54 @@ class TwitchBot():
                 logging.info("Cannot get user info from API call, have to return username directly")
                 return username
 
-    def getuserTag(self, username):
-        """Get the full data of user from username."""
-        url = USER_NAME_API.format(username)
-        headers = {'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': self.clientID, 'Authorization': self.password}
+    def setupCache(self):
+        # We get these user data from userState(), or API calls
+        self.userNametoID = {}
+        self.userNametoDisplayName = {}
+        self.IDtoDisplayName = {}
+        self.displayNameToUserName = {}
 
+    def updateCacheData(self, login_id, display_name, id):
+        self.userNametoDisplayName[login_id] = display_name
+        self.IDtoDisplayName[id] = display_name
+        self.userNametoID[login_id] = id
+        self.displayNameToUserName[display_name] = login_id
+
+    def getJSONObjectFromTwitchAPI(self, url):
         try:
-            r = requests.get(url, headers=headers)
+            r = requests.get(url, headers=self.TWITCH_API_COMMON_HEADERS)
             r.raise_for_status()
             return r.json()
+
         except RequestException as e:
             # 4xx/5xx errors from server
-            logging.error("Server-side error from getting user data, status code is {}".format(r.status_code))
+            logging.error("Twitch server-side error, URL sent is {}, status code is {}".format(url, r.status_code))
             logging.error("Error message from twitch's JSON {} ".format(r.json()))
             logging.error(traceback.format_exc())
             raise e
 
         except ValueError as e:
             # likely can't parse JSON
-            logging.error("Error in getting user tag JSON, status code is {}".format(r.status_code))
+            logging.error("Error in getting user JSON with URL {}, status code is {}".format(url, r.status_code))
             logging.error(traceback.format_exc())
             raise e
+
+    def getUserDataFromID(self, user_id):
+        url = USER_ID_API.format(user_id)
+        data = self.getJSONObjectFromTwitchAPI(url)
+
+        u_name = sanitizeUserName(data["name"])
+        display_name = data["display_name"]
+        id = data["_id"]
+
+        self.updateCacheData(u_name, display_name, id)
+
+        return data
+
+    def getuserTag(self, username):
+        """Get the full data of user from username."""
+        url = USER_NAME_API.format(username)
+        return self.getJSONObjectFromTwitchAPI(url)
 
     def getuserID(self, username):
         """Get the twitch id (numbers) from username."""
@@ -402,27 +436,34 @@ class TwitchBot():
             logging.info("User data not in cache when trying to access user ID. User tag {}".format(username))
 
             try:
-                id = self.getuserTag(username)["users"][0]["_id"]
+                data = self.getuserTag(username)
+                id = data["users"][0]["_id"]
+                display_name = data["users"][0]["display_name"]
 
-                # save id in cache as well
-                self.userNametoID[username] = id
+                # update cache as well
+                self.updateCacheData(u_name, display_name, id)
                 return id
 
-            except (RequestException, IndexError, KeyError) as e:
+            except (ValueError, KeyError) as e:
                 logging.info("Cannot get user info from API call, can't get user ID of {}".format(username))
                 raise e
+
+            except (IndexError, RequestException):
+                logging.info("Seems no such user as {}".format(username))
+                raise UserNotFoundError("No user with login id of {}".format(username))
 
     def getuserEmotes(self, userID):
         """Get the emotes a user can use from userID without the global emoticons."""
         url = USER_EMOTE_API.format(userID)
-        headers = {'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': self.clientID, 'Authorization': self.password}
-        data = requests.get(url, headers=headers).json()
+        data = self.getJSONObjectFromTwitchAPI(url)
+
         try:
             emotelist = data['emoticon_sets']
         except (IndexError, KeyError):
             logging.error(traceback.format_exc())
             print("Error in getting emotes from userID")
 
+        # remove dict contains global emotes
         emotelist.pop('0', None)
         return emotelist
 
@@ -439,10 +480,9 @@ class TwitchBot():
     def getChannel(self, channelID):
         """Get the channel object from channelID."""
         url = CHANNEL_API.format(channelID)
-        headers = {'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': self.clientID, 'Authorization': self.password}
 
         try:
-            return requests.get(url, headers=headers).json()
+            return self.getJSONObjectFromTwitchAPI(url)
         except (IndexError, KeyError):
             logging.error(traceback.format_exc())
             print("Channel object could not be fetched.")
@@ -450,13 +490,19 @@ class TwitchBot():
     def getStream(self, channelID):
         """Get the channel object from channelID."""
         url = STREAMS_API.format(channelID)
-        headers = {'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': self.clientID, 'Authorization': self.password}
 
         try:
-            return requests.get(url, headers=headers).json()
+            return self.getJSONObjectFromTwitchAPI(url)
         except (IndexError, KeyError):
             logging.error(traceback.format_exc())
             print("Stream object could not be fetched.")
+
+    def getDisplayNameFromID(self, user_id):
+        if user_id in self.IDtoDisplayName:
+            return self.IDtoDisplayName[id]
+        else:
+            data = self.getUserDataFromID(user_id)
+            return data["display_name"]
 
     def setlast_plebgame(self, last_plebgame):
         """Set timer of last_plebgame."""
