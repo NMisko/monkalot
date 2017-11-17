@@ -15,8 +15,9 @@ class Ranking():
         self.connection = sqlite3.connect(DATABASE_PATH.format(bot.root))
         sql_create_command = """
             CREATE TABLE IF NOT EXISTS points (
-            username TEXT PRIMARY_KEY,
-            amount INTEGER
+            'viewer_id' INTEGER NOT NULL,
+            'amount'    INTEGER NOT NULL,
+            PRIMARY KEY('viewer_id')
             );
             """
         self.cursor = self.connection.cursor()
@@ -32,19 +33,29 @@ class Ranking():
         self.FACTOR = CONFIG["ranking"]["factor"]
         self.RANKS = CONFIG["ranking"]["ranks"]
 
-    def getPoints(self, username):
-        """Get the points of a user."""
-        sql_command = "SELECT amount FROM points WHERE username = ?;"
-        username = username.lower()
+    def _get_user_id(self, username):
+        return self.bot.getuserID(username)
 
-        cursor, connection = self.executeCommandGetConnection(sql_command, [username])
+    def getPoints(self, username, new_entry=False):
+        """Get the points of a user."""
+        username = username.lower()
+        viewer_id = self._get_user_id(username)
+
+        sql_command = "SELECT amount FROM points WHERE viewer_id = ?;"
+
+        cursor, connection = self.executeCommandGetConnection(sql_command, (viewer_id, ))
         one = cursor.fetchone()
 
         if(one is None):
-            sql_command = "INSERT INTO points (username, amount) VALUES (?, 0);"
-            cursor.execute(sql_command, [username])
-            connection.commit()
             output = 0
+
+            # initialization for user first talking in chat
+            # Currently only expect incrementPoints() to gives the new_entry flag
+            # this way we prevent inserting random entries to db by !rank something
+            if new_entry:
+                sql_command = "INSERT INTO points (viewer_id, amount) VALUES (?, 0);"
+                cursor.execute(sql_command, (viewer_id, ))
+                connection.commit()
         else:
             output = one[0]
 
@@ -58,15 +69,17 @@ class Ranking():
         Check if the user reached legend in the process.
         """
         username = username.lower()
-        points = int(self.getPoints(username))
+        viewer_id = self._get_user_id(username)
+
+        points = int(self.getPoints(username, new_entry=True))
 
         rank = self.getHSRank(points)
         legend = "Legend" in rank
 
         points += amount
 
-        sql_command = "UPDATE points SET amount = ? WHERE username = ?;"
-        self.executeCommand(sql_command, [points, username])
+        sql_command = "UPDATE points SET amount = ? WHERE viewer_id = ?;"
+        self.executeCommand(sql_command, [points, viewer_id])
 
         """Check for legend rank if user was not legend before."""
         if not legend:

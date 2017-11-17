@@ -24,7 +24,7 @@ class TopSpammers(Command):
         result = ""
         if len(ranking) > 0:
             # TODO: use a template string to do this?
-            result = ", ".join(["{}: Rank {}".format(bot.displayName(name), bot.ranking.getHSRank(point)) for (name, point) in ranking])
+            result = ", ".join(["{}: Rank {}".format(bot.getDisplayNameFromID(viewer_id), bot.ranking.getHSRank(point)) for (viewer_id, point) in ranking])
             result += "."
         out += result
         bot.write(out)

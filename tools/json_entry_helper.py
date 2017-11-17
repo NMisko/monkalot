@@ -5,10 +5,11 @@ from collections import OrderedDict
 # WARNING: I don't know what will happen if you edit the JSON file while running this helper script...
 # WARNING2: Improper use or bug due to my carelessness CAN WIPE your file. BACKUP your json files !!!
 
+
 class JSONHelper(object):
     RESPONSES_CONTENT = {
-        "msg" : "Fill in message with <VAR>",
-        "info" : "Fill in info",
+        "msg": "Fill in message with <VAR>",
+        "info": "Fill in info",
         "args_info": {
             "<VAR>": "Fill in variable description"
         }
@@ -29,12 +30,12 @@ class JSONHelper(object):
 
         c = ''
         commands = {
-            's' : self.saveJSON,
-            'd' : self.deleteEntry,
-            'a' : self.addEntry,
-            'au' : self.toggleAutosave,
-            'sa' : self.toggleSafemode,
-            'q' : self.quit
+            's':  self.saveJSON,
+            'd':  self.deleteEntry,
+            'a':  self.addEntry,
+            'au': self.toggleAutosave,
+            'sa': self.toggleSafemode,
+            'q':  self.quit
         }
 
         # main loop here
@@ -44,9 +45,8 @@ class JSONHelper(object):
 
             if c in commands:
                 commands[c]()
-            else :
+            else:
                 print("Invalid command. Please try again")
-
 
     def printInstructions(self):
         print('=' * 50)
@@ -58,7 +58,6 @@ class JSONHelper(object):
             print("Changes on current file is not saved yet")
         print("Current file: {}\n".format(self._path))
         print(r"Enter commands: [S]ave JSON / [D]elete entry / [A]dd entry / Toggle [Au]tosave /  Toggle [Sa]femode / [Q]uit")
-
 
     def toggleAutosave(self):
         # XOR 1 means toggle
@@ -77,7 +76,7 @@ class JSONHelper(object):
 
     def saveJSON(self):
         with open(self._path, 'w', encoding="utf-8") as file:
-            json.dump(self._jObj, file, indent=4)
+            json.dump(self._jObj, file, ensure_ascii=False, indent=4)
 
         # reload JSON object, not sure if really needed or not
         self.loadJSON()
@@ -103,7 +102,7 @@ class JSONHelper(object):
         d = self._jObj
 
         try:
-            for sp in subpaths[ :len(subpaths)-1]:
+            for sp in subpaths[:len(subpaths) - 1]:
                 d = d[sp]
 
             # reach destination successfully, don't know last key is valid or not
@@ -116,7 +115,6 @@ class JSONHelper(object):
 
         except KeyError as ke:
             print("Path cannot be found at {}".format(ke))
-
 
     def addEntry(self):
         # Example:
@@ -143,7 +141,7 @@ class JSONHelper(object):
         # But if subpath is used AND is not a hash, then it is an error in path
 
         try:
-            for sp in subpaths[ :len(subpaths)-1]:
+            for sp in subpaths[:len(subpaths) - 1]:
                 if sp not in d:
                     # create new dict when key not found
                     d[sp] = {}
@@ -175,29 +173,31 @@ class JSONHelper(object):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-            description="Helper for editing .json files.",
-            formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-            allow_abbrev=False
+        description="Helper for editing .json files.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        allow_abbrev=False
     )
 
-    parser.add_argument('path',
-            type=str,
-            nargs='?',
-            #default=r'..\channels\template\configs\responses.json',
-            default=r'test.json',
-            help='path to the .json file you want to edit'
+    parser.add_argument(
+        'path',
+        type=str,
+        nargs='?',
+        default=r'..\channels\template\configs\responses.json',
+        help='path to the .json file you want to edit'
     )
 
-    parser.add_argument('--noautosave',
-            action="store_false",
-            dest='autosave',
-            help='turn off autosave'
+    parser.add_argument(
+        '--noautosave',
+        action="store_false",
+        dest='autosave',
+        help='turn off autosave'
     )
 
-    parser.add_argument('--nosafemode',
-            action="store_false",
-            dest='safemode',
-            help='turn off safemode on creating entries'
+    parser.add_argument(
+        '--nosafemode',
+        action="store_false",
+        dest='safemode',
+        help='turn off safemode on creating entries'
     )
 
     args = parser.parse_args()

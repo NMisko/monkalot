@@ -46,6 +46,7 @@ def check_json_file_expired(filePath, valid_duration):
 def update_json_index_file(filePath):
     """Update an index file."""
     # Use ISO 8601 timestamp
+    # Python >= 3.6 only for timespec option
     current_ts = datetime.now().isoformat(timespec='seconds')
 
     try:
@@ -136,6 +137,13 @@ def load_JSON_then_save_file(url, filePath, valid_duration=DEFAULT_VALID_DURATIO
     except RequestException as e:
         # fail to get JSON from URL, then try to get it from file
         logging.warning("Call reqeust failed, now fallback to load saved JSON")
+        logging.warning(e)
+
+        return load_saved_JSON_file(filePath, fail_safe_return_object)
+
+    except ValueError as e:
+        # Likely to be fail to parse JSON, but have a normal response from server
+        logging.warning("Cannot parse JSON from {}, now fallback to load saved JSON".format(url))
         logging.warning(e)
 
         return load_saved_JSON_file(filePath, fail_safe_return_object)
