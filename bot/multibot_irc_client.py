@@ -90,9 +90,10 @@ class MultiBotIRCClient(irc.IRCClient, object):
         prefix = ''
         trailing = []
         if s[0] == '@':
+            # remove 1st '@', then take everything until the 1st space
             tags_str, s = s[1:].split(' ', 1)
             tag_list = tags_str.split(';')
-            tags = dict(t.split('=') for t in tag_list)
+            tags = self.unescapeTags(dict(t.split('=') for t in tag_list))
         if s[0] == ':':
             prefix, s = s[1:].split(' ', 1)
         if s.find(' :') != -1:
@@ -104,6 +105,25 @@ class MultiBotIRCClient(irc.IRCClient, object):
         command = args.pop(0).lower()
         return tags, prefix, command, args
 
+
+    def unescapeTags(self, tags):
+        # http://ircv3.net/specs/core/message-tags-3.2.html#escaping-values
+        for k,v in tags.items():
+            content = v
+
+            content = content.replace("\:",  ";")
+            content = content.replace("\s:", " ")
+            # \\ -> \
+            content = content.replace("\\\\","\\")
+            # \r -> CR(ASCII:13)
+            content = content.replace("\\r","\r")
+            # \n -> LF(ASCII:10)
+            content = content.replace("\\n","\n")
+
+            tags[k] = content
+
+        return tags
+
     def write(self, channel, msg):
         """Send message to channel and log it."""
         self.msg(channel, msg)
@@ -114,6 +134,8 @@ class MultiBotIRCClient(irc.IRCClient, object):
         line = line.decode("utf-8")
         # First, we check for any custom twitch commands
         tags, prefix, cmd, args = self.parsemsg(line)
+
+        # print("> " + line)
 
         if cmd == "hosttarget":
             self.hostTarget(*args)
