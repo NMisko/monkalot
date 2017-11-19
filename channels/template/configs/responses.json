@@ -1,31 +1,50 @@
 {
-    "jtv_command": {
-        "msg_standard": {
-            "msg": "<3 <USER>, thank you for subbing with <SUBPLAN> Welcome to the channel! <3",
-            "info": "Message that gets posted when a viewer subscribes to the channel for the first time.",
-            "args_info": {
-                "<USER>": "User who subribed to the channel.",
-                "<SUBPLAN>": "Type of subscription (Twitch Prime, 4,99€, etc.)"
-            }
-        },
-        "msg_with_months": {
-            "msg": "PogChamp <USER>, thank you for subbing with <SUBPLAN> Welcome back for <MONTHS> years! PogChamp",
-            "info": "Message that gets posted when a viewer resubscribes to the channel.",
-            "args_info": {
-                "<USER>": "User who resubribed to the channel.",
-                "<SUBPLAN>": "Type of subscription (Twitch Prime, 4,99€, etc.)",
-                "<MONTHS>": "Amount of months the user is subscribed to the channel."
-            }
-        },
-        "subplan": {
-            "msg": {
-                "Prime": "Twitch Prime!! SeemsGood",
-                "1000": "4,99$!! VoHiYo",
-                "2000": "9,99$!! FeelsGoodMan",
-                "3000": "24,99$!! Jebaited"
+    "usernotice": {
+        "sub": {
+            "msg_standard": {
+                "msg": "<3 <USER>, thank you for subbing with <SUBPLAN> Welcome to the channel! <3",
+                "info": "Message that gets posted when a viewer subscribes to the channel for the first time.",
+                "args_info": {
+                    "<USER>": "User who subribed to the channel.",
+                    "<SUBPLAN>": "Type of subscription (Twitch Prime, 4,99€, etc.)"
+                }
             },
-            "info": "Arguments for subscribtion/resubscription messages.",
-            "args_info": ""
+            "msg_with_months": {
+                "msg": "PogChamp <USER>, thank you for subbing with <SUBPLAN> Welcome back for <MONTHS> years! PogChamp",
+                "info": "Message that gets posted when a viewer resubscribes to the channel.",
+                "args_info": {
+                    "<USER>": "User who resubribed to the channel.",
+                    "<SUBPLAN>": "Type of subscription (Twitch Prime, 4,99€, etc.)",
+                    "<MONTHS>": "Amount of months the user is subscribed to the channel."
+                }
+            },
+            "subplan": {
+                "msg": {
+                    "Prime": "Twitch Prime!! SeemsGood",
+                    "1000": "4,99$!! VoHiYo",
+                    "2000": "9,99$!! FeelsGoodMan",
+                    "3000": "24,99$!! Jebaited"
+                },
+                "info": "Arguments for subscribtion/resubscription messages.",
+                "args_info": ""
+            }
+        },
+        "ritual": {
+            "new_chatter": {
+                "msg": "Welcome to the channel VoHiYo <NAME>",
+                "info": "Message for ritual of new viewer",
+                "args_info": {
+                    "<NAME>": "Name of new chatter"
+                }
+            }
+        },
+        "raid": {
+            "msg": "PogChamp <AMOUNT> raiders from <CHANNEL> PogChamp Chat get ready for defense SMOrc",
+            "info": "Message when getting raided",
+            "args_info": {
+                "<AMOUNT>": "Number of raiders",
+                "<CHANNEL>": "Source of raider"
+            }
         }
     },
     "EmoteReply": {

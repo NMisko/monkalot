@@ -105,6 +105,13 @@ class MultiBotIRCClient(irc.IRCClient, object):
         command = args.pop(0).lower()
         return tags, prefix, command, args
 
+    def parseIRCLastLine(self, args):
+        # normal has 2 objects inside only, check the quoted part
+        # :tmi.twitch.tv USERNOTICE '#dallas :Great stream -- keep it up!'
+        channel = args[0]
+        msg = args[-1]
+
+        return channel, msg
 
     def unescapeTags(self, tags):
         # http://ircv3.net/specs/core/message-tags-3.2.html#escaping-values
@@ -149,9 +156,21 @@ class MultiBotIRCClient(irc.IRCClient, object):
         # elif cmd == "whisper":
         # pass
         elif cmd == "usernotice":
+            channel, msg = self.parseIRCLastLine(args)
             for b in MultiBotIRCClient.bots:
-                if b.channel == args[0]:
-                    b.jtv_command(tags)
+                if b.channel == channel:
+                    # https://dev.twitch.tv/docs/irc#usernotice-twitch-tags
+                    # Use 'msg-id' to identify type of action - only sub, resub, raid, ritual currently on 19.11.2017
+                    # another way could be using unique tags for special type of message
+
+                    # pass in msg just in case we need them later
+                    msg_type = tags['msg-id']
+                    if msg_type == 'raid':
+                        b.incomingRaid(tags)
+                    elif msg_type == 'ritual':
+                        b.incomingRitual(tags, msg)
+                    elif msg_type in ['sub', 'resub']:
+                        b.subMessage(tags, msg)
 
         # Remove tag information
         if line[0] == "@":
@@ -167,7 +186,6 @@ class MultiBotIRCClient(irc.IRCClient, object):
         name = prefix.split("!")[0]
         self.tags[name].update(tags)
 
-        # args[0] is "#CHANNELNAME", args[1] is message from user
         channel = args[0]
         for b in MultiBotIRCClient.bots:
             # our bot store channel starting with '#'
