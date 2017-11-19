@@ -115,17 +115,17 @@ class MultiBotIRCClient(irc.IRCClient, object):
 
     def unescapeTags(self, tags):
         # http://ircv3.net/specs/core/message-tags-3.2.html#escaping-values
-        for k,v in tags.items():
+        for k, v in tags.items():
             content = v
 
             content = content.replace("\:",  ";")
             content = content.replace("\s:", " ")
             # \\ -> \
-            content = content.replace("\\\\","\\")
+            content = content.replace("\\\\", "\\")
             # \r -> CR(ASCII:13)
-            content = content.replace("\\r","\r")
+            content = content.replace("\\r", "\r")
             # \n -> LF(ASCII:10)
-            content = content.replace("\\n","\n")
+            content = content.replace("\\n", "\n")
 
             tags[k] = content
 
@@ -159,18 +159,7 @@ class MultiBotIRCClient(irc.IRCClient, object):
             channel, msg = self.parseIRCLastLine(args)
             for b in MultiBotIRCClient.bots:
                 if b.channel == channel:
-                    # https://dev.twitch.tv/docs/irc#usernotice-twitch-tags
-                    # Use 'msg-id' to identify type of action - only sub, resub, raid, ritual currently on 19.11.2017
-                    # another way could be using unique tags for special type of message
-
-                    # pass in msg just in case we need them later
-                    msg_type = tags['msg-id']
-                    if msg_type == 'raid':
-                        b.incomingRaid(tags)
-                    elif msg_type == 'ritual':
-                        b.incomingRitual(tags, msg)
-                    elif msg_type in ['sub', 'resub']:
-                        b.subMessage(tags, msg)
+                    self.handleUSERNOTICE(b, tags, msg)
 
         # Remove tag information
         if line[0] == "@":
@@ -178,6 +167,20 @@ class MultiBotIRCClient(irc.IRCClient, object):
 
         # Then we let IRCClient handle the rest
         super().lineReceived(line)
+
+    def handleUSERNOTICE(self, bot, tags, msg):
+        # https://dev.twitch.tv/docs/irc#usernotice-twitch-tags
+        # Use 'msg-id' to identify type of action - only sub, resub, raid, ritual currently on 19.11.2017
+        # another way could be using unique tags for special type of message
+
+        # pass in msg just in case we need them later
+        msg_type = tags['msg-id']
+        if msg_type == 'raid':
+            bot.incomingRaid(tags)
+        elif msg_type == 'ritual':
+            bot.incomingRitual(tags, msg)
+        elif msg_type in ['sub', 'resub']:
+            bot.subMessage(tags, msg)
 
     def userState(self, prefix, tags, args):
         # NOTE: In Twitch IRC, USERSTATE can be called in 2 ways:

@@ -23,6 +23,7 @@ from bot.paths import USERLIST_API, CHANNEL_BTTVEMOTES_API, USER_NAME_API, USER_
 
 DEFAULT_RAID_ANNOUNCE_THRESHOLD = 15
 
+
 class TwitchBot():
     """TwitchBot extends the IRCClient to interact with Twitch.tv."""
 
@@ -289,7 +290,6 @@ class TwitchBot():
         """Reset antispeech for next command"""
         self.antispeech = False
 
-
     # functions of Twitch customized IRC messages -- check USERNOTICE in multibot_irc_cilent
     def incomingRaid(self, tags):
         """Send a message when channel got raided."""
@@ -306,7 +306,7 @@ class TwitchBot():
             return
 
         responses = self.responses["usernotice"]["raid"]
-        var = {"<AMOUNT>": user, "<CHANNEL>": channel}
+        var = {"<AMOUNT>": amount, "<CHANNEL>": channel}
         reply = self.replace_vars(responses["msg"], var)
 
         self.write(reply)
