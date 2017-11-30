@@ -37,8 +37,8 @@ class EditCommandList(Command):
         else:
             self.replies[entrycmd] = entryarg
 
-            with open(REPLIES_FILE.format(bot.root), 'w') as file:
-                json.dump(self.replies, file, indent=4)
+            with open(REPLIES_FILE.format(bot.root), 'w', encoding="utf-8") as file:
+                json.dump(self.replies, file, indent=4, ensure_ascii=False)
 
             bot.reload_commands()  # Needs to happen to refresh the list.
             var = {"<COMMAND>": entrycmd}
@@ -52,8 +52,8 @@ class EditCommandList(Command):
         if entrycmd in self.replies:
             del self.replies[entrycmd]
 
-            with open(REPLIES_FILE.format(bot.root), 'w') as file:
-                json.dump(self.replies, file, indent=4)
+            with open(REPLIES_FILE.format(bot.root), 'w', encoding="utf-8") as file:
+                json.dump(self.replies, file, indent=4, ensure_ascii=False)
 
             bot.reload_commands()  # Needs to happen to refresh the list.
             var = {"<COMMAND>": entrycmd}

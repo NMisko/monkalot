@@ -281,7 +281,7 @@ class MiniGames(object):
 
     def __init__(self, bot):
         """Initialize mini game structure."""
-        with open(DATA_OBJECT.format(bot.root)) as file:
+        with open(DATA_OBJECT.format(bot.root), "r", encoding="utf-8") as file:
             self.data = json.load(file)
 
         """Reset rankings and games."""
