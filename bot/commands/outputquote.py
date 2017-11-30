@@ -15,7 +15,7 @@ class outputQuote(Command):
     def __init__(self, bot):
         """Load command list."""
         self.responses = {}
-        with open(QUOTES_FILE.format(bot.root)) as file:
+        with open(QUOTES_FILE.format(bot.root), encoding="utf-8") as file:
             self.quotelist = json.load(file)
 
     def match(self, bot, user, msg):

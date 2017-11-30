@@ -27,7 +27,7 @@ class Pronouns(Command):
         args = msg.lower().split(' ')
 
         bot.pronouns[args[1]] = [args[2], args[3], args[4]]
-        with open(bot.pronouns_path.format(bot.root), 'w') as file:
+        with open(bot.pronouns_path.format(bot.root), 'w', encoding="utf-8") as file:
             json.dump(bot.pronouns, file, indent=4)
 
         bot.write(self.responses["pronoun_added"]["msg"])

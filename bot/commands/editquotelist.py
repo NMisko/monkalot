@@ -14,7 +14,7 @@ class editQuoteList(Command):
     def __init__(self, bot):
         """Load command list."""
         self.responses = {}
-        with open(QUOTES_FILE.format(bot.root)) as file:
+        with open(QUOTES_FILE.format(bot.root), encoding="utf-8") as file:
             self.quotelist = json.load(file)
 
     def addquote(self, bot, msg):
@@ -24,7 +24,7 @@ class editQuoteList(Command):
 
         if quote not in self.quotelist:
             self.quotelist.append(quote)
-            with open(QUOTES_FILE.format(bot.root), 'w') as file:
+            with open(QUOTES_FILE.format(bot.root), 'w', encoding="utf-8") as file:
                 json.dump(self.quotelist, file, indent=4)
             bot.reload_commands()  # Needs to happen to refresh the list.
             bot.write(self.responses["quote_added"]["msg"])
@@ -38,7 +38,7 @@ class editQuoteList(Command):
 
         if quote in self.quotelist:
             self.quotelist.remove(quote)
-            with open(QUOTES_FILE.format(bot.root), 'w') as file:
+            with open(QUOTES_FILE.format(bot.root), 'w', encoding="utf-8") as file:
                 json.dump(self.quotelist, file, indent=4)
             bot.reload_commands()  # Needs to happen to refresh the list.
             bot.write(self.responses["quote_removed"]["msg"])

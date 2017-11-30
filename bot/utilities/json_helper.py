@@ -75,7 +75,7 @@ def create_new_json_index_file(key, timeStamp):
     json_index_data[key] = timeStamp
 
     # 'w+' mode truncate current file
-    with open(JSON_FILE_INDEX_PATH, 'w+') as file:
+    with open(JSON_FILE_INDEX_PATH, 'w+', encoding="utf-8") as file:
         json.dump(json_index_data, file, indent=4)
 
 

@@ -95,7 +95,7 @@ class EmoteCounterForBot(EmoteCounter):
 
     def getTotalcount(self, emote):
         """Return the Total count of an emote."""
-        with open(STATISTIC_FILE.format(self.bot.root)) as file:
+        with open(STATISTIC_FILE.format(self.bot.root), encoding="utf-8") as file:
             totalCount = json.load(file)
 
         return totalCount.get(emote, 0)
@@ -113,7 +113,7 @@ class EmoteCounterForBot(EmoteCounter):
         # True when need to create or add new emote to file
         refreshFile = False
         try:
-            with open(STATISTIC_FILE.format(self.bot.root)) as file:
+            with open(STATISTIC_FILE.format(self.bot.root), encoding="utf-8") as file:
                 try:
                     totalData = json.load(file)
                 except ValueError:
@@ -134,7 +134,7 @@ class EmoteCounterForBot(EmoteCounter):
             refreshFile = True
 
         if refreshFile:
-            with open(STATISTIC_FILE.format(self.bot.root), 'w+') as file:
+            with open(STATISTIC_FILE.format(self.bot.root), 'w+', encoding="utf-8") as file:
                 json.dump(totalData, file, indent=4)
 
     def __createEmptyTotalList(self):
@@ -151,13 +151,13 @@ class EmoteCounterForBot(EmoteCounter):
 
     def __updateTotalCount(self, emoteDict):
         """Update the total emote count."""
-        with open(STATISTIC_FILE.format(self.bot.root)) as file:
+        with open(STATISTIC_FILE.format(self.bot.root), encoding="utf-8") as file:
             totalCount = json.load(file)
 
         for emote in emoteDict:
             totalCount[emote] += emoteDict[emote]
 
-        with open(STATISTIC_FILE.format(self.bot.root), 'w') as file:
+        with open(STATISTIC_FILE.format(self.bot.root), 'w', encoding="utf-8") as file:
             json.dump(totalCount, file, indent=4)
 
     def __countEmotes(self, msg):

@@ -51,13 +51,13 @@ class TwitchBot():
 
         self.ranking = bot.ranking.Ranking(self)
 
-        with open(TRUSTED_MODS_PATH.format(self.root)) as fp:
+        with open(TRUSTED_MODS_PATH.format(self.root), encoding="utf-8") as fp:
             self.trusted_mods = json.load(fp)
 
-        with open(IGNORED_USERS_PATH.format(self.root)) as fp:
+        with open(IGNORED_USERS_PATH.format(self.root), encoding="utf-8") as fp:
             self.ignored_users = json.load(fp)
 
-        with open(PRONOUNS_PATH.format(self.root)) as fp:
+        with open(PRONOUNS_PATH.format(self.root), encoding="utf-8") as fp:
             self.pronouns = json.load(fp)
 
         # Get user list, seems better not to cache
@@ -553,7 +553,7 @@ class TwitchBot():
 
     def dumpIgnoredUsersFile(self):
         """Output ignored users file."""
-        with open(IGNORED_USERS_PATH.format(self.root), 'w') as file:
+        with open(IGNORED_USERS_PATH.format(self.root), 'w', encoding="utf-8") as file:
             json.dump(self.ignored_users, file, indent=4)
 
     def write(self, msg):
