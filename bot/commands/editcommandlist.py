@@ -74,7 +74,8 @@ class EditCommandList(Command):
     def match(self, bot, user, msg):
         """Match if !addcommand, !delcommand or !replyList."""
         cmd = msg.lower().strip()
-        return (cmd.startswith("!addcommand ") or cmd.startswith("!delcommand ") or cmd == "!replylist") and user in bot.trusted_mods
+        return (cmd.startswith("!addcommand ") or cmd.startswith("!delcommand ") or cmd == "!replylist") and \
+               (user in bot.trusted_mods or user in bot.owner_list)
 
     def run(self, bot, user, msg):
         """Add or delete command, or print list."""
