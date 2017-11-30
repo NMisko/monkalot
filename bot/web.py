@@ -12,6 +12,13 @@ from jwcrypto import jwk, jws, jwt
 from bot.paths import CONFIG_PATH
 from bot.paths import OIDC_API, USER_ID_API
 
+# Regarding decoding:
+# https://bottlepy.org/docs/dev/tutorial.html#introducing-formsdict
+# >>> request.forms['city'] [or request.forms.get('city')]
+# 'GÃ¶ttingen' # An utf8 string provisionally decoded as ISO-8859-1 by the server
+# >>> request.forms.city
+# 'Göttingen'  # The same string correctly re-encoded as utf8 by bottle
+
 
 class StoppableWSGIRefServer(ServerAdapter):
     """Allows to programmatically shut down bottle server."""
@@ -83,8 +90,8 @@ class WebAPI(object):
     def getBots():
         """Return list of all bots for given user."""
         WebAPI.checkIfFormExists(['user', 'auth'])
-        username = urllib.parse.unquote(str(request.forms.get('user')))
-        auth = urllib.parse.unquote(request.forms.get('auth'))
+        username = urllib.parse.unquote(request.forms.user)
+        auth = urllib.parse.unquote(request.forms.auth)
 
         if not WebAPI.hasUserPermission(username, auth):
             abort(403, "Bad authentication")
@@ -104,9 +111,9 @@ class WebAPI(object):
     def getFiles():
         """Return list of all modifiable files for a given bot."""
         WebAPI.checkIfFormExists(['user', 'bot', 'auth'])
-        username = urllib.parse.unquote(request.forms.get('user'))
-        botname = urllib.parse.unquote(request.forms.get('bot'))
-        auth = urllib.parse.unquote(request.forms.get('auth'))
+        username = urllib.parse.unquote(request.forms.user)
+        botname = urllib.parse.unquote(request.forms.bot)
+        auth = urllib.parse.unquote(request.forms.auth)
 
         bot = WebAPI.getBot(botname)
 
@@ -130,10 +137,10 @@ class WebAPI(object):
     def getFile():
         """Return the content of a specific file."""
         WebAPI.checkIfFormExists(['user', 'bot', 'file', 'auth'])
-        username = urllib.parse.unquote(request.forms.get('user'))
-        botname = urllib.parse.unquote(request.forms.get('bot'))
-        filename = urllib.parse.unquote(request.forms.get('file'))
-        auth = urllib.parse.unquote(request.forms.get('auth'))
+        username = urllib.parse.unquote(request.forms.user)
+        botname = urllib.parse.unquote(request.forms.bot)
+        filename = urllib.parse.unquote(request.forms.file)
+        auth = urllib.parse.unquote(request.forms.auth)
 
         bot = WebAPI.getBot(botname)
         if not WebAPI.hasUserPermission(username, auth):
@@ -165,11 +172,11 @@ class WebAPI(object):
     def setFile():
         """Set the json of a specific file."""
         WebAPI.checkIfFormExists(['user', 'bot', 'file', 'content', 'auth'])
-        username = urllib.parse.unquote(request.forms.get('user'))
-        botname = urllib.parse.unquote(request.forms.get('bot'))
-        filename = urllib.parse.unquote(request.forms.get('file'))
-        content = urllib.parse.unquote(request.forms.get('content'))
-        auth = urllib.parse.unquote(request.forms.get('auth'))
+        username = urllib.parse.unquote(request.forms.user)
+        botname = urllib.parse.unquote(request.forms.bot)
+        filename = urllib.parse.unquote(request.forms.file)
+        content = urllib.parse.unquote(request.forms.content)
+        auth = urllib.parse.unquote(request.forms.auth)
 
         bot = WebAPI.getBot(botname)
         if not WebAPI.hasUserPermission(username, auth):
@@ -206,7 +213,7 @@ class WebAPI(object):
     def getUserNameI():
         """Get the username based on an id_token. Also verifies token."""
         WebAPI.checkIfFormExists(['auth'])
-        auth = urllib.parse.unquote(request.forms.get('auth'))
+        auth = urllib.parse.unquote(request.forms.auth)
 
         username = WebAPI.getUserNameAndVerifyToken(auth)
         logging.info("[API] /getTwitchUsername => {} ".format(username))
@@ -217,10 +224,10 @@ class WebAPI(object):
     def pause():
         """Pause or unpause a bot."""
         WebAPI.checkIfFormExists(['user', 'bot', 'auth', 'pause'])
-        username = urllib.parse.unquote(request.forms.get('user'))
-        botname = urllib.parse.unquote(request.forms.get('bot'))
-        auth = urllib.parse.unquote(request.forms.get('auth'))
-        pause = urllib.parse.unquote(request.forms.get('pause'))
+        username = urllib.parse.unquote(request.forms.user)
+        botname = urllib.parse.unquote(request.forms.bot)
+        auth = urllib.parse.unquote(request.forms.auth)
+        pause = urllib.parse.unquote(request.forms.pause)
 
         bot = WebAPI.getBot(botname)
         if not WebAPI.hasUserPermission(username, auth):
