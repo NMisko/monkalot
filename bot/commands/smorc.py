@@ -14,7 +14,7 @@ class Smorc(Command):
 
     def __init__(self, bot):
         """Load command list."""
-        with open(SMORC_FILE.format(bot.root)) as fp:
+        with open(SMORC_FILE.format(bot.root), encoding="utf-8") as fp:
             self.replies = json.load(fp)
 
     def match(self, bot, user, msg):

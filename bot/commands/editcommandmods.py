@@ -37,5 +37,5 @@ class EditCommandMods(Command):
                 var = {"<USER>": mod}
                 bot.write(bot.replace_vars(self.responses["user_not_in_list"]["msg"], var))
 
-        with open(bot.trusted_mods_path.format(bot.root), 'w') as file:
+        with open(bot.trusted_mods_path.format(bot.root), 'w', encoding="utf-8") as file:
             json.dump(bot.trusted_mods, file, indent=4)

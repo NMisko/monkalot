@@ -26,7 +26,7 @@ class Ranking():
         self.connection.commit()
         self.connection.close()
 
-        with open(CONFIG_PATH.format(bot.root)) as fp:
+        with open(CONFIG_PATH.format(bot.root), encoding="utf-8") as fp:
             CONFIG = json.load(fp)
 
         self.BASE = CONFIG["ranking"]["base"]  # points from min rank to second min rank

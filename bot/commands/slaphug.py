@@ -14,7 +14,7 @@ class SlapHug(Command):
 
     def __init__(self, bot):
         """Load command list."""
-        with open(SLAPHUG_FILE.format(bot.root)) as file:
+        with open(SLAPHUG_FILE.format(bot.root), encoding="utf-8") as file:
             self.replies = json.load(file)
             self.slapreply = self.replies["slap"]
             self.hugreply = self.replies["hug"]

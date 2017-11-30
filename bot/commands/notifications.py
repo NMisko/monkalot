@@ -24,7 +24,7 @@ class Notifications(Command):
         self.active = False  # It should be configured by the user if the notifications are on or off by default.
         self.callID = None
         self.listindex = 0
-        with open(NOTIFICATIONS_FILE.format(bot.root)) as file:
+        with open(NOTIFICATIONS_FILE.format(bot.root), encoding="utf-8") as file:
             self.notifications = json.load(file)
 
         """If notifications are enabled by default, start the threading."""
@@ -61,7 +61,7 @@ class Notifications(Command):
         """Add a new notification to the list."""
         if arg not in self.notifications:
             self.notifications.append(arg)
-            with open(NOTIFICATIONS_FILE.format(bot.root), 'w') as file:
+            with open(NOTIFICATIONS_FILE.format(bot.root), 'w', encoding="utf-8") as file:
                 json.dump(self.notifications, file, indent=4)
             bot.write(self.responses["notification_added"]["msg"])
         else:
@@ -71,7 +71,7 @@ class Notifications(Command):
         """Add a new notification to the list."""
         if arg in self.notifications:
             self.notifications.remove(arg)
-            with open(NOTIFICATIONS_FILE.format(bot.root), 'w') as file:
+            with open(NOTIFICATIONS_FILE.format(bot.root), 'w', encoding="utf-8") as file:
                 json.dump(self.notifications, file, indent=4)
             bot.write(self.responses["notification_removed"]["msg"])
         else:
