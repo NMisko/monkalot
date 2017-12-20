@@ -116,18 +116,18 @@ class Pyramid(Command):
         """Calculate the points users get for a pyramid."""
         m = {}
         points = bot.PYRAMIDP
-        for i in range(1, 6):
-            user = self.users[i-1]
+        for i in range(len(points)):
+            user = self.users[i]
 
             if user not in m:
                 if bot.get_permission(user) not in [Permission.Admin, Permission.Moderator]:  # moderators get one tenth of the points
-                    m[user] = points[i-1]
+                    m[user] = points[i]
                 else:
-                    m[user] = int(points[i-1]/10)
+                    m[user] = int(points[i]/10)
             else:
                 if bot.get_permission(user) not in [Permission.Admin, Permission.Moderator]:  # moderators get one tenth of the points
-                    m[user] = m[user] + points[i-1]
+                    m[user] = m[user] + points[i]
                 else:
-                    m[user] = m[user] + int(points[i-1]/10)
+                    m[user] = m[user] + int(points[i]/10)
 
         return m
