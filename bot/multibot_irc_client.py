@@ -181,6 +181,9 @@ class MultiBotIRCClient(irc.IRCClient, object):
             bot.incomingRitual(tags, msg)
         elif msg_type in ['sub', 'resub']:
             bot.subMessage(tags, msg)
+        elif msg_type == 'subgift':
+            # seems cannot add custom message like normal sub at 20/12/17
+            bot.subGift(tags)
 
     def userState(self, prefix, tags, args):
         # NOTE: In Twitch IRC, USERSTATE can be called in 2 ways:

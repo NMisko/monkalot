@@ -29,6 +29,36 @@
                 "args_info": ""
             }
         },
+        "subgift": {
+            "msg_standard": {
+                "msg": "PogChamp <DONOR> gifted a <SUBPLAN> sub to <RECIPIENT>! Thanks and welcome to the channel! <3",
+                "info": "Message that gets posted when a viewer received a donated sub to the channel.",
+                "args_info": {
+                    "<DONOR>": "User who donated a sub.",
+                    "<RECIPIENT>": "User who received a sub.",
+                    "<SUBPLAN>": "Type of subscription (4,99€, 9,99€, etc.)"
+                }
+            },
+            "msg_with_months": {
+                "msg": "Kreygasm <DONOR> gifted a <SUBPLAN> sub to <RECIPIENT>! Thanks both of you SeemsGood It is <MONTHS> years already! PogChamp",
+                "info": "Message that gets posted when an existing subscriber receive a sub donation to the channel.",
+                "args_info": {
+                    "<DONOR>": "User who donated a sub.",
+                    "<RECIPIENT>": "User who received a sub.",
+                    "<SUBPLAN>": "Type of subscription (4,99€, 9,99€, etc.)",
+                    "<MONTHS>": "Amount of months the user is subscribed to the channel."
+                }
+            },
+            "subplan": {
+                "msg": {
+                    "1000": "4,99$!! TwitchUnity",
+                    "2000": "9,99$!! FeelsAmazingMan",
+                    "3000": "24,99$!! gachiGASM"
+                },
+                "info": "Arguments for subscribtion/resubscription messages.",
+                "args_info": ""
+            }
+        },
         "ritual": {
             "new_chatter": {
                 "msg": "Welcome to the channel VoHiYo <NAME>",
