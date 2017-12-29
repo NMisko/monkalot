@@ -23,6 +23,8 @@ from bot.paths import OIDC_API, USER_ID_API
 class StoppableWSGIRefServer(ServerAdapter):
     """Allows to programmatically shut down bottle server."""
 
+    isRunning = False
+
     def run(self, handler):
         """Start the server."""
         from wsgiref.simple_server import make_server, WSGIRequestHandler
@@ -30,13 +32,24 @@ class StoppableWSGIRefServer(ServerAdapter):
             class QuietHandler(WSGIRequestHandler):
                 def log_request(*args, **kw): pass
             self.options['handler_class'] = QuietHandler
-        self.server = make_server(self.host, self.port, handler, **self.options)
-        self.server.serve_forever()
+        try:
+            self.server = make_server(self.host, self.port, handler, **self.options)
+            self.isRunning = True
+            self.server.serve_forever()
+        except OSError as err:
+            if err.errno == 98: # Address already in use
+                self.isRunning = False
+                logging.critical("Port {} already in use. Shutting down web server.".format(self.port))
+            else:
+                raise
 
     def stop(self):
         """Stop the server."""
         # self.server.server_close() <--- alternative but causes bad fd exception
-        self.server.shutdown()
+        if self.isRunning:
+            self.server.shutdown()
+        else:
+            logging.warning("Server is already shut down.")
 
 
 class Singleton(type):
