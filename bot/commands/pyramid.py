@@ -1,6 +1,9 @@
 """Commands: "[emote]"."""
 from collections import Counter
 from enum import Enum, auto
+import logging
+import random
+
 
 from bot.commands.command import Command
 from bot.utilities.permission import Permission
@@ -59,7 +62,7 @@ class Pyramid(Command):
                 self.reset()
 
     def processNextLevel(self, msgType, msgCount, emote, user, bot):
-        # can be valid next level, BUT NOT new start
+        # NOTE: DO NOT handle new start in this function, only valid next level
         self.currentType = msgType
 
         if msgCount < self.pyramidLevel:
@@ -79,10 +82,12 @@ class Pyramid(Command):
     def handleSpecialRules(self, bot):
         if bot.pyramidBlock and self.pyramidLevel == 2:
             self.blockPyramid(bot)
+            return
 
         # finishing is treated as speical rule
         if self.pyramidLevel == 1 and not self.increasing:
             self.pyramidCompleted(bot)
+            return
 
     def blockPyramid(self, bot):
         """Block a pyramid."""
@@ -284,23 +289,23 @@ class Pyramid(Command):
         # Implement as FSM. Each state is the count of valid single emote
 
         # These 2 states are always valid
-        # 0 : invalid state (after reset()) -- any invalid count goes here (reset())
+        # 0 : invalid state (after reset()) -- any invalid count goes here too (reset())
         # 1 : any single emote -- need to reset then add that builder, unless it
         #     is the finishing level (validNewStart())
 
         # Current state | Allowed next state
-        # The allowed next state must have same emote as before. We excluding the above 2 states
+        # The allowed next state must have same emote as before. We exclude the above 2 states
 
         # increasing
         # 0 | None (only those 2 states are valid, let validNewStart() handle 1)
-        # 1 | 2 -- decrease to 0 is not a finishing level
+        # 1 | 2    (decrease to 0 is not a finishing level)
         # 2 | 3, 1 (finish plebramid)
         # 3 | 4, 2
         # ...
         # 3 and above have same rule as 2
         #
         # decreasing
-        # 1  | None -- should not enter this state
+        # 1  | None -- should not enter this state at all
         # 2  | 1
         # 3  | 2
         # ...
@@ -311,13 +316,13 @@ class Pyramid(Command):
         # Small note: Golden Kappa and normal Kappa are different emote with
         # current logic, since they have different emote id
         if msgType != self.currentType or emote != self.currentEmote:
-            # state 0 should return False here
+            # state 0 return False here, since it has to be INVALID
             return False
 
         level = self.pyramidLevel  # current state
 
         if self.increasing:
-            # decresing at level 1 is NOT allowed (1->0)
+            # decresing at level 1 is NOT allowed (1 -> 0)
             return msgCount == level + 1 or (msgCount == level - 1 and level >= 2)
         else:
             if level == 1:
@@ -356,7 +361,6 @@ class Pyramid(Command):
 # KappaPride
 # Not a pyramid
 
-# Not sure about this case:
 # 4Head
 # 4Head 4Head
 # 4Head 4Head 4Head
