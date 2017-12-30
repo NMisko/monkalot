@@ -23,11 +23,11 @@ class Calculator(Command):
         self.nsp = NumericStringParser()
         self.responses = {}
 
-    def match(self, bot, user, msg):
+    def match(self, bot, user, msg, tag_info):
         """Match if the message starts with !calc."""
         return msg.lower().startswith("!calc ")
 
-    def run(self, bot, user, msg):
+    def run(self, bot, user, msg, tag_info):
         """Evaluate second part of message and write the result."""
         self.responses = bot.responses["Calculator"]
         expr = msg.split(' ', 1)[1]

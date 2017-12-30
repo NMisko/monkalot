@@ -15,7 +15,7 @@ class PyramidReply(Command):
         "!pjsalt": "PJSalt",
     }
 
-    def match(self, bot, user, msg):
+    def match(self, bot, user, msg, tag_info):
         """Match if message is a possible command."""
         cmd = msg.lower().strip()
         for key in self.replies:
@@ -23,7 +23,7 @@ class PyramidReply(Command):
                 return True
         return False
 
-    def run(self, bot, user, msg):
+    def run(self, bot, user, msg, tag_info):
         """Print out a pyramid of emotes."""
         cmd = msg.lower().strip()
 

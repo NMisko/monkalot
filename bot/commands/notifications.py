@@ -77,7 +77,7 @@ class Notifications(Command):
         else:
             bot.write(self.responses["notification_not_found"]["msg"])
 
-    def match(self, bot, user, msg):
+    def match(self, bot, user, msg, tag_info):
         """Match if a user is a trusted mod or admin and wants to turn notifications on or off.
 
         Or if they want add or remove a notification from the list.
@@ -89,7 +89,7 @@ class Notifications(Command):
                 return True
         return False
 
-    def run(self, bot, user, msg):
+    def run(self, bot, user, msg, tag_info):
         """Start/stop notifications or add/remove notifications from the list."""
         if msg.lower().startswith("!notifications on"):
             if not self.active:

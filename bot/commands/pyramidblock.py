@@ -13,11 +13,11 @@ class PyramidBlock(Command):
         """Initialize variables."""
         self.responses = {}
 
-    def match(self, bot, user, msg):
+    def match(self, bot, user, msg, tag_info):
         """Match if command is !block on or !block off."""
         return msg == "!block on" or msg == "!block off"
 
-    def run(self, bot, user, msg):
+    def run(self, bot, user, msg, tag_info):
         """Set block."""
         self.responses = bot.responses["PyramidBlock"]
         if msg == "!block on":

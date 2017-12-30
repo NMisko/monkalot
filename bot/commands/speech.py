@@ -35,11 +35,11 @@ class Speech(Command):
     #    """Initialize the command."""
     #    self.cw = CleverWrap(bot.cleverbot_key)
 
-    def match(self, bot, user, msg):
+    def match(self, bot, user, msg, tag_info):
         """Match if the bot is tagged."""
         return bot.nickname in msg.lower()
 
-    def run(self, bot, user, msg):
+    def run(self, bot, user, msg, tag_info):
         """Send message to cleverbot only if no other command got triggered."""
         if not bot.antispeech:
             msg = msg.lower()

@@ -34,7 +34,7 @@ class EmoteReply(Command):
 
         return (len(self.text) <= self.maxchars[i] and len(self.text.split(' ')) <= self.maxwords[i])
 
-    def match(self, bot, user, msg):
+    def match(self, bot, user, msg, tag_info):
         """Msg has to have the structure !cmd <EMOTE> <TEXT>."""
         if msg.lower().startswith('!call ') or msg.lower().startswith('!any ') or msg.lower().startswith('!word '):
             parse = msg.split(' ', 2)
@@ -51,7 +51,7 @@ class EmoteReply(Command):
         else:
             return False
 
-    def run(self, bot, user, msg):
+    def run(self, bot, user, msg, tag_info):
         """Output emote message if cmd matches."""
         self.responses = bot.responses["EmoteReply"]
 

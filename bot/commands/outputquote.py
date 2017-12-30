@@ -18,12 +18,12 @@ class outputQuote(Command):
         with open(QUOTES_FILE.format(bot.root), encoding="utf-8") as file:
             self.quotelist = json.load(file)
 
-    def match(self, bot, user, msg):
+    def match(self, bot, user, msg, tag_info):
         """Match if command starts with !quote."""
         cmd = msg.lower().strip()
         return cmd == "!quote" or cmd.startswith("!quote ")
 
-    def run(self, bot, user, msg):
+    def run(self, bot, user, msg, tag_info):
         """Say a quote."""
         self.responses = bot.responses["outputQuote"]
         cmd = msg.lower().strip()

@@ -45,12 +45,12 @@ class editQuoteList(Command):
         else:
             bot.write(self.responses["quote_not_found"]["msg"])
 
-    def match(self, bot, user, msg):
+    def match(self, bot, user, msg, tag_info):
         """Match if message starts with !addquote or !delquote."""
         cmd = msg.lower().strip()
         return cmd.startswith("!addquote ") or cmd.startswith("!delquote ")
 
-    def run(self, bot, user, msg):
+    def run(self, bot, user, msg, tag_info):
         """Add or delete quote."""
         self.responses = bot.responses["editQuoteList"]
         cmd = msg.lower().strip()

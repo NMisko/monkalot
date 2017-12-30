@@ -243,7 +243,7 @@ class TwitchBot():
         else:
             return self.commands
 
-    def process_command(self, user, msg):
+    def process_command(self, user, msg, tag_info):
         """Process messages and call commands."""
         # Ignore messages by ignored user
         if user in self.ignored_users:
@@ -271,7 +271,7 @@ class TwitchBot():
         # Also reduce warning message spam by limiting it to one per minute.
         for cmd in cmdlist:
             try:
-                match = cmd.match(self, user, msg)
+                match = cmd.match(self, user, msg, tag_info)
                 if not match:
                     continue
                 cname = cmd.__class__.__name__
@@ -284,7 +284,7 @@ class TwitchBot():
                 else:
                     if (perm == 0 and cmd not in self.games):   # Only reset plebtimer if no game was played
                         self.last_plebcmd = time.time()
-                    cmd.run(self, user, msg)
+                    cmd.run(self, user, msg, tag_info)
             except (ValueError, TypeError):  # Not sure which Errors might happen here.
                 logging.error(traceback.format_exc())
         """Reset antispeech for next command"""
@@ -497,6 +497,13 @@ class TwitchBot():
 
     def accessToEmote(self, username, emote):
         """Check if user has access to a certain emote."""
+        # Some notes about emotes and IRC:
+        # emote tag in IRC message is like emotes=1902:0-4,6-10/1901:12-16; (not sure about order)
+        # The message is "Keepo Keepo Kippa"
+        # The format is like emotes=[emote_id]:[pos_start]-[pos_end],.../[another emote_id]:[pos_start]-[pos_end]...;
+        #
+        # Twitch internally parse your message and change them to emotes with the emote tag in IRC message
+        #
         userID = self.getuserID(username)
         emotelist = self.getuserEmotes(userID)
         for sets in emotelist:

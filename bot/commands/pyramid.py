@@ -20,7 +20,7 @@ class Pyramid(Command):
         self.emojis = []
         self.users = []
 
-    def match(self, bot, user, msg):
+    def match(self, bot, user, msg, tag_info):
         """Match always."""
         return True
 
@@ -33,7 +33,7 @@ class Pyramid(Command):
         if count == 3:
             return emote + ' ' + emote + ' ' + emote
 
-    def run(self, bot, user, msg):
+    def run(self, bot, user, msg, tag_info):
         """Check whether a pyramid was successfully built or a new one was started."""
         self.responses = bot.responses["Pyramid"]
         self.emotes = bot.emotes

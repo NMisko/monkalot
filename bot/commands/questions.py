@@ -32,7 +32,7 @@ class Questions(Command):
             if wordlist[i] in msg.lower():
                 return i + 1
 
-    def match(self, bot, user, msg):
+    def match(self, bot, user, msg, tag_info):
         """Match if the bot is tagged, the sentence contains 'what is' (in various forms) or proper math syntax."""
         if (bot.nickname.lower() in msg.lower() and self.wordInMsg(self.whatis, msg)):
             index = self.wordInMsg(self.whatis, msg)
@@ -41,7 +41,7 @@ class Questions(Command):
                 bot.antispeech = True
                 return True
 
-    def run(self, bot, user, msg):
+    def run(self, bot, user, msg, tag_info):
         """Define answers based on pieces in the message."""
         index = self.wordInMsg(self.whatis, msg)
         if self.wordInMsg(self.twohead, msg):

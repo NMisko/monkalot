@@ -17,10 +17,10 @@ class Smorc(Command):
         with open(SMORC_FILE.format(bot.root), encoding="utf-8") as fp:
             self.replies = json.load(fp)
 
-    def match(self, bot, user, msg):
+    def match(self, bot, user, msg, tag_info):
         """Match if command is !smorc."""
         return msg.lower().strip() == "!smorc"
 
-    def run(self, bot, user, msg):
+    def run(self, bot, user, msg, tag_info):
         """Answer with random smorc."""
         bot.write(random.choice(self.replies))

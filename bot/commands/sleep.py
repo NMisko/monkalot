@@ -13,14 +13,14 @@ class Sleep(Command):
         """Initialize variables."""
         self.responses = {}
 
-    def match(self, bot, user, msg):
+    def match(self, bot, user, msg, tag_info):
         """Match if message is !sleep or !wakeup."""
         cmd = msg.lower().strip()
 
         if (user in bot.trusted_mods or bot.get_permission(user) == 3):
             return cmd.startswith("!sleep") or cmd.startswith("!wakeup")
 
-    def run(self, bot, user, msg):
+    def run(self, bot, user, msg, tag_info):
         """Put the bot to sleep or wake it up."""
         self.responses = bot.responses["Sleep"]
         cmd = msg.lower().replace(' ', '')

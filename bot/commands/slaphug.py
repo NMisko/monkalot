@@ -39,7 +39,7 @@ class SlapHug(Command):
             reply = reply.replace("<t_pronoun2>", bot.pronoun(target)[2])
         return reply
 
-    def match(self, bot, user, msg):
+    def match(self, bot, user, msg, tag_info):
         """Match if command is !slap/!hug <chatter>."""
         if (msg.lower().strip().startswith("!slap ") or msg.lower().strip().startswith("!hug ")):
             cmd = msg.split(" ")
@@ -50,7 +50,7 @@ class SlapHug(Command):
                     return True
         return False
 
-    def run(self, bot, user, msg):
+    def run(self, bot, user, msg, tag_info):
         """Answer with random slap or hug to a user."""
         bot.antispeech = True
         cmd = msg.lower().strip().split(" ")

@@ -21,11 +21,11 @@ class KappaGame(Command):
         self.n = 0
         self.answered = []
 
-    def match(self, bot, user, msg):
+    def match(self, bot, user, msg, tag_info):
         """Match if the game is active or gets started with !kstart by a user who pays 5 points."""
         return self.active or startGame(bot, user, msg, "!kstart")
 
-    def run(self, bot, user, msg):
+    def run(self, bot, user, msg, tag_info):
         """Generate a random number n when game gets first started. Afterwards, check if a message contains the emote n times."""
         self.responses = bot.responses["KappaGame"]
         cmd = msg.strip()

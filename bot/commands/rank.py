@@ -15,7 +15,7 @@ class Rank(Command):
         """Initialize variables."""
         self.responses = {}
 
-    def match(self, bot, user, msg):
+    def match(self, bot, user, msg, tag_info):
         """Match if message is !rank or starts with !rank and has one argument."""
         if msg.lower() == '!rank':
             return True
@@ -24,7 +24,7 @@ class Rank(Command):
         else:
             return False
 
-    def run(self, bot, user, msg):
+    def run(self, bot, user, msg, tag_info):
         """Calculate rank of user.
 
         0-19: Rank 25, 20-39: Rank 24,..., 480-499: Rank 1

@@ -8,11 +8,11 @@ class BanMe(Command):
 
     perm = Permission.User
 
-    def match(self, bot, user, msg):
+    def match(self, bot, user, msg, tag_info):
         """Ban if mentioning bot and contains 'ban me'."""
         return bot.nickname in msg.lower() and "ban me" in msg.lower()
 
-    def run(self, bot, user, msg):
+    def run(self, bot, user, msg, tag_info):
         """Ban a user. And unban him again."""
         bot.antispeech = True
         self.responses = bot.responses["BanMe"]

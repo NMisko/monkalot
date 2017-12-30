@@ -40,11 +40,11 @@ class AutoGames(Command):
         """ start of threading """
         self.callID = reactor.callLater(bot.AUTO_GAME_INTERVAL, self.randomGame, bot)
 
-    def match(self, bot, user, msg):
+    def match(self, bot, user, msg, tag_info):
         """Match if message starts with !games."""
         return (msg.lower().startswith("!games on") or msg.lower().startswith("!games off"))
 
-    def run(self, bot, user, msg):
+    def run(self, bot, user, msg, tag_info):
         """Start/stop automatic games."""
         self.responses = bot.responses["AutoGames"]
         cmd = msg[len("!games "):]
