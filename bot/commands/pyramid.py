@@ -1,11 +1,14 @@
 """Commands: "[emote]"."""
-import random
 from collections import Counter
 from enum import Enum, auto
 
 from bot.commands.command import Command
 from bot.utilities.permission import Permission
 from bot.utilities.tools import formatList
+
+
+def emoteStr(emote, count):
+    return " ".join([emote] * count)
 
 
 class EmoteType(Enum):
@@ -83,12 +86,65 @@ class Pyramid(Command):
 
     def blockPyramid(self, bot):
         """Block a pyramid."""
-        if random.randint(0, 3):
+        # 80% to use a quote to block
+        if random.randint(1, 10) > 2:
             bot.write(random.choice(self.responses["pyramidblocks"]["msg"]))
         else:
-            bot.write("Rewrite lgoic for blocking by completing pyramid next commit")
+            # The other 20% is to complete pyramid for the user LUL
+
+            # The roll list here:
+            # 10% to finish pyramid with max level of 4
+            # 30% for max level of 3
+            # 60% for 2 (just use 1 emote to close the pyramid)
+            rollResult = random.randint(1, 10)
+            if rollResult == 1:
+                maxLv = 4
+            elif rollResult <= 4:
+                maxLv = 3
+            else:
+                maxLv = 2
+            self.finishPyramid(maxLv, bot, taunt=True)
 
         self.reset()
+
+    def finishPyramid(self, maxLv, bot, taunt):
+        """Generic function for bot to complete a pyramid based on current state.
+
+           This function does not change any value of current pyramid, it only
+           make bot to output.
+
+           maxLv - the expected pyramid with this maxLv to be completed
+           taunt - if True, the finishing level message will be shown with
+                   taunt message, otherwise just print plain emote
+        """
+        # invalid maxLv -- it wants a smaller pyramid?
+        if maxLv < self.maxLevel:
+            logging.error("[Pyramid]: finishPyramid() -- wrong params provided, current max lv is {}, but input requested a lv {} pyramid".format(self.maxLevel, maxLv))
+
+        # get current state, then write the message level by level
+
+        # NOTE: We can't use self.emote to finish pyramid, since it can be id for Twitch emotes
+        # So I try to cheat out a bit by copying user message on valid input with self.emoteInputStr
+        emote = self.emoteInputStr
+        lv = self.pyramidLevel
+
+        # if increasing (and valid), fill up to maxLv.
+        while(lv < maxLv):
+            lv += 1
+            bot.write(emoteStr(emote, lv))
+
+        # if decreasing/invalid lv provided, just fill decreasing emote at 2, then finish it
+        while(lv > 0):
+            lv -= 1
+
+            if lv == 1:
+                # finish the pyramid
+                tauntMsg = ""
+                if taunt:
+                    tauntMsg = random.choice(self.responses["finishingtaunt"]["msg"])
+                bot.write("{} {}".format(emote, tauntMsg))
+            else:
+                bot.write(emoteStr(emote, lv))
 
     def pyramidCompleted(self, bot):
         if self.maxLevel == 2:  # plebramid
@@ -173,9 +229,11 @@ class Pyramid(Command):
         if validT:
             eType, count = EmoteType.TWITCH, countT
             emote = emoteId
+            self.emoteInputStr = msg.split()[0]
         elif validB:
             eType, count = EmoteType.NONTWITCH, countB
             emote = emoteB
+            self.emoteInputStr = emoteB
 
         return eType, count, emote
 
@@ -272,6 +330,8 @@ class Pyramid(Command):
         self.increasing = True
         self.currentEmote = ""  # can be both Twitch emote ID (int) or str (non Twitch emote)
         self.currentType = EmoteType.INVALID
+        # store the string input of that emote if user enters a valid emote level. Currently used by bot only
+        self.emoteInputStr = ""
         self.pyramidBuilders.clear()
 
 # Expected test cases:

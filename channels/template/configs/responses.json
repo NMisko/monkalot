@@ -226,9 +226,22 @@
                 "Not on my watch OpieOP",
                 "Sorry, did I interrupt you? monkaS",
                 "(⌐■_■)–︻╦╤─ TheIlluminati",
-                "LUL"
+                "LUL Come on"
             ],
             "info": "Pyramid block messages while PyramidBlock is on.",
+            "args_info": {}
+        },
+        "finishingtaunt": {
+            "msg": [
+                "I type this in less than 0.00000069 second EZ",
+                "Try faster next time OpieOP",
+                "You wish you were that fast DatSheffy",
+                "Just give up plz FailFish",
+                "I saved you from plebramid ban 4Head Thanks me for that Kappa",
+                "Why do I even complete this pyramid FeelsBadMan",
+                "I don't get points for doing this BibleThump"
+            ],
+            "info": "Pyramid finishing taunt messages from bot when she finish pyramid while PyramidBlock is on.",
             "args_info": {}
         },
         "plebpyramid": {
