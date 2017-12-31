@@ -91,8 +91,9 @@ class Pyramid(Command):
 
     def blockPyramid(self, bot):
         """Block a pyramid."""
+        cannot_use_emote = True
         # 80% to use a quote to block
-        if random.randint(1, 10) > 2:
+        if cannot_use_emote or random.randint(1, 10) > 2:
             bot.write(random.choice(self.responses["pyramidblocks"]["msg"]))
         else:
             # The other 20% is to complete pyramid for the user LUL
