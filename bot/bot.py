@@ -49,7 +49,16 @@ class TwitchBot():
         # user cache related:
         self.setupCache()
 
-        self.reloadConfig()
+        self.reloadConfig(firstRun=True)
+
+        # load some data already available first
+        self.loadEmoteData(common_data)
+        self.cards = common_data["cards"]
+        self.emojis = common_data["emojis"]
+
+        # Initialize emote counter
+        self.ecount = bot.emotecounter.EmoteCounterForBot(self)
+        self.ecount.startCPM()
 
         self.ranking = bot.ranking.Ranking(self)
 
@@ -69,6 +78,12 @@ class TwitchBot():
         self.mods = set()
         self.subs = set()
 
+        # some commands needs data to be completed loaded, but they are not available
+        # yet in reloadConfig(). So we have to reload commands here ... not sure if this is good
+        # practice or not
+        self.reload_commands()
+
+    def loadEmoteData(self, common_data):
         self.twitchemotes = common_data["twitchemotes"]
         self.global_bttvemotes = common_data["global_bttvemotes"]
 
@@ -88,13 +103,6 @@ class TwitchBot():
         # All available emotes in one list
         self.emotes = self.twitchemotes + self.global_bttvemotes + self.channel_bttvemotes
 
-        self.cards = common_data["cards"]
-        self.emojis = common_data["emojis"]
-
-        # Initialize emote counter
-        self.ecount = bot.emotecounter.EmoteCounterForBot(self)
-        self.ecount.startCPM()
-
     def setConfig(self, config):
         """Write the config file and reload."""
         with open(CONFIG_PATH.format(self.root), 'w', encoding="utf-8") as file:
@@ -107,13 +115,15 @@ class TwitchBot():
             json.dump(responses, file, indent=4)
         self.reloadConfig()
 
-    def reloadConfig(self):
+    def reloadConfig(self, firstRun=False):
         """Reload the entire config."""
         with open(CONFIG_PATH.format(self.root), 'r', encoding="utf-8") as file:
             CONFIG = json.load(file)
+
         # load template responses first
         with open(TEMPLATE_RESPONSES_PATH, 'r', encoding="utf-8") as file:
             RESPONSES = json.load(file)
+
         # load custom responses
         try:
             with open(CUSTOM_RESPONSES_PATH.format(self.root), 'r', encoding="utf-8") as file:
@@ -161,7 +171,9 @@ class TwitchBot():
         self.AUTO_GAME_INTERVAL = CONFIG["auto_game_interval"]
         self.NOTIFICATION_INTERVAL = CONFIG["notification_interval"]    # time between notification posts
         self.RAID_ANNOUNCE_THRESHOLD = CONFIG.get("raid_announce_threshold", DEFAULT_RAID_ANNOUNCE_THRESHOLD)
-        self.reload_commands()
+
+        if not firstRun:
+            self.reload_commands()
 
     def modeChanged(self, user, channel, added, modes, args):
         """Update IRC mod list when mod joins or leaves. Seems not useful."""
@@ -243,7 +255,7 @@ class TwitchBot():
         else:
             return self.commands
 
-    def process_command(self, user, msg):
+    def process_command(self, user, msg, tag_info):
         """Process messages and call commands."""
         # Ignore messages by ignored user
         if user in self.ignored_users:
@@ -271,7 +283,7 @@ class TwitchBot():
         # Also reduce warning message spam by limiting it to one per minute.
         for cmd in cmdlist:
             try:
-                match = cmd.match(self, user, msg)
+                match = cmd.match(self, user, msg, tag_info)
                 if not match:
                     continue
                 cname = cmd.__class__.__name__
@@ -284,7 +296,7 @@ class TwitchBot():
                 else:
                     if (perm == 0 and cmd not in self.games):   # Only reset plebtimer if no game was played
                         self.last_plebcmd = time.time()
-                    cmd.run(self, user, msg)
+                    cmd.run(self, user, msg, tag_info)
             except (ValueError, TypeError):  # Not sure which Errors might happen here.
                 logging.error(traceback.format_exc())
         """Reset antispeech for next command"""
@@ -522,6 +534,13 @@ class TwitchBot():
 
     def accessToEmote(self, username, emote):
         """Check if user has access to a certain emote."""
+        # Some notes about emotes and IRC:
+        # emote tag in IRC message is like emotes=1902:0-4,6-10/1901:12-16; (not sure about order)
+        # The message is "Keepo Keepo Kippa"
+        # The format is like emotes=[emote_id]:[pos_start]-[pos_end],.../[another emote_id]:[pos_start]-[pos_end]...;
+        #
+        # Twitch internally parse your message and change them to emotes with the emote tag in IRC message
+        #
         userID = self.getuserID(username)
         emotelist = self.getuserEmotes(userID)
         for sets in emotelist:
@@ -611,6 +630,8 @@ class TwitchBot():
 
     def write(self, msg):
         """Write a message."""
+        #print("Fake print message: ", msg)
+        #return
         if self.irc is not None:
             self.irc.write(self.channel, msg)
         else:

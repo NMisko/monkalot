@@ -55,11 +55,11 @@ class MonkalotParty(Command):
 
         bot.write(s)
 
-    def match(self, bot, user, msg):
+    def match(self, bot, user, msg, tag_info):
         """Match if active or '!pstart'."""
         return self.active or startGame(bot, user, msg, "!pstart")
 
-    def run(self, bot, user, msg):
+    def run(self, bot, user, msg, tag_info):
         """Define answers based on pieces in the message."""
         self.responses = bot.responses["MonkalotParty"]
         cmd = msg.strip()

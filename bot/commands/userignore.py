@@ -12,7 +12,7 @@ class UserIgnore(Command):
         """Initialize responses."""
         self.responses = bot.responses["userignore"]
 
-    def match(self, bot, user, msg):
+    def match(self, bot, user, msg, tag_info):
         """Check if command starts with !ignore or !unignore."""
         if (msg.lower().strip().startswith("!ignore ") or msg.lower().strip().startswith("!unignore ")):
             cmd = msg.split(" ")
@@ -20,7 +20,7 @@ class UserIgnore(Command):
                 return True
         return False
 
-    def run(self, bot, user, msg):
+    def run(self, bot, user, msg, tag_info):
         """Try to put/remove a user on/from the ignore list."""
         bot.antispeech = True
         cmd = msg.lower().strip().split(" ")

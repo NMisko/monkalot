@@ -12,11 +12,11 @@ class TopSpammers(Command):
         """Initialize variables."""
         self.responses = {}
 
-    def match(self, bot, user, msg):
+    def match(self, bot, user, msg, tag_info):
         """Match if message is !topspammers."""
         return msg.lower() == "!topspammers"
 
-    def run(self, bot, user, msg):
+    def run(self, bot, user, msg, tag_info):
         """Return the top spammers."""
         self.responses = bot.responses["TopSpammers"]
         ranking = bot.ranking.getTopSpammers(5)

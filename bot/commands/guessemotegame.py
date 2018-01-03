@@ -60,11 +60,11 @@ class GuessEmoteGame(Command):
         self.emotes = emotelist
         self.emote = random.choice(emotelist)
 
-    def match(self, bot, user, msg):
+    def match(self, bot, user, msg, tag_info):
         """Match if the game is active or gets started with !estart."""
         return self.active or startGame(bot, user, msg, "!estart") or startGame(bot, user, msg, "!rngestart")
 
-    def run(self, bot, user, msg):
+    def run(self, bot, user, msg, tag_info):
         """Initalize the command on first run. Check for right emote for each new msg."""
         self.responses = bot.responses["GuessEmoteGame"]
         cmd = msg.strip()

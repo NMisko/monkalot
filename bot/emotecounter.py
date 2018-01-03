@@ -124,7 +124,7 @@ class EmoteCounterForBot(EmoteCounter):
                     # If there are new emotes, add them here
                     for emote in self.emoteList:
                         if emote not in totalData:
-                            logging.info("New emote {} added to Twitch, adding it to count file".format(emote))
+                            logging.info("New emote {} added to Twitch/BTTV, adding it to count file".format(emote))
                             totalData[emote] = 0
                             refreshFile = True
 

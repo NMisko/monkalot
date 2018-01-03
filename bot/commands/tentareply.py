@@ -8,7 +8,7 @@ class TentaReply(Command):
 
     perm = Permission.User
 
-    def match(self, bot, user, msg):
+    def match(self, bot, user, msg, tag_info):
         """Match if the message starts with '!tenta ' or '!penta ' followed by an emote."""
         cmd = msg.split(" ")
         if (msg.lower().strip().startswith("!tenta ") or msg.lower().strip().startswith("!penta ") or msg.lower().strip().startswith("!hentai ")):
@@ -19,7 +19,7 @@ class TentaReply(Command):
                     return True
         return False
 
-    def run(self, bot, user, msg):
+    def run(self, bot, user, msg, tag_info):
         """Reply with squid or penta message."""
         cmd = msg.split(" ")
         emote = cmd[1].strip()

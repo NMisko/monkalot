@@ -81,11 +81,11 @@ class GuessMinionGame(Command):
             if self.minion['type'] == 'MINION':
                 nominion = False
 
-    def match(self, bot, user, msg):
+    def match(self, bot, user, msg, tag_info):
         """Match if the game is active or gets started with !mstart."""
         return self.active or startGame(bot, user, msg, "!mstart")
 
-    def run(self, bot, user, msg):
+    def run(self, bot, user, msg, tag_info):
         """On first run initialize game."""
         self.responses = bot.responses["GuessMinionGame"]
         cmd = msg.strip()

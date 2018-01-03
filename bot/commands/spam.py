@@ -18,7 +18,7 @@ class Spam(Command):
         self.maxC = 0
         self.maxMsg = ""
 
-    def match(self, bot, user, msg):
+    def match(self, bot, user, msg, tag_info):
         """Add message to queue. Match if a message was spammed more than NECESSARY_SPAM."""
         self.fifo.append(msg)
         if (msg not in self.counter):
@@ -37,7 +37,7 @@ class Spam(Command):
 
         return self.maxC >= self.NECESSARY_SPAM
 
-    def run(self, bot, user, msg):
+    def run(self, bot, user, msg, tag_info):
         """Check if there is spamming."""
         self.fifo = []
         self.counter = {}

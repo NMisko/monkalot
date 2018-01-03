@@ -19,13 +19,13 @@ class SimpleReply(Command):
         with open(REPLIES_FILE.format(bot.root), "r", encoding="utf-8") as fp:
             self.replies = json.load(fp)
 
-    def match(self, bot, user, msg):
+    def match(self, bot, user, msg, tag_info):
         """Match if command exists."""
         cmd = msg.lower().strip()
 
         return cmd in self.replies
 
-    def run(self, bot, user, msg):
+    def run(self, bot, user, msg, tag_info):
         """Answer with reply to command."""
         cmd = msg.lower().strip()
 

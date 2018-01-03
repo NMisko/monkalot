@@ -53,18 +53,28 @@ class MultiBotIRCClient(irc.IRCClient, object):
     # def irc_PRIVMSG(self, prefix, params):
         # super().irc_PRIVMSG(prefix, params)
 
-    def privmsg(self, user, channel, msg):
+    # def privmsg(self, user, channel, msg):
+        # pass
+
+    def twitch_privmsg(self, user, channel, msg, tags):
         """React to messages in a channel."""
-        # Note: if msg is too long, it will not even get in to this function
+        # http://twisted.readthedocs.io/en/twisted-17.9.0/words/howto/ircserverclientcomm.html
+        # Twisted 17.9.0 still have not implemented receiving messages with Tags yet
+        # So we have to try to do something similar here.
+        # Once it is implemented, we can probably just copy and paste the content here to the updated privmsg()
+
         # Extract twitch name
         name = user.split('!', 1)[0]
 
         # Log the message
         logging.info("[{}] {}: {}".format(channel, name, msg))
 
+        # print("Show tags", tags)
+        tag_info = self.parseTagForChatMessage(tags)
+
         for b in MultiBotIRCClient.bots:
             if b.channel == channel:
-                b.process_command(name, msg)
+                b.process_command(name, msg, tag_info)
 
     def modeChanged(self, user, channel, added, modes, args):
         """Not sure what this does. Maybe gets called when mods get added/removed."""
@@ -142,7 +152,7 @@ class MultiBotIRCClient(irc.IRCClient, object):
         # First, we check for any custom twitch commands
         tags, prefix, cmd, args = self.parsemsg(line)
 
-        # print("> " + line)
+        # print("< " + line)
 
         if cmd == "hosttarget":
             self.hostTarget(*args)
@@ -152,7 +162,13 @@ class MultiBotIRCClient(irc.IRCClient, object):
             self.notice(prefix, tags, args)
         elif cmd == "privmsg":
             self.userState(prefix, tags, args)
-        # used in Twitch only, seems non-standard in IRC
+
+            # Now we do the parse chat message ourself, not by privmsg() anymore
+            # copy from twisted's irc.py
+            user = prefix
+            channel, message = self.parseIRCLastLine(args)
+            self.twitch_privmsg(user, channel, message, tags)
+
         # elif cmd == "whisper":
         # pass
         elif cmd == "usernotice":
@@ -242,3 +258,44 @@ class MultiBotIRCClient(irc.IRCClient, object):
             logging.warning("[{}] R9K mode ON".format(channel))
         elif msg_id == "r9k_off":
             logging.warning("[{}] R9K mode OFF".format(channel))
+
+    def parseTagForChatMessage(self, tags):
+        """Return a simple dict for normal chat message from tags."""
+
+        # I prefer parse tag here for chat messages instead of parsing in bot.py
+        result = {}
+
+        # not an exhaustive parse, just get something useful for us now
+        result['display_name'] = tags.get('display-name', None)
+        result['user_id'] = tags['user-id']
+        result['is_mod'] = tags['mod'] == '1'
+        result['is_sub'] = tags['subscriber'] == '1'
+        # stremer can get is_mod and is_sub False too
+        result['is_broadcaster'] = 'broadcaster' in tags['badges']
+
+        # won't even have 'emote-only' tag if 'not emote only' actually
+        # Only True when all message is only emote (no other text)
+        result['twitch_emote_only'] = tags.get('emote-only', False) == '1'
+
+        emote_result = {}
+        emote_result_string = tags['emotes']
+
+        # Possible outcomes:
+        # just an empty string if no emotes
+        # Message: '4Head' (single emote only)
+        # '354:0-4'
+        # Message: 'Kappa LuL KappaPride Kappa LUL Keepo' (many emotes)
+        # Note that LuL is not Twitch emote, so it is not included (5-7)
+        # '55338:10-19/425618:27-29/1902:31-35/25:0-4,21-25'
+
+        emote_and_count = emote_result_string.split('/')
+        for s in emote_and_count:
+            if s:
+                # only if s is not empty
+                emote_id, occurance_s = s.split(':')
+                emote_result[emote_id] = occurance_s.count('-')
+
+        # dict of Twitch emote id to count of emote in message
+        result['twitch_emotes'] = emote_result
+
+        return result

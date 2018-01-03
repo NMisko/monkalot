@@ -12,7 +12,7 @@ class outputStats(Command):
         """Initialize variables."""
         self.responses = {}
 
-    def match(self, bot, user, msg):
+    def match(self, bot, user, msg, tag_info):
         """Match if msg = !total <emote> or !minute <emote>."""
         cmd = msg.strip().lower()
 
@@ -26,7 +26,7 @@ class outputStats(Command):
         elif cmd == '!tkp':
             return True
 
-    def run(self, bot, user, msg):
+    def run(self, bot, user, msg, tag_info):
         """Write out total or minute stats of an emote."""
         self.responses = bot.responses["outputStats"]
         cmd = msg.strip().lower()

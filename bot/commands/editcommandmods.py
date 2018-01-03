@@ -14,11 +14,11 @@ class EditCommandMods(Command):
         """Initialize variables."""
         self.responses = {}
 
-    def match(self, bot, user, msg):
+    def match(self, bot, user, msg, tag_info):
         """Match if !addmod or !delmod."""
         return (msg.startswith("!addmod ") or msg.startswith("!delmod ")) and len(msg.split(' ')) == 2
 
-    def run(self, bot, user, msg):
+    def run(self, bot, user, msg, tag_info):
         """Add or delete a mod."""
         self.responses = bot.responses["EditCommandMods"]
         mod = msg.split(' ')[1].lower()

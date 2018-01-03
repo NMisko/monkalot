@@ -11,11 +11,11 @@ class Command(object):
         """Initialize the command."""
         pass
 
-    def match(self, bot, user, msg):
+    def match(self, bot, user, msg, tag_info):
         """Return whether this command should be run."""
         return False
 
-    def run(self, bot, user, msg):
+    def run(self, bot, user, msg, tag_info):
         """Run this command."""
         pass
 

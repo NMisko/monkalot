@@ -15,12 +15,12 @@ class StreamInfo(Command):
         """Initialize variables."""
         self.responses = {}
 
-    def match(self, bot, user, msg):
+    def match(self, bot, user, msg, tag_info):
         """Match if a stream information command is triggered."""
         cmd = msg.lower()
         return (cmd.startswith("!fps") or cmd.startswith("!uptime") or cmd.startswith("!bttv"))
 
-    def run(self, bot, user, msg):
+    def run(self, bot, user, msg, tag_info):
         """Get stream object and return requested information."""
         self.responses = bot.responses["StreamInfo"]
         cmd = msg.lower()

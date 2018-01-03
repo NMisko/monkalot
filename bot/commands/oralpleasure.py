@@ -14,12 +14,12 @@ class Oralpleasure(Command):
         self.active = False
         self.responses = {}
 
-    def match(self, bot, user, msg):
+    def match(self, bot, user, msg, tag_info):
         """Match if the bot is tagged."""
         cmd = msg.lower()
         return (cmd.startswith('!oralpleasure on') or cmd.startswith('!oralpleasure off'))
 
-    def run(self, bot, user, msg):
+    def run(self, bot, user, msg, tag_info):
         """Define answers based on pieces in the message."""
         self.responses = bot.responses["Oralpleasure"]
         cmd = msg.lower()

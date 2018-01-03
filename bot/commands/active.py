@@ -13,11 +13,11 @@ class Active(Command):
         """Initialize variables."""
         self.responses = {}
 
-    def match(self, bot, user, msg):
+    def match(self, bot, user, msg, tag_info):
         """Match if message starts with !active."""
         return msg.lower().startswith("!active")
 
-    def run(self, bot, user, msg):
+    def run(self, bot, user, msg, tag_info):
         """Write out active users."""
         self.responses = bot.responses["Active"]
         active = len(bot.get_active_users())
