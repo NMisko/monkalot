@@ -29,6 +29,15 @@ def formatList(list):
         return s
 
 
+def formatEmoteList(emotelist):
+    """Format emote json correctly."""
+    emotes = []
+    for emoteEntry in emotelist:
+        emote = emoteEntry['code'].strip()
+        emotes.append(emote)
+    return emotes
+
+
 def TwitchTime2datetime(twitch_time):
     """Convert Twitch time string to datetime object.
 
@@ -38,6 +47,16 @@ def TwitchTime2datetime(twitch_time):
         twitch_time = twitch_time.replace(ch, "")
 
     return datetime.strptime(twitch_time, "%Y%m%d%H%M%S")
+
+
+def sanitizeUserName(username):
+    """Format user name.
+
+    Remove the @ if a string starts with it.
+    """
+    if username.startswith("@"):
+        username = username[1:]  # remove "@"
+    return username.lower()
 
 
 def EmoteListToString(emoteList):

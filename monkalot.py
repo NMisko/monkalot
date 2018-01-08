@@ -12,7 +12,6 @@ from twisted.internet import protocol, reactor
 
 from bot.bot import TwitchBot
 from bot.multibot_irc_client import MultiBotIRCClient
-from bot.utilities.json_helper import setup_common_data_for_bots
 from bot.web import WebAPI
 
 logging.config.fileConfig('config/logging.conf')
@@ -64,15 +63,13 @@ if __name__ == "__main__":
     config_folder = args.c
     password = args.s
 
-    common_data = setup_common_data_for_bots()
-
     # Read config folder for different bot configurations
     bots = []
     for f in os.listdir(config_folder):
         path = config_folder + "/" + f + "/"
         if f != 'template' and os.path.isdir(path):
             logging.warning("Adding folder: " + path)
-            bots.append(TwitchBot(path, common_data))
+            bots.append(TwitchBot(path))
 
     # Statically set the bots used by the MultiBotIRCClient
     MultiBotIRCClient.bots = bots

@@ -78,7 +78,7 @@ class MonkalotParty(Command):
                 bot.write(self.responses["stop_msg"]["msg"])
                 return
             if self.answer != "":    # If we are not between games.
-                if self.answer not in bot.emotes:   # If not an emote compare in lowercase.
+                if self.answer not in bot.getEmotes():   # If not an emote compare in lowercase.
                     self.answer = self.answer.lower()
                     cmd = cmd.lower()
                 if cmd == self.answer:

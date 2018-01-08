@@ -41,7 +41,13 @@ STREAMS_API = TWITCH_KRAKEN_API + 'streams/{}'
 USER_EMOTE_API = TWITCH_KRAKEN_API + 'users/{}/emotes'
 USER_ID_API = TWITCH_KRAKEN_API + 'users/{}'
 USER_NAME_API = TWITCH_KRAKEN_API + 'users?login={}'
+TWITCH_EMOTE_API = TWITCH_KRAKEN_API + 'chat/emoticon_images?emotesets=0'
 
 
 BTTV_API = 'https://api.betterttv.net/2/'
+GLOBAL_BTTVEMOTES_API = BTTV_API + 'emotes'
 CHANNEL_BTTVEMOTES_API = BTTV_API + 'channels/{}'
+
+
+HEARTHSTONE_CARD_API = 'http://api.hearthstonejson.com/v1/latest/enUS/cards.collectible.json'
+EMOJI_API = "https://raw.githubusercontent.com/github/gemoji/master/db/emoji.json"

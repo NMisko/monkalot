@@ -89,7 +89,7 @@ class EmoteCounterForBot(EmoteCounter):
 
         # emoteList is list of valid emotes(string)
         self.bot = bot
-        self.emoteList = self.bot.emotes
+        self.emoteList = self.bot.getEmotes()
 
         self.__initTotalCount()
 

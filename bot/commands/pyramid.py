@@ -1,6 +1,6 @@
 """Commands: "[emote]"."""
 from collections import Counter
-from enum import Enum, auto
+from enum import Enum
 import logging
 import random
 
@@ -15,9 +15,9 @@ def emoteStr(emote, count):
 
 
 class EmoteType(Enum):
-    INVALID = auto()
-    TWITCH = auto()
-    NONTWITCH = auto()
+    INVALID = 1
+    TWITCH = 2
+    NONTWITCH = 3
 
 
 class Pyramid(Command):
@@ -28,8 +28,9 @@ class Pyramid(Command):
     def __init__(self, bot):
         """Initialize variables."""
         self.responses = bot.responses["Pyramid"]
-        self.nonTwitchEmotes = bot.global_bttvemotes + bot.channel_bttvemotes
-        self.emojis = bot.emojis
+        self.nonTwitchEmotes = bot.getGlobalBttvEmotes() + bot.getChannelBTTVEmotes()
+        self.emojis = bot.getEmojis()
+
         self.pyramidBuilders = []
 
         # reset, also initialize some variables

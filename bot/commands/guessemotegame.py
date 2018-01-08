@@ -30,8 +30,8 @@ class GuessEmoteGame(Command):
 
         if 'rng' in msg.lower():
             """Get all twitch- and BTTV-Emotes, assemble a list of random emotes."""
-            twitchemotes = bot.twitchemotes
-            bttvemotes = bot.global_bttvemotes + bot.channel_bttvemotes
+            twitchemotes = bot.getGlobalTwitchEmotes()
+            bttvemotes = bot.getChannelBTTVEmotes() + bot.getGlobalBttvEmotes()
 
             n_total = 25
             n_bttv = 10

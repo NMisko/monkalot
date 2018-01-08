@@ -27,7 +27,7 @@ class StreamInfo(Command):
         self.stream = bot.getStream(bot.channelID)
 
         if cmd.startswith("!bttv"):
-            var = {"<MULTIEMOTES>": EmoteListToString(bot.channel_bttvemotes)}
+            var = {"<MULTIEMOTES>": EmoteListToString(bot.getChannelBTTVEmotes())}
             bot.write(bot.replace_vars(self.responses["bttv_msg"]["msg"], var))
         elif self.stream["stream"] is None:
             bot.write(self.responses["stream_off"]["msg"])

@@ -13,13 +13,14 @@ import bot.commands
 import bot.emotecounter
 import bot.ranking
 from bot.error_classes import UserNotFoundError
-from bot.utilities.json_helper import load_JSON_then_save_file
 from bot.utilities.permission import Permission
-from bot.utilities.user_helper import sanitizeUserName
+from bot.utilities.tools import formatEmoteList, sanitizeUserName
+from bot.utilities.webcache import WebCache
 
 from bot.paths import (TRUSTED_MODS_PATH, IGNORED_USERS_PATH, PRONOUNS_PATH, CONFIG_PATH, CUSTOM_RESPONSES_PATH,
-                       TEMPLATE_RESPONSES_PATH, JSON_DATA_PATH, CHANNEL_BTTV_EMOTE_JSON_FILE)
-from bot.paths import USERLIST_API, CHANNEL_BTTVEMOTES_API, USER_NAME_API, USER_ID_API, USER_EMOTE_API, CHANNEL_API, STREAMS_API
+                       TEMPLATE_RESPONSES_PATH)
+from bot.paths import (USERLIST_API, CHANNEL_BTTVEMOTES_API, USER_NAME_API, USER_ID_API, USER_EMOTE_API, CHANNEL_API,
+                       STREAMS_API, TWITCH_EMOTE_API, GLOBAL_BTTVEMOTES_API, HEARTHSTONE_CARD_API, EMOJI_API)
 
 DEFAULT_RAID_ANNOUNCE_THRESHOLD = 15
 
@@ -27,10 +28,10 @@ DEFAULT_RAID_ANNOUNCE_THRESHOLD = 15
 class TwitchBot():
     """TwitchBot extends the IRCClient to interact with Twitch.tv."""
 
-    def __init__(self, root, common_data):
+    def __init__(self, root):
         """Initialize bot."""
         self.root = root
-
+        self.cache = WebCache(duration=10800)  # 3 hours
         # other instance variables
         self.trusted_mods_path = TRUSTED_MODS_PATH
         self.pronouns_path = PRONOUNS_PATH
@@ -51,15 +52,9 @@ class TwitchBot():
 
         self.reloadConfig(firstRun=True)
 
-        # load some data already available first
-        self.loadEmoteData(common_data)
-        self.cards = common_data["cards"]
-        self.emojis = common_data["emojis"]
-
         # Initialize emote counter
         self.ecount = bot.emotecounter.EmoteCounterForBot(self)
         self.ecount.startCPM()
-
         self.ranking = bot.ranking.Ranking(self)
 
         with open(TRUSTED_MODS_PATH.format(self.root), encoding="utf-8") as fp:
@@ -83,25 +78,55 @@ class TwitchBot():
         # practice or not
         self.reload_commands()
 
-    def loadEmoteData(self, common_data):
-        self.twitchemotes = common_data["twitchemotes"]
-        self.global_bttvemotes = common_data["global_bttvemotes"]
+    def getChannelBTTVEmotes(self):
+        """Return the bttv emotes enabled for the channel this bot runs on."""
+        def f(emoteJson):
+            emotelist = emoteJson['emotes']
+            return formatEmoteList(emotelist)
+        url = CHANNEL_BTTVEMOTES_API.format(self.channel[1:])
+        emotes = self.cache.get(url, f)
+        return emotes
 
-        # On first start, get channel_BTTV-emotelist
-        bttv_channel_emote_url = CHANNEL_BTTVEMOTES_API.format(self.channel[1:])
-        bttv_channel_json_path = JSON_DATA_PATH.format(self.root, CHANNEL_BTTV_EMOTE_JSON_FILE)
+    def getGlobalTwitchEmotes(self):
+        """Return available global twitch emotes."""
+        def f(emoteJson):
+            result = []
+            for emote in formatEmoteList(emoteJson['emoticon_sets']['0']):
+                if ('\\') not in emote:
+                    # print("Simple single word twitch emote", emote)
+                    result.append(emote)
+                else:
+                    # They are all regex, for example :p, :P, :-p, :-P have the same id of 12, there are many ways to input this emote
+                    # print("Complex twitch emotes that we can't handle", emote)
+                    pass
+            return result
+        return self.cache.get(TWITCH_EMOTE_API, f)
 
-        # Have to add fail safe return object since it returns 404 (don't have BTTV in my channel)
-        global_bttv_emote_json = load_JSON_then_save_file(bttv_channel_emote_url, bttv_channel_json_path, fail_safe_return_object={})
-        emotelist = global_bttv_emote_json.get("emotes", [])
+    def getGlobalBttvEmotes(self):
+        """Return available global bttv emotes."""
+        def f(emoteJson):
+            return formatEmoteList(emoteJson['emotes'])
+        return self.cache.get(GLOBAL_BTTVEMOTES_API, f)
 
-        self.channel_bttvemotes = []
-        for emoteEntry in emotelist:
-            emote = emoteEntry['code'].strip()
-            self.channel_bttvemotes.append(emote)
+    def getEmotes(self):
+        """Return all emotes which can be used by all users on this channel."""
+        return self.getChannelBTTVEmotes() + self.getGlobalTwitchEmotes() + self.getGlobalBttvEmotes()
 
-        # All available emotes in one list
-        self.emotes = self.twitchemotes + self.global_bttvemotes + self.channel_bttvemotes
+    def getHearthstoneCards(self):
+        """Return all Hearthstone cards."""
+        return self.cache.get(HEARTHSTONE_CARD_API)
+
+    def getEmojis(self):
+        """Return all available emojis."""
+        def cleanEmojis(emojis_json):
+            emojis = []
+            for e in emojis_json:
+                try:
+                    emojis.append(e['emoji'])
+                except KeyError:
+                    pass    # No Emoji found.
+            return emojis
+        return self.cache.get(EMOJI_API, cleanEmojis)
 
     def setConfig(self, config):
         """Write the config file and reload."""
@@ -630,8 +655,8 @@ class TwitchBot():
 
     def write(self, msg):
         """Write a message."""
-        #print("Fake print message: ", msg)
-        #return
+        #  print("Fake print message: ", msg)
+        #  return
         if self.irc is not None:
             self.irc.write(self.channel, msg)
         else:

@@ -77,7 +77,7 @@ class GuessMinionGame(Command):
         self.attributes = ['cardClass', 'set', 'name', 'rarity', 'attack', 'cost', 'health']
         nominion = True
         while nominion:
-            self.minion = random.choice(bot.cards)
+            self.minion = random.choice(bot.getHearthstoneCards())
             if self.minion['type'] == 'MINION':
                 nominion = False
 
