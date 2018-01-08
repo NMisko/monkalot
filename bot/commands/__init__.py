@@ -7,37 +7,39 @@ games: activeGames + passiveGames
 commands: all commands
 """
 
-from .pyramid import Pyramid
-from .kappagame import KappaGame
+from .active import Active
+from .autogames import AutoGames
+from .banme import BanMe
+from .cache import Cache
+from .calculator import Calculator
+from .editcommandlist import EditCommandList
+from .editcommandmods import EditCommandMods
+from .editquotelist import editQuoteList
 from .guessemotegame import GuessEmoteGame
 from .guessminiongame import GuessMinionGame
+from .kappagame import KappaGame
 from .monkalotparty import MonkalotParty
-from .sleep import Sleep
-from .editcommandlist import EditCommandList
-from .editquotelist import editQuoteList
+from .notifications import Notifications
+from .oralpleasure import Oralpleasure
 from .outputquote import outputQuote
 from .outputstats import outputStats
-from .calculator import Calculator
-from .autogames import AutoGames
-from .notifications import Notifications
-from .pyramidreply import PyramidReply
-from .tentareply import TentaReply
-from .smorc import Smorc
-from .slaphug import SlapHug
-from .rank import Rank
-from .editcommandmods import EditCommandMods
-from .active import Active
 from .pronouns import Pronouns
-from .questions import Questions
-from .oralpleasure import Oralpleasure
-from .banme import BanMe
-from .userignore import UserIgnore
-from .speech import Speech
-from .simplereply import SimpleReply
+from .pyramid import Pyramid
 from .pyramidblock import PyramidBlock
+from .pyramidreply import PyramidReply
+from .questions import Questions
+from .rank import Rank
+from .simplereply import SimpleReply
+from .slaphug import SlapHug
+from .sleep import Sleep
+from .smorc import Smorc
 from .spam import Spam
-from .topspammers import TopSpammers
+from .speech import Speech
 from .streaminfo import StreamInfo
+from .tentareply import TentaReply
+from .topspammers import TopSpammers
+from .userignore import UserIgnore
+
 
 activeGames = [
     KappaGame,
@@ -51,33 +53,34 @@ passiveGames = [
 ]
 
 other = [
-    Sleep,
+    # EmoteReply,     # Deactivated due to request from IGetNoKick in Zetalot's channel 26.09.2017
+    Active,
+    AutoGames,
+    BanMe,
+    Cache,
+    Calculator,
     EditCommandList,
+    EditCommandMods,
     editQuoteList,
+    Notifications,
+    Oralpleasure,
     outputQuote,
     outputStats,
-    Calculator,
-    AutoGames,
-    Notifications,
-    PyramidReply,
-    # EmoteReply,     # Deactivated due to request from IGetNoKick in Zetalot's channel 26.09.2017
-    TentaReply,
-    Smorc,
-    SlapHug,
-    Rank,
-    EditCommandMods,
-    Active,
     Pronouns,
-    Questions,
-    Oralpleasure,
-    BanMe,
-    UserIgnore,
-    Speech,
-    SimpleReply,
     PyramidBlock,
+    PyramidReply,
+    Questions,
+    Rank,
+    SimpleReply,
+    SlapHug,
+    Sleep,
+    Smorc,
     Spam,
+    Speech,
+    StreamInfo,
+    TentaReply,
     TopSpammers,
-    StreamInfo
+    UserIgnore
 ]
 
 commands = activeGames + passiveGames + other

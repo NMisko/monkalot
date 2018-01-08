@@ -23,6 +23,7 @@ from bot.paths import (USERLIST_API, CHANNEL_BTTVEMOTES_API, USER_NAME_API, USER
                        STREAMS_API, TWITCH_EMOTE_API, GLOBAL_BTTVEMOTES_API, HEARTHSTONE_CARD_API, EMOJI_API)
 
 DEFAULT_RAID_ANNOUNCE_THRESHOLD = 15
+CACHE_DURATION = 10800
 
 
 class TwitchBot():
@@ -31,7 +32,7 @@ class TwitchBot():
     def __init__(self, root):
         """Initialize bot."""
         self.root = root
-        self.cache = WebCache(duration=10800)  # 3 hours
+        self.cache = WebCache(duration=CACHE_DURATION)  # 3 hours
         # other instance variables
         self.trusted_mods_path = TRUSTED_MODS_PATH
         self.pronouns_path = PRONOUNS_PATH
@@ -657,6 +658,10 @@ class TwitchBot():
         """Output ignored users file."""
         with open(IGNORED_USERS_PATH.format(self.root), 'w', encoding="utf-8") as file:
             json.dump(self.ignored_users, file, indent=4)
+
+    def clearCache(self):
+        """Clear the cache."""
+        self.cache = WebCache(duration=CACHE_DURATION)
 
     def write(self, msg):
         """Write a message."""
