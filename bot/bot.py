@@ -85,7 +85,7 @@ class TwitchBot():
             emotelist = emoteJson['emotes']
             return formatEmoteList(emotelist)
         url = CHANNEL_BTTVEMOTES_API.format(self.channel[1:])
-        emotes = self.cache.get(url, f)
+        emotes = self.cache.get(url, f, fallback=[])
         return emotes
 
     def getGlobalTwitchEmotes(self):
@@ -101,13 +101,13 @@ class TwitchBot():
                     # print("Complex twitch emotes that we can't handle", emote)
                     pass
             return result
-        return self.cache.get(TWITCH_EMOTE_API, f)
+        return self.cache.get(TWITCH_EMOTE_API, f, fallback=[])
 
     def getGlobalBttvEmotes(self):
         """Return available global bttv emotes."""
         def f(emoteJson):
             return formatEmoteList(emoteJson['emotes'])
-        return self.cache.get(GLOBAL_BTTVEMOTES_API, f)
+        return self.cache.get(GLOBAL_BTTVEMOTES_API, f, fallback=[])
 
     def getEmotes(self):
         """Return all emotes which can be used by all users on this channel."""
@@ -115,11 +115,11 @@ class TwitchBot():
 
     def getHearthstoneCards(self):
         """Return all Hearthstone cards."""
-        return self.cache.get(HEARTHSTONE_CARD_API)
+        return self.cache.get(HEARTHSTONE_CARD_API, fallback=[])
 
     def getEmojis(self):
         """Return all available emojis."""
-        def cleanEmojis(emojis_json):
+        def f(emojis_json):
             emojis = []
             for e in emojis_json:
                 try:
@@ -127,7 +127,7 @@ class TwitchBot():
                 except KeyError:
                     pass    # No Emoji found.
             return emojis
-        return self.cache.get(EMOJI_API, cleanEmojis)
+        return self.cache.get(EMOJI_API, f, fallback=[])
 
     def setConfig(self, config):
         """Write the config file and reload."""

@@ -16,7 +16,7 @@ class WebCache():
         self.data = dict()  # Maps url -> [data, timestamp]
         self.duration = duration
 
-    def get(self, url, function=None):
+    def get(self, url, function=None, fallback=None):
         """Get the json returned by an url.
 
         If a 'function' is defined, the result of 'function(json)' gets returned.
@@ -25,12 +25,21 @@ class WebCache():
             timestamp = datetime.now()
             json = self.loadJSON(url)
             if json:
-                if function:
+                if function is not None:
                     result = function(json)
                 else:
                     result = json
                 self.data[url] = [result, timestamp]
                 return result
+            else:
+                # fallback if url down or json cannot be loaded
+                if url in self.data:
+                    return self.data[url][0]
+                else:
+                    if fallback is not None:
+                        return fallback
+                    else:
+                        raise RequestException
         else:
             return self.data[url][0]
 
