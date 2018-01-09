@@ -20,7 +20,7 @@ class outputStats(Command):
             cmd = msg.strip()   # now without .lower()
             cmd = cmd.split(' ', 1)
 
-            return cmd[1].strip() in bot.emotes
+            return cmd[1].strip() in bot.getEmotes()
         elif cmd == '!kpm':
             return True
         elif cmd == '!tkp':
