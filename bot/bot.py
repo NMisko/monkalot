@@ -58,15 +58,6 @@ class TwitchBot():
         self.ecount.startCPM()
         self.ranking = bot.ranking.Ranking(self)
 
-        with open(TRUSTED_MODS_PATH.format(self.root), encoding="utf-8") as fp:
-            self.trusted_mods = json.load(fp)
-
-        with open(IGNORED_USERS_PATH.format(self.root), encoding="utf-8") as fp:
-            self.ignored_users = json.load(fp)
-
-        with open(PRONOUNS_PATH.format(self.root), encoding="utf-8") as fp:
-            self.pronouns = json.load(fp)
-
         # Get user list, seems better not to cache
         url = USERLIST_API.format(self.channel[1:])
         data = requests.get(url).json()
@@ -145,6 +136,15 @@ class TwitchBot():
         """Reload the entire config."""
         with open(CONFIG_PATH.format(self.root), 'r', encoding="utf-8") as file:
             CONFIG = json.load(file)
+
+        with open(TRUSTED_MODS_PATH.format(self.root), encoding="utf-8") as fp:
+            self.trusted_mods = json.load(fp)
+
+        with open(IGNORED_USERS_PATH.format(self.root), encoding="utf-8") as fp:
+            self.ignored_users = json.load(fp)
+
+        with open(PRONOUNS_PATH.format(self.root), encoding="utf-8") as fp:
+            self.pronouns = json.load(fp)
 
         # load template responses first
         with open(TEMPLATE_RESPONSES_PATH, 'r', encoding="utf-8") as file:
