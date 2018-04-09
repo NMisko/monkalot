@@ -1,5 +1,6 @@
 """Commands: "@[botname] XXXXX"."""
 import random
+import logging
 
 from cleverwrap import CleverWrap
 from twisted.internet import reactor
@@ -21,6 +22,11 @@ class Speech(Command):
     def getReply(self, bot, user, msg):
         """Get reply from cleverbot and post it in the channel."""
         output = self.cw[user].say(msg)
+
+        if output is None:
+            logging.warning("WARNING: No cleverbot reply retrieved. Cannot reply.")
+            return
+
         if not random.randint(0, 3):
             output = output + " monkaS"
         try:
