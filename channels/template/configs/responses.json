@@ -754,5 +754,42 @@
                 }
             }
         }
+    },
+    "Tip": {
+        "numbererror": {
+            "msg": "The tip amount has to be a whole number between <MINTIP> and <MAXTIP>.",
+            "info": "Display if a user uses wrong input for tip amount.",
+            "args_info": {
+                "<MINTIP>": "Minimum amount of points for tipping.",
+                "<MAXTIP>": "Maximum amount of points for tipping."
+            }
+        },
+        "cooldown": {
+            "msg": "@<USER> You can tip again in <TIMER> seconds. (Once every <COOLDOWN> minutes) monkaS",
+            "info": "Display if a user uses wrong input for tip amount.",
+            "args_info": {
+                "<USER>": "User who sent the tip.",
+                "<TIMER>": "Time until the user can tip again.",
+                "<COOLDOWN>": "Time between two tips."
+            }
+        },
+        "tipsend": {
+            "msg": "<USER> just send <TARGET> <AMOUNT> spampoints. <TYPE>",
+            "info": "Display if a user uses wrong input for tip amount.",
+            "args_info": {
+                "<USER>": "User who sent the tip.",
+                "<TARGET>": "User who recieved the tip.",
+                "<AMOUNT>": "Amount of points tipped.",
+                "<TYPE>": "Depending on the type of tip a specific emote is send."
+            }
+        },
+        "notenough": {
+            "msg": "@<USER> You do not even have <AMOUNT> points to donate. PepeHands",
+            "info": "Display if a user uses wrong input for tip amount.",
+            "args_info": {
+				"<USER>": "User who tried to send the tip.",
+                "<AMOUNT>": "Amount of points tipped."
+            }
+        }
     }
 }

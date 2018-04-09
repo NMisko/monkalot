@@ -37,6 +37,7 @@ from .spam import Spam
 from .speech import Speech
 from .streaminfo import StreamInfo
 from .tentareply import TentaReply
+from .tip import Tip
 from .topspammers import TopSpammers
 from .userignore import UserIgnore
 
@@ -76,11 +77,12 @@ other = [
     Sleep,
     Smorc,
     Spam,
-    Speech,
     StreamInfo,
     TentaReply,
+    Tip,
     TopSpammers,
-    UserIgnore
+    UserIgnore,
+    Speech # Speech always has to be the last entry so it does not 'overwrite' commands which include the bots name.
 ]
 
 commands = activeGames + passiveGames + other
