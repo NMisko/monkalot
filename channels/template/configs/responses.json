@@ -402,7 +402,8 @@
                 "UNGORO": "Journey to Un'Goro",
                 "NAXX": "Curse of Naxxramas",
                 "GVG": "Goblins vs Gnomes",
-                "LOE": "The League of Explorers"
+                "LOE": "The League of Explorers",
+                "LOOTAPALOOZA": "Kobolds and Catacombs"
             },
             "info": "Hearthstone set name conversion.",
             "args_info": {}
