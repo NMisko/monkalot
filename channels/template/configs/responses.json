@@ -403,7 +403,8 @@
                 "NAXX": "Curse of Naxxramas",
                 "GVG": "Goblins vs Gnomes",
                 "LOE": "The League of Explorers",
-                "LOOTAPALOOZA": "Kobolds and Catacombs"
+                "LOOTAPALOOZA": "Kobolds and Catacombs",
+                "GILNEAS": "The Witchwood"
             },
             "info": "Hearthstone set name conversion.",
             "args_info": {}
