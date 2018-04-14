@@ -492,16 +492,15 @@ class TwitchBot():
 
         except RequestException as e:
             # 4xx/5xx errors from server
-            logging.error("Twitch server-side error, URL sent is {}, status code is {}".format(url, r.status_code))
-            logging.error("Error message from twitch's JSON {} ".format(r.json()))
-            logging.error(traceback.format_exc())
-            raise e
+
+            msg = "Twitch server-side error, URL sent is {}, status code is {}".format(url, r.status_code)
+            msg += "\nError message from twitch's JSON {} ".format(r.json())
+            raise RequestException(msg)
 
         except ValueError as e:
             # likely can't parse JSON
-            logging.error("Error in getting user JSON with URL {}, status code is {}".format(url, r.status_code))
-            logging.error(traceback.format_exc())
-            raise e
+            msg = "Error in getting user JSON with URL {}, status code is {}".format(url, r.status_code)
+            raise ValueError(msg)
 
     def getUserDataFromID(self, user_id):
         """Get Twitch user data of a given id."""
