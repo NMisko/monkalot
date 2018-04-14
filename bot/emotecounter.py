@@ -87,10 +87,7 @@ class EmoteCounterForBot(EmoteCounter):
         """Initialize counter."""
         super().__init__(t)
 
-        # emoteList is list of valid emotes(string)
         self.bot = bot
-        self.emoteList = self.bot.getEmotes()
-
         self.__initTotalCount()
 
     def getTotalcount(self, emote):
@@ -122,7 +119,7 @@ class EmoteCounterForBot(EmoteCounter):
                     refreshFile = True
                 else:
                     # If there are new emotes, add them here
-                    for emote in self.emoteList:
+                    for emote in self.bot.getEmotes():
                         if emote not in totalData:
                             logging.info("New emote {} added to Twitch/BTTV, adding it to count file".format(emote))
                             totalData[emote] = 0
@@ -144,7 +141,7 @@ class EmoteCounterForBot(EmoteCounter):
         """
         emptyList = {}
 
-        for emote in self.emoteList:
+        for emote in self.bot.getEmotes():
             emptyList[emote] = 0
 
         return emptyList
@@ -155,7 +152,10 @@ class EmoteCounterForBot(EmoteCounter):
             totalCount = json.load(file)
 
         for emote in emoteDict:
-            totalCount[emote] += emoteDict[emote]
+            if emote in totalCount:
+                totalCount[emote] += emoteDict[emote]
+            else:
+                totalCount[emote] = emoteDict[emote]
 
         with open(STATISTIC_FILE.format(self.bot.root), 'w', encoding="utf-8") as file:
             json.dump(totalCount, file, indent=4)
@@ -170,7 +170,7 @@ class EmoteCounterForBot(EmoteCounter):
         splitMsg = splitMsg.split(' ')
 
         for m in splitMsg:
-            if m in self.emoteList:
+            if m in self.bot.getEmotes():
                 if m in emoteDict:
                     emoteDict[m] += 1
                 else:
