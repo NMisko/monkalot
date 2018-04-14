@@ -212,7 +212,7 @@ class TwitchBot():
         if user in self.pronouns:
             return self.pronouns[user]
         else:
-            return ["he", "him", "his"]
+            return self.pronouns["default"]
 
     def handleWhisper(self, sender, content):
         """Entry point for all incoming whisper messages to bot."""

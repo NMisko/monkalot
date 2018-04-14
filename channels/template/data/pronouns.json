@@ -1,7 +1,16 @@
 {
+    "default": [
+        "he",
+        "him",
+        "his",
+        "his",
+        "himself"
+    ],
     "igetnokick": [
         "she",
         "her",
-        "hers"
+        "her",
+        "hers",
+        "herself"
     ]
 }

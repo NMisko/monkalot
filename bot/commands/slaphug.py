@@ -25,18 +25,13 @@ class SlapHug(Command):
             reply = reply.replace("<user>", bot.displayName(user))
         if "<target>" in reply:
             reply = reply.replace("<target>", bot.displayName(target))
-        if "<u_pronoun0>" in reply:
-            reply = reply.replace("<u_pronoun0>", bot.pronoun(user)[0])
-        if "<u_pronoun1>" in reply:
-            reply = reply.replace("<u_pronoun1>", bot.pronoun(user)[1])
-        if "<u_pronoun2>" in reply:
-            reply = reply.replace("<u_pronoun2>", bot.pronoun(user)[2])
-        if "<t_pronoun0>" in reply:
-            reply = reply.replace("<t_pronoun0>", bot.pronoun(target)[0])
-        if "<t_pronoun1>" in reply:
-            reply = reply.replace("<t_pronoun1>", bot.pronoun(target)[1])
-        if "<t_pronoun2>" in reply:
-            reply = reply.replace("<t_pronoun2>", bot.pronoun(target)[2])
+        for i in [0, 1, 2, 3]:
+            keyword = "<u_pronoun" + str(i) + ">"
+            if keyword in reply:
+                reply = reply.replace(keyword, bot.pronoun(user)[i])
+            keyword = "<t_pronoun" + str(i) + ">"
+            if keyword in reply:
+                reply = reply.replace(keyword, bot.pronoun(target)[i])
         return reply
 
     def match(self, bot, user, msg, tag_info):
