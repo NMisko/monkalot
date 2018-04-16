@@ -12,6 +12,7 @@ from .autogames import AutoGames
 from .banme import BanMe
 from .cache import Cache
 from .calculator import Calculator
+from .cardinfo import CardInfo
 from .editcommandlist import EditCommandList
 from .editcommandmods import EditCommandMods
 from .editquotelist import editQuoteList
@@ -60,6 +61,7 @@ other = [
     BanMe,
     Cache,
     Calculator,
+    CardInfo,
     EditCommandList,
     EditCommandMods,
     editQuoteList,
@@ -82,7 +84,7 @@ other = [
     Tip,
     TopSpammers,
     UserIgnore,
-    Speech # Speech always has to be the last entry so it does not 'overwrite' commands which include the bots name.
+    Speech  # Speech always has to be the last entry so it does not 'overwrite' commands which include the bots name.
 ]
 
 commands = activeGames + passiveGames + other

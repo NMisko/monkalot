@@ -4,7 +4,7 @@ A bot for [Zetalot's Twitch stream](https://twitch.tv/zetalot).
 
 Users in chat gain "spam" points by chatting, playing games and building emote pyramids. Small emote pyramids (width: 3) get timed out, big emote pyramids (width: 5) reward points. The bot can be conversed with (requires Cleverbot key) and many more special commands exist (see list below).
 
-The bot is designed to be highly modular, making it very easy to disable commands (by just commenting out one line) or [add commands](#adding-a-new-custom-command). The bot is almost fully configurable on a channel by channel basis. These configurations can also be controlled via [REST api](#rest-api) or through a [Web Interface](https://github.com/NMisko/monkalot-ui). 
+The bot is designed to be highly modular, making it very easy to disable commands (by just commenting out one line) or [add commands](#adding-a-new-custom-command). The bot is almost fully configurable on a channel by channel basis. These configurations can also be controlled via [REST api](#rest-api) or through a [Web Interface](https://github.com/NMisko/monkalot-ui).
 
 ![monkaS](http://i3.kym-cdn.com/entries/icons/original/000/022/713/4.png)
 
@@ -34,6 +34,7 @@ All commands that can be called from chat via different calls. Note that some co
 | `!oralpleasure on/off`  | Turns oralpleasure on or off. | - |
 | `!calc <formula>`       | A chat calculator that can do some pretty advanced stuff like sqrt and trigonometry. | `!calc (5+7)/2` , <br>`!calc log(5^2) + sin(pi/4)` |
 | `<botname> <text>`      | Talk to the bot. Questions can be asked or a conversation can be started with the native speech engine. | `Hey Monkalot, how are you doing?`, `What's 2Head + 2Head? @Monkalot` |
+| `[<hearthstone card>]` | Get some information about a hearthstone card. Allows up to two spelling mistakes. | `[Malganis]` |
 
 ### Chat games:
 
@@ -137,7 +138,7 @@ Returns all configurable files of *Monkalot*.
 curl --data 'user=alice&bot=monkalot&file=ignored_users.json&auth=Kappa' localhost:8080/file
 ```
 
-Returns the content of *ignored_users.json*. 
+Returns the content of *ignored_users.json*.
 
 \=\> `{"content": ['bob']}`
 
@@ -152,7 +153,7 @@ Sets the content of *ignored_users.json* to *["Bob","Carl"]*.
 ---
 
 
-```bash 
+```bash
 curl --data 'auth=xyz' localhost:8080/getTwitchUsername
 ```
 
