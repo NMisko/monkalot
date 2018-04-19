@@ -54,5 +54,7 @@ class CardInfo(Command):
             bot.write("{}, Spell - {} Mana{}".format(card['name'], card['cost'], text))
         elif card['type'] == 'HERO':
             bot.write("{}, Hero - {} Mana, {} Armor{}".format(card['name'], card['cost'], card['armor'], text))
+        elif card['type'] == 'WEAPON':
+            bot.write("{}, Weapon - {} Mana, {}/{}{}".format(card['name'], card['cost'], card['attack'], card['durability'], text))
         else:
             bot.write("{}{}".format(card['name'], text))
