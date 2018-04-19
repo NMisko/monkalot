@@ -42,14 +42,17 @@ class CardInfo(Command):
             card = bot.getHearthstoneCards()[name]
 
         # Remove formatting and weird [x] I don't know the meaning of
-        text = re.sub(r'<.*?>|\[x\]|\$', "", card['text'])
-        text = re.sub(r'\n', " ", text)
+        if 'text' in card:
+            text = re.sub(r'<.*?>|\[x\]|\$', "", card['text'])
+            text = " - " + re.sub(r'\n', " ", text)
+        else:
+            text = ""
 
         if card['type'] == 'MINION':
-            bot.write("{}, Minion - {} Mana, {}/{} - {}".format(card['name'], card['cost'], card['attack'], card['health'], text))
+            bot.write("{}, Minion - {} Mana, {}/{}{}".format(card['name'], card['cost'], card['attack'], card['health'], text))
         elif card['type'] == 'SPELL':
-            bot.write("{}, Spell - {} Mana - {}".format(card['name'], card['cost'], text))
+            bot.write("{}, Spell - {} Mana{}".format(card['name'], card['cost'], text))
         elif card['type'] == 'HERO':
-            bot.write("{}, Hero - {} Mana, {} Armor - {}".format(card['name'], card['cost'], card['armor'], text))
+            bot.write("{}, Hero - {} Mana, {} Armor{}".format(card['name'], card['cost'], card['armor'], text))
         else:
-            bot.write("{} - {}".format(card['name'], text))
+            bot.write("{}{}".format(card['name'], text))
