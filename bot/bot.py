@@ -179,7 +179,6 @@ class TwitchBot():
             'Authorization': self.password
         }
 
-        self.cleverbot_key = str(CONFIG['cleverbot_key'])
         self.channel = "#" + str(CONFIG['channel'])
         self.channelID = self.getuserID(str(CONFIG['channel']))
         self.pleb_cooldowntime = CONFIG["pleb_cooldown"]  # time between non-sub commands

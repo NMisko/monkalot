@@ -6,3 +6,4 @@ pyparsing
 colorlog
 bottle
 jwcrypto
+chatterbot
