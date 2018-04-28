@@ -34,7 +34,7 @@ class Questions(Command):
 
     def match(self, bot, user, msg, tag_info):
         """Match if the bot is tagged, the sentence contains 'what is' (in various forms) or proper math syntax."""
-        if (bot.nickname.lower() in msg.lower() and self.wordInMsg(self.whatis, msg)):
+        if bot.nickname.lower() in msg.lower() and self.wordInMsg(self.whatis, msg):
             index = self.wordInMsg(self.whatis, msg)
             cmd = msg.lower().replace(self.whatis[index-1], '').replace('@', '').replace(bot.nickname, '').replace('?', '')
             if self.wordInMsg(self.twohead, msg) or self.calc.checkSymbols(cmd):
@@ -48,4 +48,4 @@ class Questions(Command):
             bot.write('@' + bot.displayName(user) + ' It\'s 4Head')
         else:
             cmd = msg.lower().replace(self.whatis[index-1], '').replace('@', '').replace(bot.nickname, '').replace('?', '')
-            self.calc.run(bot, user, "!calc " + cmd)
+            self.calc.run(bot, user, "!calc " + cmd, tag_info)
