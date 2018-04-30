@@ -23,8 +23,8 @@ class CardInfo(Command):
         self.spellcorrection = SpellCorrection(set(cardNames))
 
     def match(self, bot, user, msg, tag_info):
-        """Match if message is inside []."""
-        return re.match('^\[.*\]$', msg)
+        """Match if message is inside [] and message length < 30."""
+        return (re.match('^\[.*\]$', msg) and len(msg)<30)
 
     def run(self, bot, user, msg, tag_info):
         """Print out information about a card."""
