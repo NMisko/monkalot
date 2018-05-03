@@ -101,6 +101,4 @@ class Chatterbot(Replier):
 
     def get_reply(self, message, name):
         """Get a reply from the chat bot."""
-        if name not in self.conversations:
-            self.conversations[name] = self.chatterbot.conversation_sessions.new().uuid
-        return str(self.chatterbot.get_response(message, session_id=self.conversations[name]))
+        return str(self.chatterbot.get_response(message))
