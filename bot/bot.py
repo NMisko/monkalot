@@ -428,18 +428,57 @@ class TwitchBot():
         # Reload commands
         self.close_commands()
 
-        self.commands = []
         self.games = []
         self.passivegames = []
 
-        for cmd in bot.commands.commands:
-            cmdInstance = cmd(self)
-            self.commands.append(cmdInstance)
+        if self.commands == []:
+            for cmd in bot.commands.commands:
+                self.commands.append(cmd(self))
+        else:
+            for cmd in self.commands:
+                reloadable = True
+                for non_reloadable_class in bot.commands.non_reload:
+                    if cmd.__class__ == non_reloadable_class:
+                        reloadable = False
+                if reloadable:
+                    cmd = cmd.__class__(self)
 
+        for cmd in self.commands:
             if cmd in bot.commands.games:
-                self.games.append(cmdInstance)
+                self.games.append(cmd)
             if cmd in bot.commands.passivegames:
-                self.passivegames.append(cmdInstance)
+                self.passivegames.append(cmd)
+
+        # non_reloadable_commands = []
+        # for cmd in self.commands:
+        #     for non_reloadable_cmd in bot.commands.non_reload:
+        #         if isinstance(cmd, bot.commands.non_reload):
+        #             non_reloadable_commands.append(cmd)
+
+        # self.commands = []
+        # self.games = []
+        # self.passivegames = []
+        # self.non_reloadable = []
+        #
+        # for cmd in bot.commands.commands:
+        #     if cmd not in bot.commands.non_reload:
+        #         cmdInstance = cmd(self)
+        #         self.commands.append(cmdInstance)
+        #     else:
+        #         appended = False
+        #         for non_reloadable_cmd in non_reloadable_commands:
+        #             if(non_reloadable_cmd.__name__ == cmd):
+        #                 self.command.append(non_reloadable_cmd)
+        #                 non_reloadable_commands.remove(non_reloadable_cmd)
+        #                 appended = True
+        #         if not appended:
+        #             self.commands.append(cmd(self))
+        #
+        # for cmd in self.commands:
+        #     if cmd in bot.commands.games:
+        #         self.games.append(cmdInstance)
+        #     if cmd in bot.commands.passivegames:
+        #         self.passivegames.append(cmdInstance)
 
     def reload(self):
         """Reload bot."""

@@ -15,6 +15,7 @@ class Speech(Command):
     """Natural language by using cleverbot."""
 
     perm = Permission.User
+    reloadable = False
 
     def __init__(self, bot):
         """Initialize variables."""

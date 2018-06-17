@@ -87,6 +87,11 @@ other = [
     Speech  # Speech always has to be the last entry so it does not 'overwrite' commands which include the bots name.
 ]
 
+# Repeat here the commands that should not get reloaded if the config gets rewritten
+non_reload = [
+    Speech
+]
+
 commands = activeGames + passiveGames + other
 games = activeGames + passiveGames
 passivegames = passiveGames
