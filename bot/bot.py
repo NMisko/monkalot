@@ -436,14 +436,11 @@ class TwitchBot():
                 self.commands.append(cmd(self))
         else:
             for i, cmd in enumerate(self.commands):
-                print("here")
                 reloadable = True
                 for non_reloadable_class in bot.commands.non_reload:
                     if cmd.__class__ == non_reloadable_class:
-                        print("non reloadable")
                         reloadable = False
                 if reloadable:
-                    print("reloadable")
                     self.commands[i] = cmd.__class__(self)
 
         for cmd in self.commands:
