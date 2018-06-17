@@ -91,6 +91,7 @@ class Chatterbot(Replier):
         chatbot_logger = logging.Logger(logging.WARNING)
         self.chatterbot = ChatBot(
             'Monkalot',
+            read_only=True,
             trainer='chatterbot.trainers.ChatterBotCorpusTrainer',
             logger=chatbot_logger
         )
