@@ -444,9 +444,9 @@ class TwitchBot():
                     self.commands[i] = cmd.__class__(self)
 
         for cmd in self.commands:
-            if cmd in bot.commands.games:
+            if cmd.__class__ in bot.commands.games:
                 self.games.append(cmd)
-            if cmd in bot.commands.passivegames:
+            if cmd.__class__ in bot.commands.passivegames:
                 self.passivegames.append(cmd)
 
     def reload(self):
