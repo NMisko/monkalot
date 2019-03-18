@@ -73,7 +73,7 @@ class MonkalotParty(Command):
             """Start of threading"""
             self.callID = reactor.callLater(5, self.selectGame, bot)
         else:
-            if cmd.lower() == "!pstop" and (bot.get_permission(user) > 0):
+            if cmd.lower() == "!pstop" and (bot.get_permission(user) > 1): #Fix for Subs stopping pstop - Bellyria
                 self.close(bot)
                 bot.write(self.responses["stop_msg"]["msg"])
                 return
