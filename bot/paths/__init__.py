@@ -33,7 +33,7 @@ USERLIST_API = TWITCH_TMI + 'group/user/{}/chatters'
 
 
 TWITCH_API = 'https://api.twitch.tv/'
-OIDC_API = TWITCH_API + '/api/oidc/keys'
+OIDC_API = 'https://id.twitch.tv/oauth2/keys'
 
 TWITCH_KRAKEN_API = TWITCH_API + 'kraken/'
 CHANNEL_API = TWITCH_KRAKEN_API + 'channels/{}'
