@@ -6,8 +6,6 @@ Users in chat gain "spam" points by chatting, playing games and building emote p
 
 The bot is designed to be highly modular, making it very easy to disable commands (by just commenting out one line) or [add commands](#adding-a-new-custom-command). The bot is almost fully configurable on a channel by channel basis. These configurations can also be controlled via [REST api](#rest-api) or through a [Web Interface](https://github.com/NMisko/monkalot-ui).
 
-![monkaS](http://i3.kym-cdn.com/entries/icons/original/000/022/713/4.png)
-
 # Commands
 
 All commands that can be called from chat via different calls. Note that some commands can only be called by Moderators, Trusted-Moderators or Bot-Admins. Chat games can also be started by regular users, if they have spam points to pay for it.
