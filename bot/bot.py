@@ -20,7 +20,7 @@ from bot.utilities.webcache import WebCache
 from bot.paths import (TRUSTED_MODS_PATH, IGNORED_USERS_PATH, PRONOUNS_PATH, CONFIG_PATH, CUSTOM_RESPONSES_PATH,
                        TEMPLATE_RESPONSES_PATH)
 from bot.paths import (USERLIST_API, CHANNEL_BTTVEMOTES_API, USER_NAME_API, USER_ID_API, USER_EMOTE_API, CHANNEL_API,
-                       STREAMS_API, TWITCH_EMOTE_API, GLOBAL_BTTVEMOTES_API, HEARTHSTONE_CARD_API, EMOJI_API)
+                       STREAMS_API, TWITCH_EMOTE_API, GLOBAL_BTTVEMOTES_API, HEARTHSTONE_CARD_API, EMOJI_API, FFZ_API)
 
 DEFAULT_RAID_ANNOUNCE_THRESHOLD = 15
 CACHE_DURATION = 10800
@@ -69,6 +69,15 @@ class TwitchBot():
         # yet in reloadConfig(). So we have to reload commands here ... not sure if this is good
         # practice or not
         self.reload_commands()
+    
+    def getChannelFFZEmotes(self):
+        """Return FFZ emotes for this channel."""
+        def f(emote_json):
+            return [emote["name"] for set_id in emote_json["sets"] for emote in emote_json["sets"][set_id]["emoticons"]]
+        url = FFZ_API.format(self.channel[1:])
+        emotes = self.cache.get(url, f, fallback=[])
+        print(emotes)
+        return emotes
 
     def getChannelBTTVEmotes(self):
         """Return the bttv emotes enabled for the channel this bot runs on."""
@@ -102,7 +111,8 @@ class TwitchBot():
 
     def getEmotes(self):
         """Return all emotes which can be used by all users on this channel."""
-        return self.getChannelBTTVEmotes() + self.getGlobalTwitchEmotes() + self.getGlobalBttvEmotes()
+        return self.getChannelBTTVEmotes() + self.getGlobalTwitchEmotes() \
+            + self.getGlobalBttvEmotes() + self.getChannelFFZEmotes()
 
     def getHearthstoneCards(self):
         """Return all Hearthstone cards."""

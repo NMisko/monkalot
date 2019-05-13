@@ -51,3 +51,5 @@ CHANNEL_BTTVEMOTES_API = BTTV_API + 'channels/{}'
 
 HEARTHSTONE_CARD_API = 'http://api.hearthstonejson.com/v1/latest/enUS/cards.collectible.json'
 EMOJI_API = "https://raw.githubusercontent.com/github/gemoji/master/db/emoji.json"
+
+FFZ_API = "https://api.frankerfacez.com/v1/room/{}"
