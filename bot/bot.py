@@ -76,7 +76,6 @@ class TwitchBot():
             return [emote["name"] for set_id in emote_json["sets"] for emote in emote_json["sets"][set_id]["emoticons"]]
         url = FFZ_API.format(self.channel[1:])
         emotes = self.cache.get(url, f, fallback=[])
-        print(emotes)
         return emotes
 
     def getChannelBTTVEmotes(self):
