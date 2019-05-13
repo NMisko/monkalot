@@ -48,7 +48,7 @@ class Speech(Command):
             logging.warning("WARNING: No chatbot ({}) reply retrieved. Cannot reply.".format(self.chatbot.name))
 
         if not random.randint(0, 3):
-            output = output + " monkaS"
+            output = (output or "") + " monkaS"
 
         bot.write("@" + user + " " + output)
 
