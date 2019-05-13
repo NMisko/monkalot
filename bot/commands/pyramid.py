@@ -28,7 +28,7 @@ class Pyramid(Command):
     def __init__(self, bot):
         """Initialize variables."""
         self.responses = bot.responses["Pyramid"]
-        self.nonTwitchEmotes = bot.getGlobalBttvEmotes() + bot.getChannelBTTVEmotes()
+        self.nonTwitchEmotes = bot.getGlobalBttvEmotes() + bot.getChannelBTTVEmotes() + bot.getChannelFFZEmotes()
         self.emojis = bot.getEmojis()
 
         self.pyramidBuilders = []
