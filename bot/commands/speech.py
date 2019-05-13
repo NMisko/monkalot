@@ -87,20 +87,27 @@ class Chatterbot(Replier):
     name = "chatterbot"
 
     def __init__(self, trainer):
+        self.trained = False
         self.conversations = {}
         logging.info("Setting up chat bot...")
+        # asynchronous training
+        reactor.callInThread(self._train, trainer)
+    
+    def _train(self, trainer):
         chatbot_logger = logging.Logger(logging.WARNING)
+        # Train based on the english corpus
         self.chatterbot = ChatBot(
             'Monkalot',
             read_only=True,
             trainer='chatterbot.trainers.ChatterBotCorpusTrainer',
             logger=chatbot_logger
         )
-
-        # Train based on the english corpus
         self.chatterbot.train(trainer)
+        self.trained = True
         logging.info("...chat bot finished training.")
 
     def get_reply(self, message, name):
         """Get a reply from the chat bot."""
-        return str(self.chatterbot.get_response(message))
+        if self.trained:
+            return str(self.chatterbot.get_response(message))
+        return "Please wait a little longer, I'm not ready to talk yet :)"
