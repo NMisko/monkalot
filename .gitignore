@@ -5,3 +5,5 @@ pylama.ini
 
 channels/*
 !channels/template
+.idea
+.vscode
