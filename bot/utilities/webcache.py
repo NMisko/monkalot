@@ -37,6 +37,7 @@ class WebCache():
                     return self.data[url][0]
                 else:
                     if fallback is not None:
+                        self.data[url] = [fallback, timestamp]
                         return fallback
                     else:
                         raise RequestException
