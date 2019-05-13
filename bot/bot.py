@@ -678,6 +678,7 @@ class TwitchBot():
     def clearCache(self):
         """Clear the cache."""
         self.cache = WebCache(duration=CACHE_DURATION)
+        self.reload_commands()
 
     def write(self, msg):
         """Write a message."""
