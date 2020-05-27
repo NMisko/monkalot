@@ -5,7 +5,7 @@ import logging
 import random
 
 
-from bot.commands.command import Command
+from bot.commands.abstract.command import Command
 from bot.utilities.permission import Permission
 from bot.utilities.tools import format_list
 

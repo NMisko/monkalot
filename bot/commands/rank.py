@@ -1,5 +1,5 @@
 """Commands: "!rank [username]"."""
-from bot.commands.command import Command
+from bot.commands.abstract.command import Command
 from bot.utilities.permission import Permission
 from bot.utilities.tools import sanitize_user_name
 

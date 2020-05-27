@@ -3,7 +3,7 @@ import logging
 
 from requests import RequestException
 
-from bot.commands.command import Command
+from bot.commands.abstract.command import Command
 from bot.utilities.permission import Permission
 
 

@@ -1,5 +1,5 @@
 """Command which bans users who ask to be banned."""
-from bot.commands.command import Command
+from bot.commands.abstract.command import Command
 from bot.utilities.permission import Permission
 
 

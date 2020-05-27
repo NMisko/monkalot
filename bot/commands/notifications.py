@@ -3,7 +3,7 @@ import json
 
 from twisted.internet import reactor
 
-from bot.commands.command import Command
+from bot.commands.abstract.command import Command
 from bot.paths import NOTIFICATIONS_FILE
 from bot.utilities.permission import Permission
 from bot.utilities.tools import is_call_id_active

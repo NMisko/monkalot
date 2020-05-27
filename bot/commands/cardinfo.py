@@ -1,7 +1,7 @@
 """Commands: "[<hearthstone card name>]"."""
 import re
 
-from bot.commands.command import Command
+from bot.commands.abstract.command import Command
 from bot.utilities.permission import Permission
 from bot.utilities.spellcorrection import SpellCorrection
 from bot.data_sources.hearthstone import Hearthstone

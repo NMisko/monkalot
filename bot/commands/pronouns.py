@@ -1,7 +1,7 @@
 """Commands: "!g [username] [subjective pronoun] [objective pronoun] [possessive pronoun]"."""
 import json
 
-from bot.commands.command import Command
+from bot.commands.abstract.command import Command
 from bot.utilities.permission import Permission
 
 

@@ -1,5 +1,5 @@
 """Commands: "what's/whats/what is XXXXX"."""
-from bot.commands.command import Command
+from bot.commands.abstract.command import Command
 from bot.utilities.permission import Permission
 
 from .calculator import Calculator

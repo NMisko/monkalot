@@ -2,7 +2,7 @@
 import json
 import random
 
-from bot.commands.command import Command
+from bot.commands.abstract.command import Command
 from bot.paths import SLAPHUG_FILE
 from bot.utilities.permission import Permission
 

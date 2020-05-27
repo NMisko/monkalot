@@ -1,7 +1,7 @@
 """Commands: "!fps", "!uptime", "!bttv"."""
 from datetime import datetime
 
-from bot.commands.command import Command
+from bot.commands.abstract.command import Command
 from bot.utilities.permission import Permission
 from bot.utilities.tools import emote_list_to_string, twitch_time_to_datetime
 

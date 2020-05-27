@@ -4,7 +4,7 @@ import re
 import math
 import pyparsing
 
-from bot.commands.command import Command
+from bot.commands.abstract.command import Command
 from bot.utilities.math_parser import NumericStringParser
 from bot.utilities.permission import Permission
 

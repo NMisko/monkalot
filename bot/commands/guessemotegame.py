@@ -1,7 +1,7 @@
 """Commands: "!estart", "!rngestart"."""
 import random
 
-from bot.commands.command import Command
+from bot.commands.abstract.command import Command
 from bot.utilities.permission import Permission
 from bot.utilities.startgame import start_game
 from bot.utilities.tools import emote_list_to_string

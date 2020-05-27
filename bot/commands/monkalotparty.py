@@ -3,7 +3,7 @@ import random
 
 from twisted.internet import reactor
 
-from bot.commands.command import Command
+from bot.commands.abstract.command import Command
 from bot.utilities.permission import Permission
 from bot.utilities.startgame import start_game
 from bot.utilities.tools import format_list, is_call_id_active

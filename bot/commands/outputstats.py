@@ -1,5 +1,5 @@
 """Commands: "!total [emote]", "!minute [emote]"."""
-from bot.commands.command import Command
+from bot.commands.abstract.command import Command
 from bot.utilities.permission import Permission
 
 

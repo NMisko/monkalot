@@ -1,14 +1,13 @@
 """Commands: "@[botname] XXXXX"."""
 import logging
 import random
-import time
 
 from chatterbot import ChatBot
 from chatterbot.trainers import ChatterBotCorpusTrainer
 from cleverwrap import CleverWrap
 from twisted.internet import reactor
 
-from bot.commands.command import Command
+from bot.commands.abstract.command import Command
 from bot.utilities.permission import Permission
 
 
