@@ -15,6 +15,7 @@ from .cardinfo import CardInfo
 from .editcommandlist import EditCommandList
 from .editcommandmods import EditCommandMods
 from .editquotelist import EditQuoteList
+from .guess_racetrack_game import GuessRacetrackGame
 from .guessemotegame import GuessEmoteGame
 from .guessminiongame import GuessMinionGame
 from .kappagame import KappaGame

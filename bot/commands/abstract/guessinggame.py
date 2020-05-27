@@ -66,6 +66,7 @@ class GuessingGame(Command):
 
     def init_game(self, bot):
         """Initialize game."""
+        self.attributes = self._attributes.copy()
         self.object_to_guess = random.choice(self.object_pool)
 
     def match(self, bot, user, msg, tag_info):
