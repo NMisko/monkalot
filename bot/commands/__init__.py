@@ -7,7 +7,6 @@ games: activeGames + passiveGames
 commands: all commands
 """
 
-from .active import Active
 from .autogames import AutoGames
 from .banme import BanMe
 from .cache import Cache
@@ -36,7 +35,7 @@ from .sleep import Sleep
 from .smorc import Smorc
 from .spam import Spam
 
-# from .speech import Speech
+from .speech import Speech
 from .streaminfo import StreamInfo
 from .tentareply import TentaReply
 from .tip import Tip
@@ -44,13 +43,12 @@ from .topspammers import TopSpammers
 from .userignore import UserIgnore
 
 
-activeGames = [KappaGame, GuessEmoteGame, GuessMinionGame, MonkalotParty]
+active_games = [KappaGame, GuessEmoteGame, GuessMinionGame, MonkalotParty]
 
-passiveGames = [Pyramid]
+passive_games = [Pyramid]
 
 other = [
     # EmoteReply,     # Deactivated due to request from IGetNoKick in Zetalot's channel 26.09.2017
-    Active,
     AutoGames,
     BanMe,
     Cache,
@@ -82,8 +80,8 @@ other = [
 ]
 
 # Repeat here the commands that should not get reloaded if the config gets rewritten
-# non_reload = [Speech]
+non_reload = [Speech]
 
-commands = activeGames + passiveGames + other
-games = activeGames + passiveGames
-passivegames = passiveGames
+commands = active_games + passive_games + other
+games = active_games + passive_games
+passivegames = passive_games
