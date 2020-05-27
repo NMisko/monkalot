@@ -94,11 +94,11 @@ class NumericStringParser(object):
 
         self.exprStack = []
 
-    def push_first(self, strg, loc, toks):
+    def push_first(self, _, __, toks):
         """Push first token."""
         self.exprStack.append(toks[0])
 
-    def push_u_minus(self, strg, loc, toks):
+    def push_u_minus(self, _, __, toks):
         """Push a unary minus."""
         if toks and toks[0] == "-":
             self.exprStack.append("unary -")
@@ -123,9 +123,9 @@ class NumericStringParser(object):
         else:
             return float(op)
 
-    def eval(self, num_string, parseAll=True):
+    def eval(self, num_string, parse_all=True):
         """Evaluate value of string."""
         self.exprStack = []
-        self.bnf.parseString(num_string, parseAll)
+        self.bnf.parseString(num_string, parse_all)
         val = self.evaluate_stack(self.exprStack[:])
         return val
