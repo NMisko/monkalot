@@ -4,6 +4,7 @@ import random
 import time
 
 from chatterbot import ChatBot
+from chatterbot.trainers import ChatterBotCorpusTrainer
 from cleverwrap import CleverWrap
 from twisted.internet import reactor
 
@@ -86,23 +87,23 @@ class Chatterbot(Replier):
     """A replier that uses chatterbot."""
     name = "chatterbot"
 
-    def __init__(self, trainer):
+    def __init__(self, corpus_string):
         self.trained = False
         self.conversations = {}
         logging.info("Setting up chat bot...")
         # asynchronous training
-        reactor.callInThread(self._train, trainer)
-    
-    def _train(self, trainer):
-        chatbot_logger = logging.Logger(logging.WARNING)
+        self._train(corpus_string)
+
+    def _train(self, corpus_string):
+        chatbot_logger = logging.Logger('WARNING')
         # Train based on the english corpus
         self.chatterbot = ChatBot(
             'Monkalot',
             read_only=True,
-            trainer='chatterbot.trainers.ChatterBotCorpusTrainer',
             logger=chatbot_logger
         )
-        self.chatterbot.train(trainer)
+        trainer = ChatterBotCorpusTrainer(self.chatterbot)
+        trainer.train(corpus_string)
         self.trained = True
         logging.info("...chat bot finished training.")
 
