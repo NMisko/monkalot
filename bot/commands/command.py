@@ -1,8 +1,9 @@
 """Contains base command class."""
 from bot.utilities.permission import Permission
+from abc import ABC
 
 
-class Command(object):
+class Command(ABC):
     """Represents a command, a way of reacting to chat messages."""
 
     perm = Permission.Admin

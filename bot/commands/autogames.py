@@ -49,7 +49,7 @@ class AutoGames(Command):
     def run(self, bot, user, msg, tag_info):
         """Start/stop automatic games."""
         self.responses = bot.responses["AutoGames"]
-        cmd = msg[len("!games ") :]
+        cmd = msg[len("!games "):]
         cmd.strip()
 
         if cmd == "on":

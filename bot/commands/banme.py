@@ -15,11 +15,11 @@ class BanMe(Command):
     def run(self, bot, user, msg, tag_info):
         """Ban a user. And unban him again."""
         bot.antispeech = True
-        self.responses = bot.responses["BanMe"]
+        responses = bot.responses["BanMe"]
         if bot.get_permission(user) in [Permission.User, Permission.Subscriber]:
             bot.ban(user)
             bot.unban(user)
-            bot.write("@" + user + " " + self.responses["success"]["msg"])
+            bot.write("@" + user + " " + responses["success"]["msg"])
         else:
             """A mod want to get banned/unmodded, but monkalot can't unmod them anyway"""
-            bot.write("@" + user + " " + self.responses["fail"]["msg"])
+            bot.write("@" + user + " " + responses["fail"]["msg"])
