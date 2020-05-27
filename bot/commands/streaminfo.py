@@ -22,12 +22,16 @@ class StreamInfo(Command):
 
     def run(self, bot, user, msg, tag_info):
         """Get stream object and return requested information."""
-        responses = bot.responses["StreamInfo"]
+        responses = bot.config.responses["StreamInfo"]
         stream = bot.twitch.get_stream(bot.channelID)
         cmd = msg.lower()
 
         if cmd.startswith("!bttv"):
-            var = {"<MULTIEMOTES>": emote_list_to_string(bot.emotes.get_channel_bttv_emotes())}
+            var = {
+                "<MULTIEMOTES>": emote_list_to_string(
+                    bot.emotes.get_channel_bttv_emotes()
+                )
+            }
             bot.write(bot.replace_vars(responses["bttv_msg"]["msg"], var))
         elif stream["stream"] is None:
             bot.write(responses["stream_off"]["msg"])

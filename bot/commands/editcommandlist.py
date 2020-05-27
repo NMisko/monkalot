@@ -82,7 +82,7 @@ class EditCommandList(Command):
 
     def run(self, bot, user, msg, tag_info):
         """Add or delete command, or print list."""
-        self.responses = bot.responses["EditCommandList"]
+        self.responses = bot.config.responses["EditCommandList"]
         cmd = msg.lower().strip()
 
         if cmd.startswith("!addcommand "):

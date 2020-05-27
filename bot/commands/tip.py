@@ -12,7 +12,7 @@ class Tip(Command):
 
     def __init__(self, bot):
         """Initialize variables."""
-        self.responses = bot.responses["Tip"]
+        self.responses = bot.config.responses["Tip"]
         self.tipcooldown = 900  # Cooldown between tips of the same user in seconds
         self.tiptimer = {}  # Tiptimer dictionary for all users
         self.mintip = 50  # Minimum amount a user can tip

@@ -1,6 +1,4 @@
-from bot.paths import (
-    HEARTHSTONE_CARD_API,
-)
+from bot.paths import HEARTHSTONE_CARD_API
 from bot.utilities.webcache import WebCache
 
 

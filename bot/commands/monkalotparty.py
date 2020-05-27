@@ -61,12 +61,12 @@ class MonkalotParty(Command):
 
     def run(self, bot, user, msg, tag_info):
         """Define answers based on pieces in the message."""
-        self.responses = bot.responses["MonkalotParty"]
+        self.responses = bot.config.responses["MonkalotParty"]
         cmd = msg.strip()
 
         if not self.active:
             self.active = True
-            bot.gameRunning = True
+            bot.game_running = True
             bot.write(self.responses["start_msg"]["msg"])
 
             """Start of threading"""
@@ -85,7 +85,10 @@ class MonkalotParty(Command):
                     self.answer = self.answer.lower()
                     cmd = cmd.lower()
                 if cmd == self.answer:
-                    var = {"<USER>": bot.twitch.display_name(user), "<ANSWER>": self.answer}
+                    var = {
+                        "<USER>": bot.twitch.display_name(user),
+                        "<ANSWER>": self.answer,
+                    }
                     bot.write(
                         bot.replace_vars(self.responses["winner_msg"]["msg"], var)
                     )
@@ -103,4 +106,4 @@ class MonkalotParty(Command):
         if is_call_id_active(self.callID):
             self.callID.cancel()
         self.active = False
-        bot.gameRunning = False
+        bot.game_running = False

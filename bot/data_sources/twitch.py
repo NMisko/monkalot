@@ -35,11 +35,15 @@ class TwitchSource:
 
     def get_channel(self, channel_id):
         """Get the channel object from channelID."""
-        return requests.get(CHANNEL_API.format(channel_id), headers=self.twitch_api_headers).json()
+        return requests.get(
+            CHANNEL_API.format(channel_id), headers=self.twitch_api_headers
+        ).json()
 
     def get_stream(self, channel_id):
         """Get the channel object from channelID."""
-        return requests.get(STREAMS_API.format(channel_id), headers=self.twitch_api_headers).json()
+        return requests.get(
+            STREAMS_API.format(channel_id), headers=self.twitch_api_headers
+        ).json()
 
     def get_display_name_from_id(self, user_id):
         """Convert user id to display name."""
@@ -56,8 +60,12 @@ class TwitchSource:
 
     def _get_user_data_from_id(self, user_id):
         """Get Twitch user data of a given id."""
-        return self.cache.get(USER_ID_API.format(user_id), headers=self.twitch_api_headers)
+        return self.cache.get(
+            USER_ID_API.format(user_id), headers=self.twitch_api_headers
+        )
 
     def _get_user_tag(self, username):
         """Get the full data of user from username."""
-        return self.cache.get(USER_NAME_API.format(username), headers=self.twitch_api_headers)
+        return self.cache.get(
+            USER_NAME_API.format(username), headers=self.twitch_api_headers
+        )

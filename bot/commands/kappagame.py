@@ -14,12 +14,13 @@ class KappaGame(Command):
 
     perm = Permission.User
 
-    def __init__(self, _):
+    def __init__(self, bot):
         """Initialize variables."""
         self.responses = {}
         self.active = False
         self.n = 0
         self.answered = []
+        self.kappa_game_points = bot.config.config["points"]["kappa_game"]
 
     def match(self, bot, user, msg, tag_info):
         """Match if the game is active or gets started with !kstart by a user who pays 5 points."""
@@ -28,7 +29,7 @@ class KappaGame(Command):
     def run(self, bot, user, msg, tag_info):
         """Generate a random number n when game gets first started.
         Afterwards, check if a message contains the emote n times."""
-        self.responses = bot.responses["KappaGame"]
+        self.responses = bot.config.responses["KappaGame"]
         cmd = msg.strip()
 
         if not self.active:
@@ -50,8 +51,8 @@ class KappaGame(Command):
             if i == self.n:
                 var = {"<USER>": bot.twitch.display_name(user), "<AMOUNT>": self.n}
                 bot.write(bot.replace_vars(self.responses["winner_msg"]["msg"], var))
-                bot.ranking.increment_points(user, bot.KAPPAGAMEP, bot)
-                bot.gameRunning = False
+                bot.ranking.increment_points(user, self.kappa_game_points, bot)
+                bot.game_running = False
                 self.active = False
                 self.answered = []
             elif i != -1:
@@ -76,4 +77,4 @@ class KappaGame(Command):
         """Close kappa game."""
         self.answered = []
         self.active = False
-        bot.gameRunning = False
+        bot.game_running = False

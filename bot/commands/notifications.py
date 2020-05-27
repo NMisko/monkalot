@@ -20,17 +20,19 @@ class Notifications(Command):
 
     def __init__(self, bot):
         """Initialize variables."""
-        self.responses = bot.responses["Notifications"]
+        self.responses = bot.config.responses["Notifications"]
         self.active = False  # It should be configured by the user if the notifications are on or off by default.
         self.callID = None
         self.listindex = 0
+        self.notification_interval = bot.config.config["notification_interval"]
+
         with open(NOTIFICATIONS_FILE.format(bot.root), encoding="utf-8") as file:
             self.notifications = json.load(file)
 
         """If notifications are enabled by default, start the threading."""
         if self.active:
             self.callID = reactor.callLater(
-                bot.NOTIFICATION_INTERVAL, self.write_notification, bot
+                self.notification_interval, self.write_notification, bot
             )
 
     def raise_list_index(self):
@@ -58,7 +60,7 @@ class Notifications(Command):
 
         """Threading to keep notifications running, if class active."""
         self.callID = reactor.callLater(
-            bot.NOTIFICATION_INTERVAL, self.write_notification, bot
+            self.notification_interval, self.write_notification, bot
         )
 
     def addnotification(self, bot, arg):
@@ -109,7 +111,7 @@ class Notifications(Command):
             if not self.active:
                 self.active = True
                 self.callID = reactor.callLater(
-                    bot.NOTIFICATION_INTERVAL, self.write_notification, bot
+                    self.notification_interval, self.write_notification, bot
                 )
                 bot.write(self.responses["notifications_activate"]["msg"])
             else:

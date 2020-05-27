@@ -28,7 +28,7 @@ class OutputStats(Command):
 
     def run(self, bot, user, msg, tag_info):
         """Write out total or minute stats of an emote."""
-        self.responses = bot.responses["outputStats"]
+        self.responses = bot.config.responses["outputStats"]
         cmd = msg.strip().lower()
 
         if cmd.startswith("!total "):

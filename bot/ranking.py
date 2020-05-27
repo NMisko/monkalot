@@ -89,7 +89,9 @@ class Ranking:
             if "Legend" in rank:
                 var = {"<USER>": bot.twitch.display_name(username), "<RANK>": rank}
                 bot.write(
-                    bot.replace_vars(bot.responses["ranking"]["msg_legend"]["msg"], var)
+                    bot.replace_vars(
+                        bot.config.responses["ranking"]["msg_legend"]["msg"], var
+                    )
                 )
 
     def get_rank(self, points):

@@ -237,7 +237,7 @@ class WebAPI(object):
         with open(path, mode="w") as file:
             json.dump(json_data, file, indent=4)
 
-        bot.reloadConfig()
+        bot.reload()
 
     @staticmethod
     @route("/getTwitchUsername", method="POST")

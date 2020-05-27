@@ -48,7 +48,10 @@ class EmoteReply(Command):
             parse = msg.split(" ", 2)
             self.cmd = parse[0].strip()
             self.emote = parse[1].strip()
-            if self.emote in bot.emotes.get_emotes() or self.emote in bot.emotes.get_emojis():
+            if (
+                self.emote in bot.emotes.get_emotes()
+                or self.emote in bot.emotes.get_emojis()
+            ):
                 try:
                     self.text = parse[2].strip()
                 except IndexError:
@@ -61,7 +64,7 @@ class EmoteReply(Command):
 
     def run(self, bot, user, msg, tag_info):
         """Output emote message if cmd matches."""
-        self.responses = bot.responses["EmoteReply"]
+        self.responses = bot.config.responses["EmoteReply"]
 
         if self.cmd == "!call":
             var = {"<EMOTE>": self.emote}

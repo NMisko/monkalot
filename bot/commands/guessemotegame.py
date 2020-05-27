@@ -17,12 +17,14 @@ class GuessEmoteGame(Command):
 
     perm = Permission.User
 
-    def __init__(self, _):
+    def __init__(self, bot):
         """Initialize variables."""
         self.responses = {}
         self.active = False
         self.emotes = []
         self.emote = ""
+        self.emote_game_emotes = bot.config.config["EmoteGame"]
+        self.emote_game_points = bot.config.config["points"]["emote_game"]
 
     def init_game(self, bot, msg):
         """Initialize GuessEmoteGame."""
@@ -31,7 +33,10 @@ class GuessEmoteGame(Command):
         if "rng" in msg.lower():
             """Get all twitch- and BTTV-Emotes, assemble a list of random emotes."""
             twitchemotes = bot.emotes.get_global_twitch_emotes()
-            bttvemotes = bot.emotes.get_channel_bttv_emotes() + bot.emotes.get_global_bttv_emotes()
+            bttvemotes = (
+                bot.emotes.get_channel_bttv_emotes()
+                + bot.emotes.get_global_bttv_emotes()
+            )
 
             n_total = 25
             n_bttv = 10
@@ -53,7 +58,7 @@ class GuessEmoteGame(Command):
                     i += 1
         else:
             """Get emotes from config-file."""
-            emotelist = bot.EMOTEGAMEEMOTES
+            emotelist = bot.config.emote_game_emotes
 
         """Shuffle list and choose a winning emote."""
         random.shuffle(emotelist)
@@ -70,7 +75,7 @@ class GuessEmoteGame(Command):
 
     def run(self, bot, user, msg, tag_info):
         """Initalize the command on first run. Check for right emote for each new msg."""
-        self.responses = bot.responses["GuessEmoteGame"]
+        self.responses = bot.config.responses["GuessEmoteGame"]
         cmd = msg.strip()
 
         if not self.active:
@@ -92,12 +97,12 @@ class GuessEmoteGame(Command):
                 var = {
                     "<USER>": bot.twitch.display_name(user),
                     "<EMOTE>": self.emote,
-                    "<PRONOUN0>": bot.pronoun(user)[0].capitalize(),
-                    "<AMOUNT>": bot.EMOTEGAMEP,
+                    "<PRONOUN0>": bot.config.pronoun(user)[0].capitalize(),
+                    "<AMOUNT>": bot.emote_game_points,
                 }
                 bot.write(bot.replace_vars(self.responses["winner_msg"]["msg"], var))
-                bot.ranking.increment_points(user, bot.EMOTEGAMEP, bot)
-                bot.gameRunning = False
+                bot.ranking.increment_points(user, bot.emote_game_points, bot)
+                bot.game_running = False
                 self.active = False
             elif cmd == "!emotes":
                 var = {"<MULTIEMOTES>": emote_list_to_string(self.emotes)}
@@ -106,4 +111,4 @@ class GuessEmoteGame(Command):
     def close(self, bot):
         """Close emote game."""
         self.active = False
-        bot.gameRunning = False
+        bot.game_running = False

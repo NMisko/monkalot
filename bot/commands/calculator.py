@@ -32,7 +32,7 @@ class Calculator(Command):
 
     def run(self, bot, user, msg, tag_info):
         """Evaluate second part of message and write the result."""
-        self.responses = bot.responses["Calculator"]
+        self.responses = bot.config.responses["Calculator"]
         expr = msg.split(" ", 1)[1]
         try:
             result = self.nsp.eval(expr)

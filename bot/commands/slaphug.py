@@ -29,10 +29,10 @@ class SlapHug(Command):
         for i in [0, 1, 2, 3]:
             keyword = "<u_pronoun" + str(i) + ">"
             if keyword in reply:
-                reply = reply.replace(keyword, bot.pronoun(user)[i])
+                reply = reply.replace(keyword, bot.config.pronoun(user)[i])
             keyword = "<t_pronoun" + str(i) + ">"
             if keyword in reply:
-                reply = reply.replace(keyword, bot.pronoun(target)[i])
+                reply = reply.replace(keyword, bot.config.pronoun(target)[i])
         return reply
 
     def match(self, bot, user, msg, tag_info):
@@ -44,7 +44,7 @@ class SlapHug(Command):
             if len(cmd) == 2:
                 target = cmd[1].lower().strip()
                 """Check if user is in chat."""
-                if target in bot.users and target != bot.nickname.lower():
+                if target in bot.users and target != bot.config.nickname.lower():
                     return True
         return False
 

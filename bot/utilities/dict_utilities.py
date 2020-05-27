@@ -19,7 +19,7 @@ def deep_merge_dict(base, custom, dict_path=""):
         else:
             dict_path += "[{}]".format(k)
             if type(base[k]) != type(
-                    custom[k]
+                custom[k]
             ):  # noqa - intended, we check for same type
                 raise TypeError(
                     "Different type of data found on merging key{}".format(dict_path)

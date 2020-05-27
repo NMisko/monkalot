@@ -37,6 +37,7 @@ class GuessMinionGame(Command):
         ]
         self.minion = None
         self.hearthstone = Hearthstone(bot.cache)
+        self.minion_game_points = bot.config.config["points"]["minion_game"]
 
     def giveClue(self, bot):  # noqa (let's ignore the high complexity for now)
         """Give a random clue to the chat.
@@ -98,7 +99,7 @@ class GuessMinionGame(Command):
 
     def run(self, bot, user, msg, tag_info):
         """On first run initialize game."""
-        self.responses = bot.responses["GuessMinionGame"]
+        self.responses = bot.config.responses["GuessMinionGame"]
         cmd = msg.strip()
 
         if not self.active:
@@ -121,11 +122,11 @@ class GuessMinionGame(Command):
                 var = {
                     "<USER>": bot.twitch.display_name(user),
                     "<MINION>": name,
-                    "<PRONOUN0>": bot.pronoun(user)[0].capitalize(),
-                    "<AMOUNT>": bot.MINIONGAMEP,
+                    "<PRONOUN0>": bot.config.pronoun(user)[0].capitalize(),
+                    "<AMOUNT>": bot.minion_game_points,
                 }
                 bot.write(bot.replace_vars(self.responses["winner_msg"]["msg"], var))
-                bot.ranking.increment_points(user, bot.MINIONGAMEP, bot)
+                bot.ranking.increment_points(user, bot.minion_game_points, bot)
                 self.close(bot)
 
     def close(self, bot):
@@ -133,4 +134,4 @@ class GuessMinionGame(Command):
         if is_call_id_active(self.callID):
             self.callID.cancel()
         self.active = False
-        bot.gameRunning = False
+        bot.game_running = False

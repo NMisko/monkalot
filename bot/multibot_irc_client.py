@@ -40,11 +40,11 @@ class MultiBotIRCClient(irc.IRCClient, object):
         self.sendLine("CAP REQ :twitch.tv/tags")
 
         joined_channels = []
-        for b in MultiBotIRCClient.bots:
-            b.irc = self
-            if b.channel not in joined_channels:
-                self.join(b.channel)
-                joined_channels.append(b.channel)
+        for bot in MultiBotIRCClient.bots:
+            bot.irc = self
+            if bot.config.channel not in joined_channels:
+                self.join(bot.config.channel)
+                joined_channels.append(bot.config.channel)
 
     def rawDataReceived(self, data):
         pass
@@ -64,21 +64,21 @@ class MultiBotIRCClient(irc.IRCClient, object):
 
     def modeChanged(self, user, channel, added, modes, args):
         """Not sure what this does. Maybe gets called when mods get added/removed."""
-        for b in MultiBotIRCClient.bots:
-            if b.channel == channel:
-                b.mode_changed(user, channel, added, modes, args)
+        for bot in MultiBotIRCClient.bots:
+            if bot.config.channel == channel:
+                bot.mode_changed(user, channel, added, modes, args)
 
     def userJoined(self, user, channel):
         """Update user list when user joins."""
-        for b in MultiBotIRCClient.bots:
-            if b.channel == channel:
-                b.users.add(user)
+        for bot in MultiBotIRCClient.bots:
+            if bot.config.channel == channel:
+                bot.users.add(user)
 
     def userLeft(self, user, channel):
         """Update user list when user leaves."""
-        for b in MultiBotIRCClient.bots:
-            if b.channel == channel:
-                b.users.discard(user)
+        for bot in MultiBotIRCClient.bots:
+            if bot.config.channel == channel:
+                bot.users.discard(user)
 
     def parsemsg(self, s):
         """Break a message from an IRC server into its prefix, command, and arguments."""
@@ -133,9 +133,9 @@ class MultiBotIRCClient(irc.IRCClient, object):
         # pass
         elif cmd == "usernotice":
             channel, msg = self.parse_irc_last_line(args)
-            for b in MultiBotIRCClient.bots:
-                if b.channel == channel:
-                    self.handle_usernotice(b, tags, msg)
+            for bot in MultiBotIRCClient.bots:
+                if bot.config.channel == channel:
+                    self.handle_usernotice(bot, tags, msg)
 
         # Remove tag information
         if line[0] == "@":
@@ -160,9 +160,9 @@ class MultiBotIRCClient(irc.IRCClient, object):
         # print("Show tags", tags)
         tag_info = self.parse_tag_for_chat_message(tags)
 
-        for b in MultiBotIRCClient.bots:
-            if b.channel == channel:
-                b.process_command(name, msg, tag_info)
+        for bot in MultiBotIRCClient.bots:
+            if bot.config.channel == channel:
+                bot.process_command(name, msg, tag_info)
 
     @staticmethod
     def parse_irc_last_line(args):
@@ -217,10 +217,10 @@ class MultiBotIRCClient(irc.IRCClient, object):
         self.tags[name].update(tags)
 
         channel = args[0]
-        for b in MultiBotIRCClient.bots:
+        for bot in MultiBotIRCClient.bots:
             # our bot store channel starting with '#'
-            if b.channel == channel:
-                b.user_state(prefix, tags)
+            if bot.config.channel == channel:
+                bot.user_state(prefix, tags)
 
     @staticmethod
     def irc_whisper(prefix, args):
@@ -230,17 +230,17 @@ class MultiBotIRCClient(irc.IRCClient, object):
         # args[0]: receiver of whisper message (should be bot)
         # args[1]: content of message
 
-        for b in MultiBotIRCClient.bots:
-            if b.nickname == args[0]:
-                b.handle_whisper(sender, args[1])
+        for bot in MultiBotIRCClient.bots:
+            if bot.config.nickname == args[0]:
+                bot.handle_whisper(sender, args[1])
 
     @staticmethod
     def host_target(channel, target):
         """Track and update hosting status."""
         target = target.split(" ")[0]
-        for b in MultiBotIRCClient.bots:
-            if b.channel == channel:
-                b.set_host(channel, target)
+        for bot in MultiBotIRCClient.bots:
+            if bot.config.channel == channel:
+                bot.set_host(channel, target)
 
     @staticmethod
     def clear_chat(channel, target=None):

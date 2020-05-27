@@ -10,7 +10,7 @@ class UserIgnore(Command):
 
     def __init__(self, bot):
         """Initialize responses."""
-        self.responses = bot.responses["userignore"]
+        self.responses = bot.config.responses["userignore"]
 
     def match(self, bot, user, msg, tag_info):
         """Check if command starts with !ignore or !unignore."""
@@ -33,7 +33,7 @@ class UserIgnore(Command):
             ignore_reply = self.responses["ignore"]
             # bot can ignore ANYONE, we just add the name to bot.ignored_users
             # IMPORTNT: ANYONE includes owner, mod and the bot itself, we do the checking here to prevent it
-            if (target == bot.nickname) or any(
+            if (target == bot.config.nickname) or any(
                 target in coll for coll in (bot.owner_list, bot.trusted_mods)
             ):
                 reply = ignore_reply["privileged"]

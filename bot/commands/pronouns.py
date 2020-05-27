@@ -23,7 +23,7 @@ class Pronouns(Command):
 
     def run(self, bot, user, msg, tag_info):
         """Add custom pronouns."""
-        self.responses = bot.responses["Pronouns"]
+        self.responses = bot.config.responses["Pronouns"]
         args = msg.lower().split(" ")
 
         bot.pronouns[args[1]] = [args[2], args[3], args[4], args[5], args[6]]

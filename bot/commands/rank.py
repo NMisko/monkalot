@@ -31,7 +31,7 @@ class Rank(Command):
         >= LEGENDP: Legend
         """
 
-        self.responses = bot.responses["Rank"]
+        self.responses = bot.config.responses["Rank"]
         if msg.startswith("!rank "):
             user = sanitize_user_name(msg.split(" ")[1])
 

@@ -32,14 +32,14 @@ class Speech(Command):
 
     def match(self, bot, user, msg, tag_info):
         """Match if the bot is tagged."""
-        return bot.nickname in msg.lower()
+        return bot.config.nickname in msg.lower()
 
     def run(self, bot, user, msg, tag_info):
         """Send message to cleverbot only if no other command got triggered."""
         if not bot.antispeech:
             msg = msg.lower()
             msg = msg.replace("@", "")
-            msg = msg.replace(bot.nickname, "")
+            msg = msg.replace(bot.config.nickname, "")
 
             """Get reply in extra thread, so bot doesnt pause while waiting for the reply."""
             reactor.callInThread(self.answer, bot, user, msg)

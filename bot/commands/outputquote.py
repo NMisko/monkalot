@@ -25,7 +25,7 @@ class OutputQuote(Command):
 
     def run(self, bot, user, msg, tag_info):
         """Say a quote."""
-        self.responses = bot.responses["outputQuote"]
+        self.responses = bot.config.responses["outputQuote"]
         cmd = msg.lower().strip()
         if cmd == "!quote":
             quote = random.choice(self.quotelist)

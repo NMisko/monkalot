@@ -22,7 +22,7 @@ class EditCommandMods(Command):
 
     def run(self, bot, user, msg, tag_info):
         """Add or delete a mod."""
-        self.responses = bot.responses["EditCommandMods"]
+        self.responses = bot.config.responses["EditCommandMods"]
         mod = msg.split(" ")[1].lower()
         if msg.startswith("!addmod "):
             if mod not in bot.trusted_mods:

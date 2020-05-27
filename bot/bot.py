@@ -1,5 +1,5 @@
-"""Module for Twitch bot and threaded logging."""
-import json
+"""Module for Twitch bot and threaded logging.
+"""
 import logging
 import time
 import traceback
@@ -8,22 +8,13 @@ from collections import defaultdict
 import bot.commands
 import bot.emotecounter
 import bot.ranking
+from bot.data_sources.config import ConfigSource
 from bot.data_sources.emotes import EmoteSource
 from bot.data_sources.twitch import TwitchSource
-from bot.paths import (
-    TRUSTED_MODS_PATH,
-    IGNORED_USERS_PATH,
-    PRONOUNS_PATH,
-    CONFIG_PATH,
-    CUSTOM_RESPONSES_PATH,
-    TEMPLATE_RESPONSES_PATH,
-)
-from bot.utilities.dict_utilities import deep_merge_dict
 from bot.utilities.permission import Permission
 from bot.utilities.tools import sanitize_user_name
 from bot.utilities.webcache import WebCache
 
-DEFAULT_RAID_ANNOUNCE_THRESHOLD = 15
 CACHE_DURATION = 10800
 
 
@@ -35,133 +26,92 @@ class TwitchBot:
         self.root = root
         self.irc = None
         self.cache = WebCache(duration=CACHE_DURATION)  # 3 hours
-        # other instance variables
-        self.trusted_mods_path = TRUSTED_MODS_PATH
-        self.pronouns_path = PRONOUNS_PATH
 
+        # Sources
+        self.emotes, self.twitch, self.config = self.load_sources()
+
+        # Commands
+        self.commands = []
+        self.games, self.passivegames = self.load_commands()
+
+        # States
+        self.last_warning = defaultdict(int)
         self.host_target = False
         self.pause = False
-        self.commands = []
-        self.gameRunning = False
-        self.antispeech = (
-            False  # if a command gets executed which conflicts with native speech
-        )
-        self.pyramidBlock = False
+        self.game_running = False
+        self.antispeech = False
+        self.pyramid_block = False
+        self.last_plebcmd = time.time() - self.config.pleb_cooldowntime
+        self.last_plebgame = time.time() - self.config.pleb_gametimer
 
-        # user cache related:
-        self.reload_config(first_run=True)
-
-        # Initialize emote counter
+        # Emote Counter
         self.ecount = bot.emotecounter.EmoteCounterForBot(self)
         self.ecount.start_cpm()
         self.ranking = bot.ranking.Ranking(self)
 
+        # User Groups
         self.mods = set()
+        self.trusted_mods = set()
+        self.ignored_users = set()
         self.subs = set()
-
-        # some commands needs data to be completed loaded, but they are not available
-        # yet in reloadConfig(). So we have to reload commands here ... not sure if this is good
-        # practice or not
-        self.reload_commands()
-
         self.users = self.twitch.get_chatters()
 
-    def reload_sources(self):
+    def load_sources(self):
         """Reloads data sources."""
-        self.emotes = EmoteSource(self.channel, cache=self.cache, twitch_api_headers=self.twitch_api_headers)
-        self.twitch = TwitchSource(self.channel, cache=self.cache, twitch_api_headers=self.twitch_api_headers)
-
-    def set_config(self, config):
-        """Write the config file and reload."""
-        with open(CONFIG_PATH.format(self.root), "w", encoding="utf-8") as file:
-            json.dump(config, file, indent=4)
-        self.reload_config()
-
-    def set_responses(self, responses):
-        """Write the custom responses file and reload."""
-        with open(
-            CUSTOM_RESPONSES_PATH.format(self.root), "w", encoding="utf-8"
-        ) as file:
-            json.dump(responses, file, indent=4)
-        self.reload_config()
-
-    def reload_config(self, first_run=False):
-        """Reload the entire config."""
-        with open(CONFIG_PATH.format(self.root), "r", encoding="utf-8") as file:
-            CONFIG = json.load(file)
-
-        with open(TRUSTED_MODS_PATH.format(self.root), encoding="utf-8") as fp:
-            self.trusted_mods = json.load(fp)
-
-        with open(IGNORED_USERS_PATH.format(self.root), encoding="utf-8") as fp:
-            self.ignored_users = json.load(fp)
-
-        with open(PRONOUNS_PATH.format(self.root), encoding="utf-8") as fp:
-            self.pronouns = json.load(fp)
-
-        # load template responses first
-        with open(TEMPLATE_RESPONSES_PATH, "r", encoding="utf-8") as file:
-            RESPONSES = json.load(file)
-
-        # load custom responses
-        try:
-            with open(
-                CUSTOM_RESPONSES_PATH.format(self.root), "r", encoding="utf-8"
-            ) as file:
-                CUSTOM_RESPONSES = json.load(file)
-        except FileNotFoundError:  # noqa
-            logging.warning("No custom responses file for {}.".format(self.root))
-            CUSTOM_RESPONSES = {}
-        except Exception:
-            # Any errors else
-            logging.error(
-                "Unknown errors when reading custom responses of {}.".format(self.root)
-            )
-            logging.error(traceback.format_exc())
-            CUSTOM_RESPONSES = {}
-
-        # then merge with custom responses
-        RESPONSES = deep_merge_dict(RESPONSES, CUSTOM_RESPONSES)
-
-        self.last_warning = defaultdict(int)
-        self.owner_list = CONFIG["owner_list"]
-        self.nickname = str(CONFIG["username"])
-        self.clientID = str(CONFIG["clientID"])
-        self.password = str(CONFIG["oauth_key"])
-        # Not really part of config, but getuserID() will need this, so we use this hacky way to put it here
-
-        self.twitch_api_headers = {
-            "Accept": "application/vnd.twitchtv.v5+json",
-            "Client-ID": self.clientID,
-            "Authorization": self.password,
-        }
-
-        self.channel = "#" + str(CONFIG["channel"])
-        self.reload_sources()
-        self.channelID = self.twitch.get_user_id(str(CONFIG["channel"]))
-        self.pleb_cooldowntime = CONFIG[
-            "pleb_cooldown"
-        ]  # time between non-sub commands
-        self.pleb_gametimer = CONFIG["pleb_gametimer"]  # time between pleb games
-        self.last_plebcmd = time.time() - self.pleb_cooldowntime
-        self.last_plebgame = time.time() - self.pleb_gametimer
-        self.config = CONFIG
-        self.responses = RESPONSES
-        self.KAPPAGAMEP = CONFIG["points"]["kappa_game"]
-        self.EMOTEGAMEEMOTES = CONFIG["EmoteGame"]
-        self.EMOTEGAMEP = CONFIG["points"]["emote_game"]
-        self.MINIONGAMEP = CONFIG["points"]["minion_game"]
-        self.PYRAMIDP = CONFIG["points"]["pyramid"]
-        self.GAMESTARTP = CONFIG["points"]["game_start"]
-        self.AUTO_GAME_INTERVAL = CONFIG["auto_game_interval"]
-        self.NOTIFICATION_INTERVAL = CONFIG[
-            "notification_interval"
-        ]  # time between notification posts
-        self.RAID_ANNOUNCE_THRESHOLD = CONFIG.get(
-            "raid_announce_threshold", DEFAULT_RAID_ANNOUNCE_THRESHOLD
+        config = ConfigSource(self.root, self.cache)
+        emotes = EmoteSource(
+            config.channel,
+            cache=self.cache,
+            twitch_api_headers=config.twitch_api_headers,
         )
-        if not first_run:
-            self.reload_commands()
+        twitch = TwitchSource(
+            config.channel,
+            cache=self.cache,
+            twitch_api_headers=config.twitch_api_headers,
+        )
+        return emotes, twitch, config
+
+    def reload(self):
+        """Reloads sources (and therefore entire bot)."""
+        logging.warning("Reloading bot!")
+        self.close_commands()
+        self.emotes, self.twitch, self.config = self.load_sources()
+        self.reload_commands()
+
+    def reload_commands(self):
+        """Reloads variables."""
+        self.games, self.passivegames = self.load_commands()
+
+    def load_commands(self):
+        """Reloads reloadable commands.
+
+        For hard reload, set bot.commands = [] prior to calling this.
+        """
+        logging.warning("Reloading commands")
+
+        # Reload commands
+        self.close_commands()
+        games = []
+        passivegames = []
+
+        if not self.commands:
+            for cmd in bot.commands.commands:
+                self.commands.append(cmd(self))
+        else:
+            for i, cmd in enumerate(self.commands):
+                reloadable = True
+                for non_reloadable_class in bot.commands.non_reload:
+                    if cmd.__class__ == non_reloadable_class:
+                        reloadable = False
+                if reloadable:
+                    self.commands[i] = cmd.__class__(self)
+
+        for cmd in self.commands:
+            if cmd.__class__ in bot.commands.games:
+                games.append(cmd)
+            if cmd.__class__ in bot.commands.passivegames:
+                passivegames.append(cmd)
+        return games, passivegames
 
     @staticmethod
     def mode_changed(_, channel, added, __, args):
@@ -170,19 +120,12 @@ class TwitchBot:
         info_msg = "[{}] IRC Mod {}: {}".format(channel, change, ", ".join(args))
         logging.warning(info_msg)
 
-    def pronoun(self, user):
-        """Get the proper pronouns for a user."""
-        if user in self.pronouns:
-            return self.pronouns[user]
-        else:
-            return self.pronouns["default"]
-
     def handle_whisper(self, sender, content):
         """Entry point for all incoming whisper messages to bot."""
         # currently do nothing at all
         print(
             "{} sent me [{}] this in a whisper: {}".format(
-                sender, self.nickname, content
+                sender, self.config.nickname, content
             )
         )
 
@@ -219,7 +162,7 @@ class TwitchBot:
 
     def get_permission(self, user):
         """Return the users permission level."""
-        if user in self.owner_list:
+        if user in self.config.owner_list:
             return Permission.Admin
         elif user in self.mods:
             return Permission.Moderator
@@ -233,8 +176,8 @@ class TwitchBot:
         If no game is active only allow 'passive games' a.k.a PyramidGame
         """
         if perm == 0:
-            if time.time() - self.last_plebcmd < self.pleb_cooldowntime:
-                if self.gameRunning:
+            if time.time() - self.last_plebcmd < self.config.pleb_cooldowntime:
+                if self.game_running:
                     return self.games
                 else:
                     return self.passivegames
@@ -252,13 +195,16 @@ class TwitchBot:
         self.ranking.increment_points(user, 1, self)
 
         # Check if bot is paused
-        if self.pause and user not in self.owner_list and user not in self.trusted_mods:
+        if (
+            self.pause
+            and user not in self.config.owner_list
+            and user not in self.trusted_mods
+        ):
             return
 
         perm_levels = ["User", "Subscriber", "Moderator", "Owner"]
         perm = self.get_permission(user)
         msg = msg.strip()
-        self.cmdExecuted = False
 
         """Emote Count Function"""
         self.ecount.process_message(msg)
@@ -304,10 +250,10 @@ class TwitchBot:
         amount = int(tags["msg-param-viewerCount"])
         channel = tags["msg-param-displayName"]
 
-        if amount < self.RAID_ANNOUNCE_THRESHOLD:
+        if amount < self.config.raid_announce_treshold:
             return
 
-        responses = self.responses["usernotice"]["raid"]
+        responses = self.config.responses["usernotice"]["raid"]
         var = {"<AMOUNT>": amount, "<CHANNEL>": channel}
         reply = self.replace_vars(responses["msg"], var)
 
@@ -325,7 +271,7 @@ class TwitchBot:
         logging.warning(tags["system-msg"])
 
         # Setup message to be printed
-        responses = self.responses["usernotice"]["subgift"]
+        responses = self.config.responses["usernotice"]["subgift"]
         plan = responses["subplan"]["msg"]
 
         donor = tags["display-name"] if tags["display-name"] else tags["login"]
@@ -364,7 +310,7 @@ class TwitchBot:
         logging.warning(tags["system-msg"])
 
         # Setup message to be printed by bot
-        responses = self.responses["usernotice"]["sub"]
+        responses = self.config.responses["usernotice"]["sub"]
         plan = responses["subplan"]["msg"]
 
         # according to Twitch doc, display-name can be empty if it is never set
@@ -388,39 +334,6 @@ class TwitchBot:
                 cmd.close(self)
             except (TypeError, ValueError):  # Not sure which Errors might happen here.
                 logging.error(traceback.format_exc())
-
-    def reload_commands(self):
-        """Reload commands."""
-        logging.warning("Reloading commands")
-
-        # Reload commands
-        self.close_commands()
-
-        self.games = []
-        self.passivegames = []
-
-        if not self.commands:
-            for cmd in bot.commands.commands:
-                self.commands.append(cmd(self))
-        else:
-            for i, cmd in enumerate(self.commands):
-                reloadable = True
-                for non_reloadable_class in bot.commands.non_reload:
-                    if cmd.__class__ == non_reloadable_class:
-                        reloadable = False
-                if reloadable:
-                    self.commands[i] = cmd.__class__(self)
-
-        for cmd in self.commands:
-            if cmd.__class__ in bot.commands.games:
-                self.games.append(cmd)
-            if cmd.__class__ in bot.commands.passivegames:
-                self.passivegames.append(cmd)
-
-    def reload(self):
-        """Reload bot."""
-        logging.warning("Reloading bot!")
-        self.close_commands()
 
     def terminate(self):
         """Terminate bot."""
@@ -458,26 +371,20 @@ class TwitchBot:
             oldmsg = newmsg
         return newmsg
 
-    def dump_ignored_users_file(self):
-        """Output ignored users file."""
-        with open(IGNORED_USERS_PATH.format(self.root), "w", encoding="utf-8") as file:
-            json.dump(self.ignored_users, file, indent=4)
-
     def clear_cache(self):
         """Clear the cache."""
         self.cache = WebCache(duration=CACHE_DURATION)
-        self.reload_commands()
 
     def write(self, msg):
         """Write a message."""
         #  print("Fake print message: ", msg)
         #  return
         if self.irc is not None:
-            self.irc.write(self.channel, msg)
+            self.irc.write(self.config.channel, msg)
         else:
             logging.warning(
                 "The bot {} in channel {} wanted to say something, but irc isn't set.".format(
-                    self.nickname, self.channel
+                    self.config.nickname, self.config.channel
                 )
             )
 
@@ -485,11 +392,11 @@ class TwitchBot:
         """Whisper a message to a user."""
         whisper = "/w {} {}".format(user, msg)
         if self.irc is not None:
-            self.irc.write(self.channel, whisper)
+            self.irc.write(self.config.channel, whisper)
         else:
             logging.warning(
                 "The bot {} in channel {} wanted to whisper to {}, but irc isn't set.".format(
-                    self.nickname, self.channel, user
+                    self.config.nickname, self.config.channel, user
                 )
             )
 
@@ -497,11 +404,11 @@ class TwitchBot:
         """Timout a user for a certain time in the channel."""
         timeout = "/timeout {} {}".format(user, duration)
         if self.irc is not None:
-            self.irc.write(self.channel, timeout)
+            self.irc.write(self.config.channel, timeout)
         else:
             logging.warning(
                 "The bot {} in channel {} wanted to timout {}, but irc isn't set.".format(
-                    self.nickname, self.channel, user
+                    self.config.nickname, self.config.channel, user
                 )
             )
 
@@ -509,11 +416,11 @@ class TwitchBot:
         """Ban a user from the channel."""
         ban = "/ban {}".format(user)
         if self.irc is not None:
-            self.irc.write(self.channel, ban)
+            self.irc.write(self.config.channel, ban)
         else:
             logging.warning(
                 "The bot {} in channel {} wanted to ban {}, but irc isn't set.".format(
-                    self.nickname, self.channel, user
+                    self.config.nickname, self.config.channel, user
                 )
             )
 
@@ -521,10 +428,10 @@ class TwitchBot:
         """Unban a user for the channel."""
         unban = "/unban {}".format(user)
         if self.irc is not None:
-            self.irc.write(self.channel, unban)
+            self.irc.write(self.config.channel, unban)
         else:
             logging.warning(
                 "The bot {} in channel {} wanted to unban {}, but irc isn't set.".format(
-                    self.nickname, self.channel, user
+                    self.config.nickname, self.config.channel, user
                 )
             )

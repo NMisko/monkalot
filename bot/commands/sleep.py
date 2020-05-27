@@ -22,7 +22,7 @@ class Sleep(Command):
 
     def run(self, bot, user, msg, tag_info):
         """Put the bot to sleep or wake it up."""
-        self.responses = bot.responses["Sleep"]
+        self.responses = bot.config.responses["Sleep"]
         cmd = msg.lower().replace(" ", "")
         if cmd.startswith("!sleep"):
             bot.write(self.responses["bot_deactivate"]["msg"])

@@ -25,7 +25,7 @@ class Pyramid(Command):
 
     def __init__(self, bot):
         """Initialize variables."""
-        self.responses = bot.responses["Pyramid"]
+        self.responses = bot.config.responses["Pyramid"]
         self.non_twitch_emotes = (
             bot.emotes.get_global_bttv_emotes()
             + bot.emotes.get_channel_bttv_emotes()
@@ -40,6 +40,7 @@ class Pyramid(Command):
         self.pyramidLevel = None
         self.currentEmote = None
         self.emote_input_str = ""
+        self.points = bot.config.config["points"]["pyramid"]
 
         # reset, also initialize some variables
         self.reset()
@@ -93,7 +94,7 @@ class Pyramid(Command):
 
     def handle_special_rules(self, bot):
         """Applies special rules, e.g. finishing or blocking pyramids."""
-        if bot.pyramidBlock and self.pyramidLevel == 2:
+        if bot.pyramid_block and self.pyramidLevel == 2:
             self.block_pyramid(bot)
             return
 
@@ -182,20 +183,22 @@ class Pyramid(Command):
             if bot.get_permission(user) in [Permission.User, Permission.Subscriber]:
                 var = {
                     "<USER>": bot.twitch.display_name(user),
-                    "<PRONOUN0>": bot.pronoun(user)[0],
+                    "<PRONOUN0>": bot.config.pronoun(user)[0],
                 }
                 bot.write(bot.replace_vars(self.responses["plebpyramid"]["msg"], var))
                 bot.timeout(user, 60)
             else:
                 var = {
                     "<USER>": bot.twitch.display_name(user),
-                    "<PRONOUN0>": bot.pronoun(user)[0],
+                    "<PRONOUN0>": bot.config.pronoun(user)[0],
                 }
                 bot.write(
                     bot.replace_vars(self.responses["mod_plebpyramid"]["msg"], var)
                 )
         else:
-            s = format_list(list(map(lambda x: bot.twitch.display_name(x), unique_users)))
+            s = format_list(
+                list(map(lambda x: bot.twitch.display_name(x), unique_users))
+            )
             var = {"<MULTIUSERS>": s}
             bot.write(bot.replace_vars(self.responses["multi_plebpyramid"]["msg"], var))
             for u in unique_users:
@@ -211,7 +214,7 @@ class Pyramid(Command):
             user = self.pyramid_builders[0]
             var = {
                 "<USER>": bot.twitch.display_name(user),
-                "<PRONOUN0>": bot.pronoun(user)[0],
+                "<PRONOUN0>": bot.config.pronoun(user)[0],
                 "<AMOUNT>": points[user],
             }
             bot.write(bot.replace_vars(self.responses["pyramid"]["msg"], var))
@@ -235,8 +238,7 @@ class Pyramid(Command):
         # pyramid, but only first n levels are rewarded with points now
 
         m = {}
-        points = bot.PYRAMIDP
-        for i in range(len(points)):
+        for i in range(len(self.points)):
             user = self.pyramid_builders[i]
 
             if user not in m:
@@ -244,19 +246,19 @@ class Pyramid(Command):
                     Permission.Admin,
                     Permission.Moderator,
                 ]:
-                    m[user] = points[i]
+                    m[user] = self.points[i]
                 else:
                     # mods get one tenth of the points
-                    m[user] = int(points[i] / 10)
+                    m[user] = int(self.points[i] / 10)
             else:
                 if bot.get_permission(user) not in [
                     Permission.Admin,
                     Permission.Moderator,
                 ]:
-                    m[user] = m[user] + points[i]
+                    m[user] = m[user] + self.points[i]
                 else:
                     # mods get one tenth of the points
-                    m[user] = m[user] + int(points[i] / 10)
+                    m[user] = m[user] + int(self.points[i] / 10)
 
         return m
 

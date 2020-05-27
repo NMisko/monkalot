@@ -4,7 +4,7 @@ from bot.paths import (
     GLOBAL_BTTVEMOTES_API,
     USER_EMOTE_API,
     FFZ_API,
-    EMOJI_API
+    EMOJI_API,
 )
 import traceback
 from bot.utilities.tools import format_emote_list
@@ -14,6 +14,7 @@ import logging
 
 class EmoteSource:
     """Source for aggregating emotes from different sources."""
+
     def __init__(self, channel: str, cache: WebCache, twitch_api_headers: dict):
         # remove # from #channel
         self.channel = channel[1:]
@@ -66,8 +67,10 @@ class EmoteSource:
 
     def get_global_bttv_emotes(self):
         """Return available global bttv emotes."""
+
         def f(emote_json):
             return format_emote_list(emote_json["emotes"])
+
         return self.cache.get(GLOBAL_BTTVEMOTES_API, f, fallback=[])
 
     def get_emotes(self):
@@ -81,7 +84,9 @@ class EmoteSource:
 
     def get_user_emotes(self, user_id):
         """Get the emotes a user can use from userID without the global emoticons."""
-        data = self.cache.get(USER_EMOTE_API.format(user_id), fallback=[], headers=self.twitch_api_headers)
+        data = self.cache.get(
+            USER_EMOTE_API.format(user_id), fallback=[], headers=self.twitch_api_headers
+        )
         try:
             emotelist = data["emoticon_sets"]
         except (IndexError, KeyError):

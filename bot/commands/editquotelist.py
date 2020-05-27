@@ -52,7 +52,7 @@ class EditQuoteList(Command):
 
     def run(self, bot, user, msg, tag_info):
         """Add or delete quote."""
-        self.responses = bot.responses["editQuoteList"]
+        self.responses = bot.config.responses["editQuoteList"]
         cmd = msg.lower().strip()
         if cmd.startswith("!addquote "):
             self.addquote(bot, msg)

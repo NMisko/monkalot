@@ -18,7 +18,7 @@ class TopSpammers(Command):
 
     def run(self, bot, user, msg, tag_info):
         """Return the top spammers."""
-        responses = bot.responses["TopSpammers"]
+        responses = bot.config.responses["TopSpammers"]
         ranking = bot.ranking.get_top_spammers(5)
         out = responses["heading"]["msg"]
         if len(ranking) > 0:

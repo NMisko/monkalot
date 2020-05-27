@@ -21,7 +21,7 @@ class Oralpleasure(Command):
 
     def run(self, bot, user, msg, tag_info):
         """Define answers based on pieces in the message."""
-        self.responses = bot.responses["Oralpleasure"]
+        self.responses = bot.config.responses["Oralpleasure"]
         cmd = msg.lower()
 
         if cmd.startswith("!oralpleasure on"):

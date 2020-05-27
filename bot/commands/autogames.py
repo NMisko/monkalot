@@ -13,11 +13,12 @@ class AutoGames(Command):
 
     perm = Permission.Moderator
 
-    def __init__(self, _):
+    def __init__(self, bot):
         """Initialize variables."""
         self.responses = {}
         self.active = False
         self.callID = None
+        self.auto_game_interval = bot.config.config["auto_game_interval"]
 
     def random_game(self, bot):
         """Start a random game."""
@@ -27,8 +28,8 @@ class AutoGames(Command):
             return
 
         """Start games as bot with empty msg if no active game."""
-        if not bot.gameRunning:
-            user = bot.nickname
+        if not bot.game_running:
+            user = bot.config.nickname
             cmd = random.choice(gamecmds)
 
             """33% of !estart in rng-mode."""
@@ -38,7 +39,7 @@ class AutoGames(Command):
             bot.process_command(user, cmd)
 
         """ start of threading """
-        self.callID = reactor.callLater(bot.AUTO_GAME_INTERVAL, self.random_game, bot)
+        self.callID = reactor.callLater(self.auto_game_interval, self.random_game, bot)
 
     def match(self, bot, user, msg, tag_info):
         """Match if message starts with !games."""
@@ -48,7 +49,7 @@ class AutoGames(Command):
 
     def run(self, bot, user, msg, tag_info):
         """Start/stop automatic games."""
-        self.responses = bot.responses["AutoGames"]
+        self.responses = bot.config.responses["AutoGames"]
         cmd = msg[len("!games ") :]
         cmd.strip()
 
@@ -56,7 +57,7 @@ class AutoGames(Command):
             if not self.active:
                 self.active = True
                 self.callID = reactor.callLater(
-                    bot.AUTO_GAME_INTERVAL, self.random_game, bot
+                    self.auto_game_interval, self.random_game, bot
                 )
                 bot.write(self.responses["autogames_activate"]["msg"])
             else:
