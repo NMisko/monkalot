@@ -16,14 +16,14 @@ class WebCache:
         self.data = dict()  # Maps url -> [data, timestamp]
         self.duration = duration
 
-    def get(self, url, function=None, fallback=None):
+    def get(self, url, function=None, fallback=None, headers=None):
         """Get the json returned by an url.
 
         If a 'function' is defined, the result of 'function(json)' gets returned.
         """
         if self.is_expired(url):
             timestamp = datetime.now()
-            json = self.load_json(url)
+            json = self.load_json(url, headers)
             if json:
                 if function is not None:
                     result = function(json)
@@ -52,10 +52,10 @@ class WebCache:
             return True
 
     @staticmethod
-    def load_json(url):
+    def load_json(url, headers=None):
         """Load a JSON from an url, return False if something fails."""
         try:
-            r = requests.get(url)
+            r = requests.get(url, headers=headers)
             r.raise_for_status()
             return r.json()
 

@@ -21,11 +21,9 @@ class MultiBotIRCClient(irc.IRCClient, object):
         # Right now, only one bot can listen, so we take the values of the first one.
         with open(CONFIG_PATH.format(self.bots[0].root), "r", encoding="utf-8") as file:
             CONFIG = json.load(file)
-        self.nickname = "monkalot"  # str(CONFIG["username"])
+        self.nickname = str(CONFIG["username"])
         self.clientID = str(CONFIG["clientID"])
-        self.password = (
-            "oauth:b2jfeha62fwljzfc35tn6hv3d3uhyh"  # str(CONFIG["oauth_key"])
-        )
+        self.password = str(CONFIG["oauth_key"])
 
     def signedOn(self):
         """Call when first signed on."""
