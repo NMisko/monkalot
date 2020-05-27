@@ -7,6 +7,7 @@ from bot.commands.command import Command
 from bot.utilities.permission import Permission
 from bot.utilities.startgame import start_game
 from bot.utilities.tools import is_call_id_active
+from bot.data_sources.hearthstone import Hearthstone
 
 
 class GuessMinionGame(Command):
@@ -18,7 +19,7 @@ class GuessMinionGame(Command):
 
     perm = Permission.User
 
-    def __init__(self, _):
+    def __init__(self, bot):
         """Initialize variables."""
         self.responses = {}
         self.active = False
@@ -35,6 +36,7 @@ class GuessMinionGame(Command):
             "health",
         ]
         self.minion = None
+        self.hearthstone = Hearthstone(bot.cache)
 
     def giveClue(self, bot):  # noqa (let's ignore the high complexity for now)
         """Give a random clue to the chat.
@@ -86,7 +88,7 @@ class GuessMinionGame(Command):
         """Initialize GuessMinionGame."""
         nominion = True
         while nominion:
-            self.minion = random.choice(bot.get_hearthstone_cards())
+            self.minion = random.choice(self.hearthstone.get_cards())
             if self.minion["type"] == "MINION":
                 nominion = False
 

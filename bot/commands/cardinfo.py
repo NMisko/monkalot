@@ -4,6 +4,7 @@ import re
 from bot.commands.command import Command
 from bot.utilities.permission import Permission
 from bot.utilities.spellcorrection import SpellCorrection
+from bot.data_sources.hearthstone import Hearthstone
 
 
 class CardInfo(Command):
@@ -16,7 +17,8 @@ class CardInfo(Command):
 
     def __init__(self, bot):
         """Initialize spell correction."""
-        cards = bot.get_hearthstone_cards()
+        self.hearthstone = Hearthstone(bot.cache)
+        cards = self.hearthstone.get_cards()
         card_names = []
         for i in range(0, len(cards)):
             card_names.append(cards[i]["name"].lower())
@@ -30,16 +32,16 @@ class CardInfo(Command):
         """Print out information about a card."""
         name = msg[1:-1]  # strips [,]
         card = None
-        if name not in bot.get_hearthstone_cards():
+        if name not in self.hearthstone.get_cards():
             name = self.spellcorrection.spell(name)
             if not name:
                 card = None
             else:
-                for c in bot.get_hearthstone_cards():
+                for c in self.hearthstone.get_cards():
                     if c["name"].lower() == name:
                         card = c
         else:
-            card = bot.get_hearthstone_cards()[name]
+            card = self.hearthstone.get_cards()[name]
 
         if not card:
             bot.write("@{} I can't find that card, sorry.".format(user))

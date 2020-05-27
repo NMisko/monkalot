@@ -28,7 +28,6 @@ from bot.paths import (
     USER_ID_API,
     CHANNEL_API,
     STREAMS_API,
-    HEARTHSTONE_CARD_API,
 )
 from bot.utilities.permission import Permission
 from bot.utilities.tools import sanitize_user_name
@@ -83,10 +82,6 @@ class TwitchBot:
     def reload_sources(self):
         """Reloads data sources."""
         self.emotes = EmoteSource(self.channel, cache=self.cache, twitch_api_headers=self.twitch_api_headers)
-
-    def get_hearthstone_cards(self):
-        """Return all Hearthstone cards."""
-        return self.cache.get(HEARTHSTONE_CARD_API, fallback=[])
 
     def set_config(self, config):
         """Write the config file and reload."""
