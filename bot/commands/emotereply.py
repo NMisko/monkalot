@@ -47,7 +47,7 @@ class EmoteReply(Command):
             parse = msg.split(" ", 2)
             self.cmd = parse[0].strip()
             self.emote = parse[1].strip()
-            if self.emote in bot.getEmotes() or self.emote in bot.getEmojis():
+            if self.emote in bot.get_emotes() or self.emote in bot.get_emojis():
                 try:
                     self.text = parse[2].strip()
                 except IndexError:

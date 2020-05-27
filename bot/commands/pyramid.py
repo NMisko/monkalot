@@ -29,11 +29,11 @@ class Pyramid(Command):
         """Initialize variables."""
         self.responses = bot.responses["Pyramid"]
         self.nonTwitchEmotes = (
-            bot.getGlobalBttvEmotes()
-            + bot.getChannelBTTVEmotes()
-            + bot.getChannelFFZEmotes()
+            bot.get_global_bttv_emotes()
+            + bot.get_channel_bttv_emotes()
+            + bot.get_channel_ffz_emotes()
         )
-        self.emojis = bot.getEmojis()
+        self.emojis = bot.get_emojis()
 
         self.pyramidBuilders = []
 
@@ -174,21 +174,21 @@ class Pyramid(Command):
             user = unique_users[0]
             if bot.get_permission(user) in [Permission.User, Permission.Subscriber]:
                 var = {
-                    "<USER>": bot.displayName(user),
+                    "<USER>": bot.display_name(user),
                     "<PRONOUN0>": bot.pronoun(user)[0],
                 }
                 bot.write(bot.replace_vars(self.responses["plebpyramid"]["msg"], var))
                 bot.timeout(user, 60)
             else:
                 var = {
-                    "<USER>": bot.displayName(user),
+                    "<USER>": bot.display_name(user),
                     "<PRONOUN0>": bot.pronoun(user)[0],
                 }
                 bot.write(
                     bot.replace_vars(self.responses["mod_plebpyramid"]["msg"], var)
                 )
         else:
-            s = format_list(list(map(lambda x: bot.displayName(x), unique_users)))
+            s = format_list(list(map(lambda x: bot.display_name(x), unique_users)))
             var = {"<MULTIUSERS>": s}
             bot.write(bot.replace_vars(self.responses["multi_plebpyramid"]["msg"], var))
             for u in unique_users:
@@ -203,7 +203,7 @@ class Pyramid(Command):
         if len(points) == 1:
             user = self.pyramidBuilders[0]
             var = {
-                "<USER>": bot.displayName(user),
+                "<USER>": bot.display_name(user),
                 "<PRONOUN0>": bot.pronoun(user)[0],
                 "<AMOUNT>": points[user],
             }
@@ -211,7 +211,7 @@ class Pyramid(Command):
             bot.ranking.increment_points(user, points[user], bot)
         else:
             s = format_list(
-                list(map(lambda x: bot.displayName(x), list(points.keys())))
+                list(map(lambda x: bot.display_name(x), list(points.keys())))
             )  # calls bot.displayName on every user
             p = format_list(list(points.values()))
             var = {"<MULTIUSERS>": s, "<AMOUNT>": p}

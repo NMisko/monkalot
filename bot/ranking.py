@@ -34,7 +34,7 @@ class Ranking:
         self.RANKS = CONFIG["ranking"]["ranks"]
 
     def _get_user_id(self, username):
-        return self.bot.getuserID(username)
+        return self.bot.get_user_id(username)
 
     def get_points(self, username, new_entry=False):
         """Get the points of a user."""
@@ -43,7 +43,9 @@ class Ranking:
 
         sql_command = "SELECT amount FROM points WHERE viewer_id = ?;"
 
-        cursor, connection = self.execute_command_get_connection(sql_command, (viewer_id,))
+        cursor, connection = self.execute_command_get_connection(
+            sql_command, (viewer_id,)
+        )
         one = cursor.fetchone()
 
         if one is None:
@@ -85,7 +87,7 @@ class Ranking:
         if not legend:
             rank = self.get_hs_rank(points)
             if "Legend" in rank:
-                var = {"<USER>": bot.displayName(username), "<RANK>": rank}
+                var = {"<USER>": bot.display_name(username), "<RANK>": rank}
                 bot.write(
                     bot.replace_vars(bot.responses["ranking"]["msg_legend"]["msg"], var)
                 )

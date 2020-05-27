@@ -35,7 +35,8 @@ from .slaphug import SlapHug
 from .sleep import Sleep
 from .smorc import Smorc
 from .spam import Spam
-from .speech import Speech
+
+# from .speech import Speech
 from .streaminfo import StreamInfo
 from .tentareply import TentaReply
 from .tip import Tip
@@ -77,11 +78,11 @@ other = [
     Tip,
     TopSpammers,
     UserIgnore,
-    Speech,  # Speech always has to be the last entry so it does not 'overwrite' commands which include the bots name.
+    # Speech,  # Speech always has to be the last entry so it does not 'overwrite' commands which include the bots name.
 ]
 
 # Repeat here the commands that should not get reloaded if the config gets rewritten
-non_reload = [Speech]
+# non_reload = [Speech]
 
 commands = activeGames + passiveGames + other
 games = activeGames + passiveGames

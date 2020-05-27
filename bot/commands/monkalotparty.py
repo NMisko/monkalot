@@ -81,12 +81,12 @@ class MonkalotParty(Command):
                 return
             if self.answer != "":  # If we are not between games.
                 if (
-                    self.answer not in bot.getEmotes()
+                    self.answer not in bot.get_emotes()
                 ):  # If not an emote compare in lowercase.
                     self.answer = self.answer.lower()
                     cmd = cmd.lower()
                 if cmd == self.answer:
-                    var = {"<USER>": bot.displayName(user), "<ANSWER>": self.answer}
+                    var = {"<USER>": bot.display_name(user), "<ANSWER>": self.answer}
                     bot.write(
                         bot.replace_vars(self.responses["winner_msg"]["msg"], var)
                     )

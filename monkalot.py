@@ -82,5 +82,5 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, stop)
 
     # Start the client
-    reactor.connectTCP('irc.twitch.tv', 6667, BotFactory())
+    reactor.connectTCP('irc.chat.twitch.tv', 6667, BotFactory())
     reactor.run()

@@ -23,4 +23,4 @@ class Cache(Command):
     def run(self, bot, user, msg, tag_info):
         """Clear the cache."""
         bot.write("Clearing the cache. 🚮")
-        bot.clearCache()
+        bot.clear_cache()

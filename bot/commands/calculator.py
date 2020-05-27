@@ -51,16 +51,16 @@ class Calculator(Command):
             reply = "{} = {}".format(expr, result)
             bot.write(reply)
         except ZeroDivisionError:
-            var = {"<USER>": bot.displayName(user)}
+            var = {"<USER>": bot.display_name(user)}
             bot.write(bot.replace_vars(self.responses["div_by_zero"]["msg"], var))
         except OverflowError:
-            var = {"<USER>": bot.displayName(user)}
+            var = {"<USER>": bot.display_name(user)}
             bot.write(bot.replace_vars(self.responses["number_overflow"]["msg"], var))
         except pyparsing.ParseException:
-            var = {"<USER>": bot.displayName(user)}
+            var = {"<USER>": bot.display_name(user)}
             bot.write(bot.replace_vars(self.responses["wrong_input"]["msg"], var))
         except (TypeError, ValueError):  # Not sure which Errors might happen here.
-            var = {"<USER>": bot.displayName(user), "<EXPRESSION>": expr}
+            var = {"<USER>": bot.display_name(user), "<EXPRESSION>": expr}
             bot.write(bot.replace_vars(self.responses["default_error"]["msg"], var))
 
     def check_symbols(self, msg):

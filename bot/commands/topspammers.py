@@ -32,7 +32,7 @@ class TopSpammers(Command):
                 # Since the id we're asking for can be one we added to the database a long time ago,
                 # the account may be deleted. This results in a RequestException. Display a spooky skeleton to show the account is dead.
                 try:
-                    displayName = bot.getDisplayNameFromID(viewer_id)
+                    displayName = bot.get_display_name_from_id(viewer_id)
                 except RequestException:
                     logging.info(
                         "Display name for id '{}' not found. Returning spooky ☠️ as top spammer.".format(

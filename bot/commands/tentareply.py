@@ -19,7 +19,7 @@ class TentaReply(Command):
             if len(cmd) == 2:
                 arg = cmd[1].strip()
                 """Check if arg is an emote."""
-                if arg in bot.getEmotes():
+                if arg in bot.get_emotes():
                     return True
         return False
 

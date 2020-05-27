@@ -22,9 +22,9 @@ class SlapHug(Command):
     def replace_reply(self, bot, user, target, reply):
         """Replace words in the reply string and return it."""
         if "<user>" in reply:
-            reply = reply.replace("<user>", bot.displayName(user))
+            reply = reply.replace("<user>", bot.display_name(user))
         if "<target>" in reply:
-            reply = reply.replace("<target>", bot.displayName(target))
+            reply = reply.replace("<target>", bot.display_name(target))
         for i in [0, 1, 2, 3]:
             keyword = "<u_pronoun" + str(i) + ">"
             if keyword in reply:

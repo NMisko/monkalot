@@ -43,7 +43,7 @@ class Questions(Command):
         """Define answers based on pieces in the message."""
         index = self.word_in_msg(self.whatis, msg)
         if self.word_in_msg(self.twohead, msg):
-            bot.write("@" + bot.displayName(user) + " It's 4Head")
+            bot.write("@" + bot.display_name(user) + " It's 4Head")
         else:
             cmd = (
                 msg.lower()

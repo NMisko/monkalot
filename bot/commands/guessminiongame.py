@@ -85,7 +85,7 @@ class GuessMinionGame(Command):
         ]
         nominion = True
         while nominion:
-            self.minion = random.choice(bot.getHearthstoneCards())
+            self.minion = random.choice(bot.get_hearthstone_cards())
             if self.minion["type"] == "MINION":
                 nominion = False
 
@@ -116,7 +116,7 @@ class GuessMinionGame(Command):
             name = self.minion["name"].strip()
             if cmd.strip().lower() == name.lower():
                 var = {
-                    "<USER>": bot.displayName(user),
+                    "<USER>": bot.display_name(user),
                     "<MINION>": name,
                     "<PRONOUN0>": bot.pronoun(user)[0].capitalize(),
                     "<AMOUNT>": bot.MINIONGAMEP,

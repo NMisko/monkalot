@@ -63,8 +63,12 @@ class NumericStringParser(object):
         # "atom [ ^ atom ]...", we get right-to-left exponents, instead of left-to-right
         # that is, 2^3^2 = 2^(3^2), not (2^3)^2.
         factor = pyp.Forward()
-        factor << atom + pyp.ZeroOrMore((expop + factor).setParseAction(self.push_first))
-        term = factor + pyp.ZeroOrMore((multop + factor).setParseAction(self.push_first))
+        factor << atom + pyp.ZeroOrMore(
+            (expop + factor).setParseAction(self.push_first)
+        )
+        term = factor + pyp.ZeroOrMore(
+            (multop + factor).setParseAction(self.push_first)
+        )
         expr << term + pyp.ZeroOrMore((addop + term).setParseAction(self.push_first))
         self.bnf = expr
         # map operator symbols to corresponding arithmetic operations

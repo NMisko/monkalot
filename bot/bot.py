@@ -69,9 +69,9 @@ class TwitchBot:
         # self.irc = None
 
         # user cache related:
-        self.setupCache()
+        self.setup_cache()
 
-        self.reloadConfig(firstRun=True)
+        self.reload_config(first_run=True)
 
         # Initialize emote counter
         self.ecount = bot.emotecounter.EmoteCounterForBot(self)
@@ -90,7 +90,7 @@ class TwitchBot:
         # practice or not
         self.reload_commands()
 
-    def getChannelFFZEmotes(self):
+    def get_channel_ffz_emotes(self):
         """Return FFZ emotes for this channel."""
 
         def f(emote_json):
@@ -104,23 +104,23 @@ class TwitchBot:
         emotes = self.cache.get(url, f, fallback=[])
         return emotes
 
-    def getChannelBTTVEmotes(self):
+    def get_channel_bttv_emotes(self):
         """Return the bttv emotes enabled for the channel this bot runs on."""
 
-        def f(emoteJson):
-            emotelist = emoteJson["emotes"]
+        def f(emote_json):
+            emotelist = emote_json["emotes"]
             return format_emote_list(emotelist)
 
         url = CHANNEL_BTTVEMOTES_API.format(self.channel[1:])
         emotes = self.cache.get(url, f, fallback=[])
         return emotes
 
-    def getGlobalTwitchEmotes(self):
+    def get_global_twitch_emotes(self):
         """Return available global twitch emotes."""
 
-        def f(emoteJson):
+        def f(emote_json):
             result = []
-            for emote in format_emote_list(emoteJson["emoticon_sets"]["0"]):
+            for emote in format_emote_list(emote_json["emoticon_sets"]["0"]):
                 if ("\\") not in emote:
                     # print("Simple single word twitch emote", emote)
                     result.append(emote)
@@ -132,28 +132,28 @@ class TwitchBot:
 
         return self.cache.get(TWITCH_EMOTE_API, f, fallback=[])
 
-    def getGlobalBttvEmotes(self):
+    def get_global_bttv_emotes(self):
         """Return available global bttv emotes."""
 
-        def f(emoteJson):
-            return format_emote_list(emoteJson["emotes"])
+        def f(emote_json):
+            return format_emote_list(emote_json["emotes"])
 
         return self.cache.get(GLOBAL_BTTVEMOTES_API, f, fallback=[])
 
-    def getEmotes(self):
+    def get_emotes(self):
         """Return all emotes which can be used by all users on this channel."""
         return (
-            self.getChannelBTTVEmotes()
-            + self.getGlobalTwitchEmotes()
-            + self.getGlobalBttvEmotes()
-            + self.getChannelFFZEmotes()
+            self.get_channel_bttv_emotes()
+            + self.get_global_twitch_emotes()
+            + self.get_global_bttv_emotes()
+            + self.get_channel_ffz_emotes()
         )
 
-    def getHearthstoneCards(self):
+    def get_hearthstone_cards(self):
         """Return all Hearthstone cards."""
         return self.cache.get(HEARTHSTONE_CARD_API, fallback=[])
 
-    def getEmojis(self):
+    def get_emojis(self):
         """Return all available emojis."""
 
         def f(emojis_json):
@@ -167,21 +167,21 @@ class TwitchBot:
 
         return self.cache.get(EMOJI_API, f, fallback=[])
 
-    def setConfig(self, config):
+    def set_config(self, config):
         """Write the config file and reload."""
         with open(CONFIG_PATH.format(self.root), "w", encoding="utf-8") as file:
             json.dump(config, file, indent=4)
-        self.reloadConfig()
+        self.reload_config()
 
-    def setResponses(self, responses):
+    def set_responses(self, responses):
         """Write the custom responses file and reload."""
         with open(
             CUSTOM_RESPONSES_PATH.format(self.root), "w", encoding="utf-8"
         ) as file:
             json.dump(responses, file, indent=4)
-        self.reloadConfig()
+        self.reload_config()
 
-    def reloadConfig(self, firstRun=False):
+    def reload_config(self, first_run=False):
         """Reload the entire config."""
         with open(CONFIG_PATH.format(self.root), "r", encoding="utf-8") as file:
             CONFIG = json.load(file)
@@ -217,7 +217,7 @@ class TwitchBot:
             CUSTOM_RESPONSES = {}
 
         # then merge with custom responses
-        RESPONSES = self.deepMergeDict(RESPONSES, CUSTOM_RESPONSES)
+        RESPONSES = self.deep_merge_dict(RESPONSES, CUSTOM_RESPONSES)
 
         self.last_warning = defaultdict(int)
         self.owner_list = CONFIG["owner_list"]
@@ -233,7 +233,7 @@ class TwitchBot:
         }
 
         self.channel = "#" + str(CONFIG["channel"])
-        self.channelID = self.getuserID(str(CONFIG["channel"]))
+        self.channelID = self.get_user_id(str(CONFIG["channel"]))
         self.pleb_cooldowntime = CONFIG[
             "pleb_cooldown"
         ]  # time between non-sub commands
@@ -256,10 +256,10 @@ class TwitchBot:
             "raid_announce_threshold", DEFAULT_RAID_ANNOUNCE_THRESHOLD
         )
 
-        if not firstRun:
+        if not first_run:
             self.reload_commands()
 
-    def modeChanged(self, user, channel, added, modes, args):
+    def mode_changed(self, user, channel, added, modes, args):
         """Update IRC mod list when mod joins or leaves. Seems not useful."""
         change = "added" if added else "removed"
         info_msg = "[{}] IRC Mod {}: {}".format(channel, change, ", ".join(args))
@@ -272,7 +272,7 @@ class TwitchBot:
         else:
             return self.pronouns["default"]
 
-    def handleWhisper(self, sender, content):
+    def handle_whisper(self, sender, content):
         """Entry point for all incoming whisper messages to bot."""
         # currently do nothing at all
         print(
@@ -281,7 +281,7 @@ class TwitchBot:
             )
         )
 
-    def setHost(self, channel, target):
+    def set_host(self, channel, target):
         """React to a channel being hosted."""
         if target == "-":
             self.host_target = None
@@ -290,7 +290,7 @@ class TwitchBot:
             self.host_target = target
             logging.warning("[{}] Now hosting {}".format(channel, target))
 
-    def userState(self, prefix, tags):
+    def user_state(self, prefix, tags):
         """Track user tags."""
         # NOTE: params in PRIVMSG() are already processed and does not contains these data,
         # so we have to get them from lineReceived() -> manually called userState() to parse the tags.
@@ -302,7 +302,7 @@ class TwitchBot:
 
         name = sanitize_user_name(twitch_user_tag)
 
-        self.updateCacheData(name, display_name, twitch_user_id)
+        self.update_cache_data(name, display_name, twitch_user_id)
 
         if "subscriber" in tags:
             if tags["subscriber"] == "1":
@@ -393,7 +393,7 @@ class TwitchBot:
         self.antispeech = False
 
     # functions of Twitch customized IRC messages -- check USERNOTICE in multibot_irc_cilent
-    def incomingRaid(self, tags):
+    def incoming_raid(self, tags):
         """Send a message when channel got raided."""
         # NOTE: raid seems to have no custom message currently, so msg is not passed
 
@@ -413,12 +413,12 @@ class TwitchBot:
 
         self.write(reply)
 
-    def incomingRitual(self, tags, msg):
+    def incoming_ritual(self, tags, msg):
         """Execute some obscure not well documented ritual."""
         # leave it here for a while, the IRC example message in Twitch API page seems incorrect already
         pass
 
-    def subGift(self, tags):
+    def sub_gift(self, tags):
         """Send a message when someone gift a sub to another viewer."""
         # Auto-message generated by Twitch - "XXX gifted a $x.xx sub to xxx!"
         logging.warning("New sub donation detected")
@@ -456,7 +456,7 @@ class TwitchBot:
 
         self.write(reply)
 
-    def subMessage(self, tags, subMsg):
+    def sub_message(self, tags, sub_msg):
         """Send a message when someone subscribes."""
         # Sub message by user is in subMsg, which is not part of IRC tags
         # Auto-message generated by Twitch - "XXX has subscribed for n months"
@@ -536,7 +536,7 @@ class TwitchBot:
         """Terminate bot."""
         self.close_commands()
 
-    def displayName(self, username):
+    def display_name(self, username):
         """Get the proper capitalization of a twitch user."""
         u_name = sanitize_user_name(username)
 
@@ -549,7 +549,7 @@ class TwitchBot:
                         username
                     )
                 )
-                name = self.getuserTag(u_name)["users"][0]["display_name"]
+                name = self.get_user_tag(u_name)["users"][0]["display_name"]
                 # save the record as well
                 self.userNametoDisplayName[username] = name
                 return name
@@ -559,7 +559,7 @@ class TwitchBot:
                 )
                 return username
 
-    def setupCache(self):
+    def setup_cache(self):
         """Setup a user cache."""
         # We get these user data from userState(), or API calls
         self.userNametoID = {}
@@ -567,14 +567,14 @@ class TwitchBot:
         self.IDtoDisplayName = {}
         self.displayNameToUserName = {}
 
-    def updateCacheData(self, login_id, display_name, id):
+    def update_cache_data(self, login_id, display_name, id):
         """Update the user cache."""
         self.userNametoDisplayName[login_id] = display_name
         self.IDtoDisplayName[id] = display_name
         self.userNametoID[login_id] = id
         self.displayNameToUserName[display_name] = login_id
 
-    def getJSONObjectFromTwitchAPI(self, url):
+    def get_json_object_from_twitch_api(self, url):
         """Get and handle JSON object from Twitch API."""
         try:
             r = requests.get(url, headers=self.TWITCH_API_COMMON_HEADERS)
@@ -597,25 +597,25 @@ class TwitchBot:
             )
             raise ValueError(msg)
 
-    def getUserDataFromID(self, user_id):
+    def get_user_data_from_id(self, user_id):
         """Get Twitch user data of a given id."""
         url = USER_ID_API.format(user_id)
-        data = self.getJSONObjectFromTwitchAPI(url)
+        data = self.get_json_object_from_twitch_api(url)
 
         u_name = sanitize_user_name(data["name"])
         display_name = data["display_name"]
         id = data["_id"]
 
-        self.updateCacheData(u_name, display_name, id)
+        self.update_cache_data(u_name, display_name, id)
 
         return data
 
-    def getuserTag(self, username):
+    def get_user_tag(self, username):
         """Get the full data of user from username."""
         url = USER_NAME_API.format(username)
-        return self.getJSONObjectFromTwitchAPI(url)
+        return self.get_json_object_from_twitch_api(url)
 
-    def getuserID(self, username):
+    def get_user_id(self, username):
         """Get the twitch id (numbers) from username."""
         u_name = sanitize_user_name(username)
 
@@ -629,12 +629,12 @@ class TwitchBot:
             )
 
             try:
-                data = self.getuserTag(username)
+                data = self.get_user_tag(username)
                 id = data["users"][0]["_id"]
                 display_name = data["users"][0]["display_name"]
 
                 # update cache as well
-                self.updateCacheData(u_name, display_name, id)
+                self.update_cache_data(u_name, display_name, id)
                 return id
 
             except (ValueError, KeyError) as e:
@@ -649,10 +649,10 @@ class TwitchBot:
                 logging.info("Seems no such user as {}".format(username))
                 raise UserNotFoundError("No user with login id of {}".format(username))
 
-    def getuserEmotes(self, userID):
+    def get_user_emotes(self, userID):
         """Get the emotes a user can use from userID without the global emoticons."""
         url = USER_EMOTE_API.format(userID)
-        data = self.getJSONObjectFromTwitchAPI(url)
+        data = self.get_json_object_from_twitch_api(url)
 
         try:
             emotelist = data["emoticon_sets"]
@@ -664,7 +664,7 @@ class TwitchBot:
         emotelist.pop("0", None)
         return emotelist
 
-    def accessToEmote(self, username, emote):
+    def access_to_emote(self, username, emote):
         """Check if user has access to a certain emote."""
         # Some notes about emotes and IRC:
         # emote tag in IRC message is like emotes=1902:0-4,6-10/1901:12-16; (not sure about order)
@@ -673,47 +673,48 @@ class TwitchBot:
         #
         # Twitch internally parse your message and change them to emotes with the emote tag in IRC message
         #
-        userID = self.getuserID(username)
-        emotelist = self.getuserEmotes(userID)
+        userID = self.get_user_id(username)
+        emotelist = self.get_user_emotes(userID)
         for sets in emotelist:
             for key in range(0, len(emotelist[sets])):
                 if emote == emotelist[sets][key]["code"]:
                     return True
         return False
 
-    def getChannel(self, channelID):
+    def get_channel(self, channelID):
         """Get the channel object from channelID."""
         url = CHANNEL_API.format(channelID)
 
         try:
-            return self.getJSONObjectFromTwitchAPI(url)
+            return self.get_json_object_from_twitch_api(url)
         except (IndexError, KeyError):
             logging.error(traceback.format_exc())
             print("Channel object could not be fetched.")
 
-    def getStream(self, channelID):
+    def get_stream(self, channelID):
         """Get the channel object from channelID."""
         url = STREAMS_API.format(channelID)
 
         try:
-            return self.getJSONObjectFromTwitchAPI(url)
+            return self.get_json_object_from_twitch_api(url)
         except (IndexError, KeyError):
             logging.error(traceback.format_exc())
             print("Stream object could not be fetched.")
 
-    def getDisplayNameFromID(self, user_id):
+    def get_display_name_from_id(self, user_id):
         """Convert user id to display name."""
         if user_id in self.IDtoDisplayName:
             return self.IDtoDisplayName[id]
         else:
-            data = self.getUserDataFromID(user_id)
+            data = self.get_user_data_from_id(user_id)
             return data["display_name"]
 
     def setlast_plebgame(self, last_plebgame):
         """Set timer of last_plebgame."""
         self.last_plebgame = last_plebgame
 
-    def replace_vars(self, msg, args):
+    @staticmethod
+    def replace_vars(msg, args):
         """Replace the variables in the message."""
         oldmsg = msg
         newmsg = msg
@@ -727,7 +728,7 @@ class TwitchBot:
             oldmsg = newmsg
         return newmsg
 
-    def deepMergeDict(self, base, custom, dictPath=""):
+    def deep_merge_dict(self, base, custom, dictPath=""):
         """Intended to merge dictionaries created from JSON.load().
 
         We try to preserve the structure of base, while merging custom to base.
@@ -754,18 +755,18 @@ class TwitchBot:
                     # Have same key and same type of data
                     # Do recursive merge for dictionary
                     if isinstance(custom[k], dict):
-                        base[k] = self.deepMergeDict(base[k], custom[k], dictPath)
+                        base[k] = self.deep_merge_dict(base[k], custom[k], dictPath)
                     else:
                         base[k] = custom[k]
 
         return copy.deepcopy(base)
 
-    def dumpIgnoredUsersFile(self):
+    def dump_ignored_users_file(self):
         """Output ignored users file."""
         with open(IGNORED_USERS_PATH.format(self.root), "w", encoding="utf-8") as file:
             json.dump(self.ignored_users, file, indent=4)
 
-    def clearCache(self):
+    def clear_cache(self):
         """Clear the cache."""
         self.cache = WebCache(duration=CACHE_DURATION)
         self.reload_commands()

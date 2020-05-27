@@ -30,8 +30,8 @@ class GuessEmoteGame(Command):
 
         if "rng" in msg.lower():
             """Get all twitch- and BTTV-Emotes, assemble a list of random emotes."""
-            twitchemotes = bot.getGlobalTwitchEmotes()
-            bttvemotes = bot.getChannelBTTVEmotes() + bot.getGlobalBttvEmotes()
+            twitchemotes = bot.get_global_twitch_emotes()
+            bttvemotes = bot.get_channel_bttv_emotes() + bot.get_global_bttv_emotes()
 
             n_total = 25
             n_bttv = 10
@@ -63,9 +63,9 @@ class GuessEmoteGame(Command):
     def match(self, bot, user, msg, tag_info):
         """Match if the game is active or gets started with !estart."""
         return (
-                self.active
-                or start_game(bot, user, msg, "!estart")
-                or start_game(bot, user, msg, "!rngestart")
+            self.active
+            or start_game(bot, user, msg, "!estart")
+            or start_game(bot, user, msg, "!rngestart")
         )
 
     def run(self, bot, user, msg, tag_info):
@@ -90,7 +90,7 @@ class GuessEmoteGame(Command):
 
             if cmd == self.emote:
                 var = {
-                    "<USER>": bot.displayName(user),
+                    "<USER>": bot.display_name(user),
                     "<EMOTE>": self.emote,
                     "<PRONOUN0>": bot.pronoun(user)[0].capitalize(),
                     "<AMOUNT>": bot.EMOTEGAMEP,

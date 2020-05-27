@@ -21,9 +21,11 @@ class MultiBotIRCClient(irc.IRCClient, object):
         # Right now, only one bot can listen, so we take the values of the first one.
         with open(CONFIG_PATH.format(self.bots[0].root), "r", encoding="utf-8") as file:
             CONFIG = json.load(file)
-        self.nickname = str(CONFIG["username"])
+        self.nickname = "monkalot"  # str(CONFIG["username"])
         self.clientID = str(CONFIG["clientID"])
-        self.password = str(CONFIG["oauth_key"])
+        self.password = (
+            "oauth:b2jfeha62fwljzfc35tn6hv3d3uhyh"  # str(CONFIG["oauth_key"])
+        )
 
     def signedOn(self):
         """Call when first signed on."""
@@ -66,7 +68,7 @@ class MultiBotIRCClient(irc.IRCClient, object):
         """Not sure what this does. Maybe gets called when mods get added/removed."""
         for b in MultiBotIRCClient.bots:
             if b.channel == channel:
-                b.modeChanged(user, channel, added, modes, args)
+                b.mode_changed(user, channel, added, modes, args)
 
     def userJoined(self, user, channel):
         """Update user list when user joins."""
@@ -200,14 +202,14 @@ class MultiBotIRCClient(irc.IRCClient, object):
         # pass in msg just in case we need them later
         msg_type = tags["msg-id"]
         if msg_type == "raid":
-            bot.incomingRaid(tags)
+            bot.incoming_raid(tags)
         elif msg_type == "ritual":
-            bot.incomingRitual(tags, msg)
+            bot.incoming_ritual(tags, msg)
         elif msg_type in ["sub", "resub"]:
-            bot.subMessage(tags, msg)
+            bot.sub_message(tags, msg)
         elif msg_type == "subgift":
             # seems cannot add custom message like normal sub at 20/12/17
-            bot.subGift(tags)
+            bot.sub_gift(tags)
 
     def user_state(self, prefix, tags, args):
         # NOTE: In Twitch IRC, USERSTATE can be called in 2 ways:
@@ -232,7 +234,7 @@ class MultiBotIRCClient(irc.IRCClient, object):
 
         for b in MultiBotIRCClient.bots:
             if b.nickname == args[0]:
-                b.handleWhisper(sender, args[1])
+                b.handle_whisper(sender, args[1])
 
     @staticmethod
     def host_target(channel, target):
@@ -240,7 +242,7 @@ class MultiBotIRCClient(irc.IRCClient, object):
         target = target.split(" ")[0]
         for b in MultiBotIRCClient.bots:
             if b.channel == channel:
-                b.setHost(channel, target)
+                b.set_host(channel, target)
 
     @staticmethod
     def clear_chat(channel, target=None):
@@ -276,10 +278,14 @@ class MultiBotIRCClient(irc.IRCClient, object):
         """Return a simple dict for normal chat message from tags."""
 
         # I prefer parse tag here for chat messages instead of parsing in bot.py
-        result = {"display_name": tags.get("display-name", None), "user_id": tags["user-id"],
-                  "is_mod": tags["mod"] == "1", "is_sub": tags["subscriber"] == "1",
-                  "is_broadcaster": "broadcaster" in tags["badges"],
-                  "twitch_emote_only": tags.get("emote-only", False) == "1"}
+        result = {
+            "display_name": tags.get("display-name", None),
+            "user_id": tags["user-id"],
+            "is_mod": tags["mod"] == "1",
+            "is_sub": tags["subscriber"] == "1",
+            "is_broadcaster": "broadcaster" in tags["badges"],
+            "twitch_emote_only": tags.get("emote-only", False) == "1",
+        }
 
         # not an exhaustive parse, just get something useful for us now
         # stremer can get is_mod and is_sub False too
