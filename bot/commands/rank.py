@@ -11,7 +11,7 @@ class Rank(Command):
 
     perm = Permission.User
 
-    def __init__(self, bot):
+    def __init__(self, _):
         """Initialize variables."""
         self.responses = {}
 

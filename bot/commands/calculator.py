@@ -21,7 +21,7 @@ class Calculator(Command):
 
     symbols = ["e", "pi", "sin", "cos", "tan", "abs", "trunc", "round", "sgn"]
 
-    def __init__(self, bot):
+    def __init__(self, _):
         """Initialize variables."""
         self.nsp = NumericStringParser()
         self.responses = {}

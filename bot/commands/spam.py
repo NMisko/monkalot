@@ -11,7 +11,7 @@ class Spam(Command):
     OBSERVED_MESSAGES = 15
     NECESSARY_SPAM = 6
 
-    def __init__(self, bot):
+    def __init__(self, _):
         """Initialize variables."""
         self.fifo = []
         self.counter = {}

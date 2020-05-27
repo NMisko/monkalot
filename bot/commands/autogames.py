@@ -13,7 +13,7 @@ class AutoGames(Command):
 
     perm = Permission.Moderator
 
-    def __init__(self, bot):
+    def __init__(self, _):
         """Initialize variables."""
         self.responses = {}
         self.active = False
@@ -49,7 +49,7 @@ class AutoGames(Command):
     def run(self, bot, user, msg, tag_info):
         """Start/stop automatic games."""
         self.responses = bot.responses["AutoGames"]
-        cmd = msg[len("!games "):]
+        cmd = msg[len("!games ") :]
         cmd.strip()
 
         if cmd == "on":

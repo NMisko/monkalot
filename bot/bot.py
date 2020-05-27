@@ -130,7 +130,9 @@ class TwitchBot:
                     pass
             return result
 
-        return self.cache.get(TWITCH_EMOTE_API, f, fallback=[], headers=self.TWITCH_API_COMMON_HEADERS)
+        return self.cache.get(
+            TWITCH_EMOTE_API, f, fallback=[], headers=self.TWITCH_API_COMMON_HEADERS
+        )
 
     def get_global_bttv_emotes(self):
         """Return available global bttv emotes."""

@@ -62,7 +62,7 @@ class EditCommandList(Command):
             var = {"<COMMAND>": entrycmd}
             bot.write(bot.replace_vars(self.responses["cmd_not_found"]["msg"], var))
 
-    def replylist(self, bot, cmd):
+    def replylist(self, bot, _):
         """Write out the Commandlist in chat."""
         replylist = "Replylist Commands: "
 

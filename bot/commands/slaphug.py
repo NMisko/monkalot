@@ -19,7 +19,8 @@ class SlapHug(Command):
             self.slapreply = self.replies["slap"]
             self.hugreply = self.replies["hug"]
 
-    def replace_reply(self, bot, user, target, reply):
+    @staticmethod
+    def replace_reply(bot, user, target, reply):
         """Replace words in the reply string and return it."""
         if "<user>" in reply:
             reply = reply.replace("<user>", bot.display_name(user))
@@ -57,6 +58,8 @@ class SlapHug(Command):
             reply = str(random.choice(self.slapreply))
         elif cmd[0].strip() == "!hug":
             reply = str(random.choice(self.hugreply))
+        else:
+            return
 
         reply = self.replace_reply(bot, user, target, reply)
         bot.write(reply)

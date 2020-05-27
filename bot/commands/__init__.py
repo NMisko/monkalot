@@ -15,15 +15,15 @@ from .calculator import Calculator
 from .cardinfo import CardInfo
 from .editcommandlist import EditCommandList
 from .editcommandmods import EditCommandMods
-from .editquotelist import editQuoteList
+from .editquotelist import EditQuoteList
 from .guessemotegame import GuessEmoteGame
 from .guessminiongame import GuessMinionGame
 from .kappagame import KappaGame
 from .monkalotparty import MonkalotParty
 from .notifications import Notifications
 from .oralpleasure import Oralpleasure
-from .outputquote import outputQuote
-from .outputstats import outputStats
+from .outputquote import OutputQuote
+from .outputstats import OutputStats
 from .pronouns import Pronouns
 from .pyramid import Pyramid
 from .pyramidblock import PyramidBlock
@@ -58,11 +58,11 @@ other = [
     CardInfo,
     EditCommandList,
     EditCommandMods,
-    editQuoteList,
+    EditQuoteList,
     Notifications,
     Oralpleasure,
-    outputQuote,
-    outputStats,
+    OutputQuote,
+    OutputStats,
     Pronouns,
     PyramidBlock,
     PyramidReply,

@@ -28,33 +28,34 @@ class UserIgnore(Command):
         cmd = msg.lower().strip().split(" ")
         target = cmd[1].lower().strip()
 
+        reply = {}
         if cmd[0].strip() == "!ignore":
-            ignoreReply = self.responses["ignore"]
+            ignore_reply = self.responses["ignore"]
             # bot can ignore ANYONE, we just add the name to bot.ignored_users
             # IMPORTNT: ANYONE includes owner, mod and the bot itself, we do the checking here to prevent it
             if (target == bot.nickname) or any(
                 target in coll for coll in (bot.owner_list, bot.trusted_mods)
             ):
-                reply = ignoreReply["privileged"]
+                reply = ignore_reply["privileged"]
             elif target in bot.ignored_users:
                 # already ignored
-                reply = ignoreReply["already"]
+                reply = ignore_reply["already"]
             else:
                 bot.ignored_users.append(target)
-                reply = ignoreReply["success"]
+                reply = ignore_reply["success"]
                 # To make the change temporary (before bot reboot) comment out next line
                 bot.dump_ignored_users_file()
 
         elif cmd[0].strip() == "!unignore":
-            unignoreReply = self.responses["unignore"]
+            unignore_reply = self.responses["unignore"]
             if target in bot.ignored_users:
                 bot.ignored_users.remove(target)
-                reply = unignoreReply["success"]
+                reply = unignore_reply["success"]
                 # To make the change temporary (before bot reboot) comment out next line
                 bot.dump_ignored_users_file()
             else:
-                reply = unignoreReply["already"]
+                reply = unignore_reply["already"]
 
         var = {"<USER>": target}
-        output = bot.replace_vars(reply["msg"], var)
+        output = bot.replace_vars(reply.get("msg"), var)
         bot.write(output)

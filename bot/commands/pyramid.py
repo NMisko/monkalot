@@ -10,11 +10,9 @@ from bot.utilities.permission import Permission
 from bot.utilities.tools import format_list
 
 
-def emote_str(emote, count):
-    return " ".join([emote] * count)
-
-
 class EmoteType(Enum):
+    """Types of twitch emote."""
+
     INVALID = 1
     TWITCH = 2
     NONTWITCH = 3
@@ -28,14 +26,20 @@ class Pyramid(Command):
     def __init__(self, bot):
         """Initialize variables."""
         self.responses = bot.responses["Pyramid"]
-        self.nonTwitchEmotes = (
+        self.non_twitch_emotes = (
             bot.get_global_bttv_emotes()
             + bot.get_channel_bttv_emotes()
             + bot.get_channel_ffz_emotes()
         )
         self.emojis = bot.get_emojis()
 
-        self.pyramidBuilders = []
+        self.pyramid_builders = []
+        self.current_type = None
+        self.increasing = None
+        self.maxLevel = None
+        self.pyramidLevel = None
+        self.currentEmote = None
+        self.emote_input_str = ""
 
         # reset, also initialize some variables
         self.reset()
@@ -46,50 +50,54 @@ class Pyramid(Command):
 
     def run(self, bot, user, msg, tag_info):
         """Check whether a pyramid was successfully built or a new one was started."""
-        msgType, msgCount, emote = self.get_info(msg, tag_info)
+        msg_type, msg_count, emote = self.get_info(msg, tag_info)
 
-        if msgType == EmoteType.INVALID:
+        if msg_type == EmoteType.INVALID:
             # Not single emote message, so we reset earlier
             # print("Invalid input for pyramid -- not even an emote, or multiple emote")
             self.reset()
         else:
-            if self.valid_next_level(msgType, msgCount, emote):
+            if self.valid_next_level(msg_type, msg_count, emote):
                 # print("Valid next level input")
-                self.process_next_level(msgType, msgCount, emote, user, bot)
-            elif self.valid_new_start(msgType, msgCount):
+                self.process_next_level(msg_type, msg_count, emote, user, bot)
+            elif self.valid_new_start(msg_type, msg_count):
                 # new single emote (State: 1) -- finishing level is already handled in validNextLevel()
                 # print("Some entered single emote -- new pyramid")
                 self.reset()
-                self.process_next_level(msgType, msgCount, emote, user, bot)
+                self.process_next_level(msg_type, msg_count, emote, user, bot)
             else:
                 # invalid state (State: 0)
                 # print("Single emote, but count is incorrect")
                 self.reset()
 
-    def process_next_level(self, msgType, msgCount, emote, user, bot):
-        # NOTE: DO NOT handle new start in this function, only valid next level
-        self.currentType = msgType
+    def process_next_level(self, msg_type, msg_count, emote, user, bot):
+        """Processes a new pyramid level, adding the user to builders and incrementing size.
 
-        if msgCount < self.pyramidLevel:
+        NOTE: DO NOT handle new start in this function, only valid next level
+        """
+        self.current_type = msg_type
+
+        if msg_count < self.pyramidLevel:
             self.increasing = False
         else:
-            self.maxLevel = msgCount
+            self.maxLevel = msg_count
 
-        self.pyramidLevel = msgCount
+        self.pyramidLevel = msg_count
         self.currentEmote = emote
 
-        self.pyramidBuilders.append(user)
+        self.pyramid_builders.append(user)
         # Pyramid data is updated at this point
 
         # can pass in more parmeters if needed, like special emotes/sub emotes
         self.handle_special_rules(bot)
 
     def handle_special_rules(self, bot):
+        """Applies special rules, e.g. finishing or blocking pyramids."""
         if bot.pyramidBlock and self.pyramidLevel == 2:
             self.block_pyramid(bot)
             return
 
-        # finishing is treated as speical rule
+        # finishing is treated as special rule
         if self.pyramidLevel == 1 and not self.increasing:
             self.pyramid_completed(bot)
             return
@@ -102,23 +110,22 @@ class Pyramid(Command):
             bot.write(random.choice(self.responses["pyramidblocks"]["msg"]))
         else:
             # The other 20% is to complete pyramid for the user LUL
-
             # The roll list here:
             # 10% to finish pyramid with max level of 4
             # 30% for max level of 3
             # 60% for 2 (just use 1 emote to close the pyramid)
-            rollResult = random.randint(1, 10)
-            if rollResult == 1:
-                maxLv = 4
-            elif rollResult <= 4:
-                maxLv = 3
+            roll_result = random.randint(1, 10)
+            if roll_result == 1:
+                max_lv = 4
+            elif roll_result <= 4:
+                max_lv = 3
             else:
-                maxLv = 2
-            self.finish_pyramid(maxLv, bot, taunt=True)
+                max_lv = 2
+            self.finish_pyramid(max_lv, bot, taunt=True)
 
         self.reset()
 
-    def finish_pyramid(self, maxLv, bot, taunt):
+    def finish_pyramid(self, max_lv, bot, taunt):
         """Generic function for bot to complete a pyramid based on current state.
 
            This function does not change any value of current pyramid, it only
@@ -129,11 +136,10 @@ class Pyramid(Command):
                    taunt message, otherwise just print plain emote
         """
         # invalid maxLv -- it wants a smaller pyramid?
-        if maxLv < self.maxLevel:
+        if max_lv < self.maxLevel:
             logging.error(
-                "[Pyramid]: finishPyramid() -- wrong params provided, current max lv is {}, but input requested a lv {} pyramid".format(
-                    self.maxLevel, maxLv
-                )
+                f"[Pyramid]: finishPyramid() -- wrong params provided, "
+                f"current max lv is {self.maxLevel}, but input requested a lv {max_lv} pyramid"
             )
 
         # get current state, then write the message level by level
@@ -144,9 +150,9 @@ class Pyramid(Command):
         lv = self.pyramidLevel
 
         # if increasing (and valid), fill up to maxLv.
-        while lv < maxLv:
+        while lv < max_lv:
             lv += 1
-            bot.write(emote_str(emote, lv))
+            bot.write(self._emote_str(emote, lv))
 
         # if decreasing/invalid lv provided, just fill decreasing emote at 2, then finish it
         while lv > 0:
@@ -154,14 +160,15 @@ class Pyramid(Command):
 
             if lv == 1:
                 # finish the pyramid
-                tauntMsg = ""
+                taunt_msg = ""
                 if taunt:
-                    tauntMsg = random.choice(self.responses["finishingtaunt"]["msg"])
-                bot.write("{} {}".format(emote, tauntMsg))
+                    taunt_msg = random.choice(self.responses["finishingtaunt"]["msg"])
+                bot.write("{} {}".format(emote, taunt_msg))
             else:
-                bot.write(emote_str(emote, lv))
+                bot.write(self._emote_str(emote, lv))
 
     def pyramid_completed(self, bot):
+        """Sends appropriate messages if a pyramid is completed."""
         if self.maxLevel == 2:  # plebramid
             self.successful_pleb_pyramid(bot)
         else:
@@ -169,7 +176,7 @@ class Pyramid(Command):
 
     def successful_pleb_pyramid(self, bot):
         """Write messages and time out people on pleb pyramid."""
-        unique_users = list(set(self.pyramidBuilders))
+        unique_users = list(set(self.pyramid_builders))
         if len(unique_users) == 1:
             user = unique_users[0]
             if bot.get_permission(user) in [Permission.User, Permission.Subscriber]:
@@ -201,7 +208,7 @@ class Pyramid(Command):
         """Send a message for a successful pyramid."""
         points = self.calculate_points(bot)
         if len(points) == 1:
-            user = self.pyramidBuilders[0]
+            user = self.pyramid_builders[0]
             var = {
                 "<USER>": bot.display_name(user),
                 "<PRONOUN0>": bot.pronoun(user)[0],
@@ -230,7 +237,7 @@ class Pyramid(Command):
         m = {}
         points = bot.PYRAMIDP
         for i in range(len(points)):
-            user = self.pyramidBuilders[i]
+            user = self.pyramid_builders[i]
 
             if user not in m:
                 if bot.get_permission(user) not in [
@@ -254,6 +261,7 @@ class Pyramid(Command):
         return m
 
     def get_info(self, msg, tag_info):
+        """Checks message and returns emote type and their count."""
         e_type = EmoteType.INVALID
         count = 0
         emote = ""  # can be int or str, depends on type
@@ -273,48 +281,51 @@ class Pyramid(Command):
         return e_type, count, emote
 
     def check_valid_non_twitch_emote_with_count(self, msg):
+        """Checks whether message contains a valid external emote and returns it and its count."""
         invalid_data = (False, -1, "")
 
         # split msg with space, check if only one emote/emoji only
-        msgCounter = Counter(msg.split())
+        msg_counter = Counter(msg.split())
 
-        if len(msgCounter) != 1:
+        if len(msg_counter) != 1:
             # more than 1 different type of messages splited with whitespace, or 0
             return invalid_data
 
-        emote, count = msgCounter.popitem()
+        emote, count = msg_counter.popitem()
         # Don't use string.count() to count: need to exclude substring like 'Kappa' in 'KappaPride'
         # count = msg.count(emote)
 
-        if emote not in self.nonTwitchEmotes and emote not in self.emojis:
+        if emote not in self.non_twitch_emotes and emote not in self.emojis:
             return invalid_data
         else:
             # single valid emote/emoji confirmed
-            return (True, count, emote)
+            return True, count, emote
 
         # NOTE: currently there are no regex type of BTTV emote and emoji
         # We need to change our logic if that happens ... have to loop all regex emote to check if any matches
 
-    def check_valid_twitch_emote_with_count(self, tag_info):
+    @staticmethod
+    def check_valid_twitch_emote_with_count(tag_info):
+        """Checks whether message contains a valid twitch emote and returns it and its count."""
         if tag_info["twitch_emote_only"]:
             emote_stats = tag_info[
                 "twitch_emotes"
             ].copy()  # make a copy since we will popitem()
             emote_id, freq = emote_stats.popitem()
-
             if len(emote_stats) == 0:
                 # only one emote
-                return (True, freq, emote_id)
+                return True, freq, emote_id
+        return False, -1, -1
 
-        return (False, -1, -1)
+    @staticmethod
+    def valid_new_start(msg_type, msg_count):
+        """
+        can actually just do this since we already checked msgType
+        return msgCount == 1
+        """
+        return (msg_type in [EmoteType.TWITCH, EmoteType.NONTWITCH]) and msg_count == 1
 
-    def valid_new_start(self, msgType, msgCount):
-        # can actually just do this since we already checked msgType
-        # return msgCount == 1
-
-        return (msgType in [EmoteType.TWITCH, EmoteType.NONTWITCH]) and msgCount == 1
-
-    def valid_next_level(self, msgType, msgCount, emote):
+    def valid_next_level(self, msg_type, msg_count, emote):
         """ Return True if incoming message forms a valid level of pyramid
             with some exceptions.
         """
@@ -347,7 +358,7 @@ class Pyramid(Command):
 
         # Small note: Golden Kappa and normal Kappa are different emote with
         # current logic, since they have different emote id
-        if msgType != self.currentType or emote != self.currentEmote:
+        if msg_type != self.current_type or emote != self.currentEmote:
             # state 0 return False here, since it has to be INVALID
             return False
 
@@ -355,25 +366,31 @@ class Pyramid(Command):
 
         if self.increasing:
             # decresing at level 1 is NOT allowed (1 -> 0)
-            return msgCount == level + 1 or (msgCount == level - 1 and level >= 2)
+            return msg_count == level + 1 or (msg_count == level - 1 and level >= 2)
         else:
             if level == 1:
                 raise ValueError(
                     "We have a decreasing level 1 pyramid asking for level 0 next level"
                 )
-            return msgCount == level - 1
+            return msg_count == level - 1
 
     def reset(self):
+        """Resets pyramid state to none."""
         self.pyramidLevel = 0  # current pyramid level
         self.maxLevel = 0
         self.increasing = True
         self.currentEmote = (
             ""  # can be both Twitch emote ID (int) or str (non Twitch emote)
         )
-        self.currentType = EmoteType.INVALID
+        self.current_type = EmoteType.INVALID
         # store the string input of that emote if user enters a valid emote level. Currently used by bot only
         self.emote_input_str = ""
-        self.pyramidBuilders.clear()
+        self.pyramid_builders.clear()
+
+    @staticmethod
+    def _emote_str(emote, count):
+        """Concatenates an emote count times."""
+        return " ".join([emote] * count)
 
 
 # Expected test cases:

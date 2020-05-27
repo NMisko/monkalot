@@ -17,10 +17,10 @@ class CardInfo(Command):
     def __init__(self, bot):
         """Initialize spell correction."""
         cards = bot.get_hearthstone_cards()
-        cardNames = []
+        card_names = []
         for i in range(0, len(cards)):
-            cardNames.append(cards[i]["name"].lower())
-        self.spellcorrection = SpellCorrection(set(cardNames))
+            card_names.append(cards[i]["name"].lower())
+        self.spellcorrection = SpellCorrection(set(card_names))
 
     def match(self, bot, user, msg, tag_info):
         """Match if message is inside [] and message length < 30."""
@@ -29,17 +29,20 @@ class CardInfo(Command):
     def run(self, bot, user, msg, tag_info):
         """Print out information about a card."""
         name = msg[1:-1]  # strips [,]
+        card = None
         if name not in bot.get_hearthstone_cards():
             name = self.spellcorrection.spell(name)
             if not name:
-                bot.write("@{} I can't find that card, sorry.".format(user))
-                return
+                card = None
             else:
                 for c in bot.get_hearthstone_cards():
                     if c["name"].lower() == name:
                         card = c
         else:
             card = bot.get_hearthstone_cards()[name]
+
+        if not card:
+            bot.write("@{} I can't find that card, sorry.".format(user))
 
         # Remove formatting and weird [x] I don't know the meaning of
         if "text" in card:

@@ -121,12 +121,13 @@ class MiniGames(object):
         elif n == 2:
             quest = str(a) + " + " + str(b) + " + " + str(c) + " + " + str(d)
             answer = a + b + c + d
-        elif n == 3:
+        else:
             quest = str(a) + " x " + str(b) + " + " + str(c) + " + " + str(d)
             answer = a * b + c + d
 
-        question = "/me ▬▬▬▬▬▬M▬A▬T▬H▬▬T▬I▬M▬E▬▬▬▬▬▬▬ NotLikeThis What is {} = ? NotLikeThis ▬▬▬▬▬▬M▬A▬T▬H▬▬T▬I▬M▬E▬▬▬▬▬▬▬".format(
-            quest
+        question = (
+            f"/me ▬▬▬▬▬▬M▬A▬T▬H▬▬T▬I▬M▬E▬▬▬▬▬▬▬ NotLikeThis What is {quest} = ? "
+            f"NotLikeThis ▬▬▬▬▬▬M▬A▬T▬H▬▬T▬I▬M▬E▬▬▬▬▬▬▬"
         )
 
         return {"simplecalc": {"question": question, "answer": answer}}
@@ -203,13 +204,10 @@ class MiniGames(object):
         elif n == 7:
             quest = "On what device is " + emote2 + " playing?"
             answer = device
-        elif n == 8:
+        else:
             quest = "Who brought the " + color + " " + toy + "?"
             answer = emote
-        else:
-            print("Error in selecting a question.")
         quest += " :thinking:"
-
         question = story + quest
         return {"coolstorybob": {"question": question, "answer": answer}}
 
@@ -229,11 +227,12 @@ class MiniGames(object):
         """if random.randrange(100) < 25:
             DONT = "not "
         else:"""
-        DONT = ""
+        _not_ = ""
 
         answer = random.choice(list(self.data[qtype]))
-        question = "/me ▬▬▬G▬O▬T▬T▬A▬▬G▬O▬▬F▬A▬S▬T▬▬▬▬ PogChamp QUICK! PogChamp Be the first to {}write {} ! ▬▬▬G▬O▬T▬T▬A▬▬G▬O▬▬F▬A▬S▬T▬▬▬▬".format(
-            DONT, answer
+        question = (
+            f"/me ▬▬▬G▬O▬T▬T▬A▬▬G▬O▬▬F▬A▬S▬T▬▬▬▬ PogChamp QUICK! PogChamp "
+            f"Be the first to {_not_}write {answer} ! ▬▬▬G▬O▬T▬T▬A▬▬G▬O▬▬F▬A▬S▬T▬▬▬▬"
         )
 
         return {"bethefirsttowrite": {"question": question, "answer": answer}}
@@ -241,18 +240,13 @@ class MiniGames(object):
     def oneisnotliketheother(self):
         """Present a list of words, where one doesn't belong in."""
         qtype = self.questtype[5]
-        itemfound = False
 
         rngkey = random.choice(list(self.data[qtype]))
         itemlist = self.data[qtype][rngkey].copy()
         for i in range(0, len(itemlist)):
             itemlist[i] = itemlist[i].upper()
 
-        while not itemfound:
-            otherkey = random.choice(list(self.data[qtype]))
-            if otherkey != rngkey:
-                itemfound = True
-
+        otherkey = random.choice(list(set(self.data[qtype]) - {rngkey}))
         otheritemlist = self.data[qtype][otherkey]
 
         answer = random.choice(otheritemlist)
@@ -260,8 +254,9 @@ class MiniGames(object):
         shuffle(itemlist)
         item = ", ".join(str(x) for x in itemlist)
 
-        question = "/me ▬O▬N▬E▬▬I▬S▬▬N▬O▬T▬▬A▬L▬I▬K▬E▬▬ NotLikeThis - One of these things is not like the others! - NotLikeThis {} ▬O▬N▬E▬▬I▬S▬▬N▬O▬T▬▬A▬L▬I▬K▬E▬▬".format(
-            item
+        question = (
+            f"/me ▬O▬N▬E▬▬I▬S▬▬N▬O▬T▬▬A▬L▬I▬K▬E▬▬ NotLikeThis - "
+            f"One of these things is not like the others! - NotLikeThis {item} ▬O▬N▬E▬▬I▬S▬▬N▬O▬T▬▬A▬L▬I▬K▬E▬▬"
         )
 
         return {"oneisnotliketheother": {"question": question, "answer": answer}}
@@ -271,8 +266,9 @@ class MiniGames(object):
         qtype = self.questtype[4]
 
         item = random.choice(list(self.data[qtype]))
-        question = '/me ▬▬C▬O▬M▬P▬L▬E▬T▬E▬▬E▬M▬O▬T▬E▬▬ monkaS Complete the following rhyme with an emote! monkaS "{}" ▬▬C▬O▬M▬P▬L▬E▬T▬E▬▬E▬M▬O▬T▬E▬▬'.format(
-            item
+        question = (
+            f"/me ▬▬C▬O▬M▬P▬L▬E▬T▬E▬▬E▬M▬O▬T▬E▬▬ monkaS "
+            f'Complete the following rhyme with an emote! monkaS "{item}"'
         )
         answer = self.data[qtype][item]
 
@@ -283,8 +279,9 @@ class MiniGames(object):
         qtype = self.questtype[3]
 
         item = random.choice(list(self.data[qtype]))
-        question = '/me ▬C▬O▬M▬P▬L▬E▬T▬E▬▬L▬Y▬R▬I▬C▬S▬▬ monkaS Complete the following lyrics: "{}" monkaS ▬C▬O▬M▬P▬L▬E▬T▬E▬▬L▬Y▬R▬I▬C▬S▬▬'.format(
-            item
+        question = (
+            f"/me ▬C▬O▬M▬P▬L▬E▬T▬E▬▬L▬Y▬R▬I▬C▬S▬▬ monkaS "
+            f'Complete the following lyrics: "{item}" monkaS ▬C▬O▬M▬P▬L▬E▬T▬E▬▬L▬Y▬R▬I▬C▬S▬▬'
         )
         answer = self.data[qtype][item]
 
@@ -296,8 +293,9 @@ class MiniGames(object):
 
         item = random.choice(list(self.data[qtype]))
         article = self.data[qtype][item][1]
-        question = "/me ▬W▬H▬A▬T▬S▬▬T▬H▬E▬▬C▬O▬L▬O▬R▬▬ :thinking: What's the color of {}{}? :thinking: ▬W▬H▬A▬T▬S▬▬T▬H▬E▬▬C▬O▬L▬O▬R▬▬".format(
-            article, item
+        question = (
+            f"/me ▬W▬H▬A▬T▬S▬▬T▬H▬E▬▬C▬O▬L▬O▬R▬▬ :thinking: "
+            f"What's the color of {article}{item}? :thinking: ▬W▬H▬A▬T▬S▬▬T▬H▬E▬▬C▬O▬L▬O▬R▬▬"
         )
         answer = self.data[qtype][item][0]
 
@@ -312,14 +310,18 @@ class MiniGames(object):
 
         if key_arg:
             item = self.data[qtype][key]
-            question = "/me ▬▬▬▬▬▬C▬A▬P▬I▬T▬A▬L▬▬O▬F▬▬▬▬▬▬ :thinking: {} is the capital of? :thinking: ▬▬▬▬▬▬C▬A▬P▬I▬T▬A▬L▬▬O▬F▬▬▬▬▬▬".format(
-                item
+            question = (
+                f"/me ▬▬▬▬▬▬C▬A▬P▬I▬T▬A▬L▬▬O▬F▬▬▬▬▬▬ :thinking: "
+                f"{item} is the capital of? "
+                f":thinking: ▬▬▬▬▬▬C▬A▬P▬I▬T▬A▬L▬▬O▬F▬▬▬▬▬▬"
             )
             answer = key
         else:
             item = key
-            question = "/me ▬▬▬▬▬▬C▬A▬P▬I▬T▬A▬L▬▬O▬F▬▬▬▬▬▬ :thinking: What is the capital of {}? :thinking: ▬▬▬▬▬▬C▬A▬P▬I▬T▬A▬L▬▬O▬F▬▬▬▬▬▬".format(
-                item
+            question = (
+                f"/me ▬▬▬▬▬▬C▬A▬P▬I▬T▬A▬L▬▬O▬F▬▬▬▬▬▬ :thinking: "
+                f"What is the capital of {item}?"
+                f":thinking: ▬▬▬▬▬▬C▬A▬P▬I▬T▬A▬L▬▬O▬F▬▬▬▬▬▬"
             )
             answer = self.data[qtype][key]
 
@@ -339,8 +341,10 @@ class MiniGames(object):
             item = self.data[qtype][key]
             answer = key
 
-        question = "/me ▬▬▬▬▬O▬P▬P▬O▬S▬I▬T▬E▬▬O▬F▬▬▬▬▬ :thinking: What is the opposite of {}? :thinking: ▬▬▬▬▬O▬P▬P▬O▬S▬I▬T▬E▬▬O▬F▬▬▬▬▬".format(
-            item
+        question = (
+            f"/me ▬▬▬▬▬O▬P▬P▬O▬S▬I▬T▬E▬▬O▬F▬▬▬▬▬ :thinking: "
+            f"What is the opposite of {item}? :thinking: "
+            f"▬▬▬▬▬O▬P▬P▬O▬S▬I▬T▬E▬▬O▬F▬▬▬▬▬"
         )
 
         return {"oppositeof": {"question": question, "answer": answer}}
@@ -356,7 +360,7 @@ class MiniGames(object):
         """Return the top ranked users and return the amount of spampoints they get."""
         winners = []
 
-        topscore = self.ranks[max(self.ranks.keys(), key=(lambda key: self.ranks[key]))]
+        topscore = self.ranks[max(self.ranks.keys(), key=(lambda x: self.ranks[x]))]
         if topscore > 1:
             for key in self.ranks:
                 if self.ranks[key] == topscore:
@@ -372,7 +376,8 @@ class MiniGames(object):
             spampoints = 20
         elif len(winners) == 4:
             spampoints = 15
-        elif len(winners) == 5:
+        else:
+            # len(winners) == 5
             spampoints = 10
 
         return winners, topscore, spampoints

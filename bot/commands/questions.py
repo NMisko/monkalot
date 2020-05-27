@@ -18,7 +18,8 @@ class Questions(Command):
         """Initialize the command."""
         self.calc = Calculator(bot)
 
-    def word_in_msg(self, wordlist, msg):
+    @staticmethod
+    def word_in_msg(wordlist, msg):
         """Check if one of the words is in the string. Returns index + 1, can be used as boolean."""
         for i in range(0, len(wordlist)):
             if wordlist[i] in msg.lower():

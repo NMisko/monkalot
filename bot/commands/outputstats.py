@@ -3,12 +3,12 @@ from bot.commands.command import Command
 from bot.utilities.permission import Permission
 
 
-class outputStats(Command):
+class OutputStats(Command):
     """Reply total emote stats or stats/per minute."""
 
     perm = Permission.User
 
-    def __init__(self, bot):
+    def __init__(self, _):
         """Initialize variables."""
         self.responses = {}
 
@@ -32,15 +32,11 @@ class outputStats(Command):
         cmd = msg.strip().lower()
 
         if cmd.startswith("!total "):
-            cmd = msg.strip()
-            cmd = cmd.split(" ", 1)
-            emote = cmd[1]
+            emote = self._second_word(msg)
             count = bot.ecount.get_total_count(emote)
             response = self.responses["total_reply"]["msg"]
         elif cmd.startswith("!minute "):
-            cmd = msg.strip()
-            cmd = cmd.split(" ", 1)
-            emote = cmd[1]
+            emote = self._second_word(msg)
             count = bot.ecount.get_minute_count(emote)
             response = self.responses["minute_reply"]["msg"]
         elif cmd == "!tkp":
@@ -51,6 +47,14 @@ class outputStats(Command):
             emote = "Kappa"
             count = bot.ecount.get_minute_count(emote)
             response = self.responses["minute_reply"]["msg"]
+        else:
+            return
 
         var = {"<EMOTE>": emote, "<AMOUNT>": count}
         bot.write(bot.replace_vars(response, var))
+
+    @staticmethod
+    def _second_word(msg):
+        """Returns second word (after !command usually)."""
+        cmd = msg.strip().split(" ", 1)
+        return cmd[1]

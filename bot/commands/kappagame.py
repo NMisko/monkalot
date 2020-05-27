@@ -14,7 +14,7 @@ class KappaGame(Command):
 
     perm = Permission.User
 
-    def __init__(self, bot):
+    def __init__(self, _):
         """Initialize variables."""
         self.responses = {}
         self.active = False
@@ -26,7 +26,8 @@ class KappaGame(Command):
         return self.active or start_game(bot, user, msg, "!kstart")
 
     def run(self, bot, user, msg, tag_info):
-        """Generate a random number n when game gets first started. Afterwards, check if a message contains the emote n times."""
+        """Generate a random number n when game gets first started.
+        Afterwards, check if a message contains the emote n times."""
         self.responses = bot.responses["KappaGame"]
         cmd = msg.strip()
 

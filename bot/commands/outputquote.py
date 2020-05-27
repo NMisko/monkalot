@@ -7,7 +7,7 @@ from bot.paths import QUOTES_FILE
 from bot.utilities.permission import Permission
 
 
-class outputQuote(Command):
+class OutputQuote(Command):
     """Simple Class to output quotes stored in a json-file."""
 
     perm = Permission.User
@@ -36,7 +36,7 @@ class outputQuote(Command):
                 arg = (
                     int(arg.strip()) - 1
                 )  # -1: So list for users goes from 1 to len + 1
-                if arg >= 0 and arg < len(self.quotelist):
+                if 0 <= arg < len(self.quotelist):
                     quote = self.quotelist[arg]
                     bot.write(quote)
                 else:

@@ -18,13 +18,23 @@ class GuessMinionGame(Command):
 
     perm = Permission.User
 
-    def __init__(self, bot):
+    def __init__(self, _):
         """Initialize variables."""
         self.responses = {}
         self.active = False
         self.cluetime = 10  # time between clues in seconds
         self.callID = None
         self.statToSet = {}
+        self.attributes = [
+            "cardClass",
+            "set",
+            "name",
+            "rarity",
+            "attack",
+            "cost",
+            "health",
+        ]
+        self.minion = None
 
     def giveClue(self, bot):  # noqa (let's ignore the high complexity for now)
         """Give a random clue to the chat.
@@ -74,15 +84,6 @@ class GuessMinionGame(Command):
 
     def init_game(self, bot):
         """Initialize GuessMinionGame."""
-        self.attributes = [
-            "cardClass",
-            "set",
-            "name",
-            "rarity",
-            "attack",
-            "cost",
-            "health",
-        ]
         nominion = True
         while nominion:
             self.minion = random.choice(bot.get_hearthstone_cards())

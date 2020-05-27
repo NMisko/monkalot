@@ -9,7 +9,7 @@ class Oralpleasure(Command):
 
     perm = Permission.User
 
-    def __init__(self, bot):
+    def __init__(self, _):
         """Initialize variables."""
         self.active = False
         self.responses = {}

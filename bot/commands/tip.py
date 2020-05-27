@@ -28,7 +28,7 @@ class Tip(Command):
 
                 """Check if tip_arg is an integer."""
                 try:
-                    amount = int(tip_arg)
+                    int(tip_arg)
                 except ValueError:
                     var = {"<MINTIP>": self.mintip, "<MAXTIP>": self.maxtip}
                     bot.write(

@@ -16,20 +16,21 @@ class EmoteReply(Command):
     maxwords = [12, 15, 1]  # [call, any, word]
     maxchars = [60, 80, 30]
 
-    def __init__(self, bot):
+    def __init__(self, _):
         """Initialize variables."""
         self.cmd = ""
         self.emote = ""
         self.text = ""
         self.responses = {}
 
-    def checkmaxvalues(self, cmd, text):
+    def checkmaxvalues(self, cmd, _):
         """Check if messages are in bounds."""
         if cmd == "!call":
             i = 0
         elif cmd == "!any":
             i = 1
-        elif cmd == "!word":
+        else:
+            # cmd == "!word"
             i = 2
 
         return (

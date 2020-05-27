@@ -9,7 +9,7 @@ class Active(Command):
     perm = Permission.User
     responses = {}
 
-    def __init__(self, bot):
+    def __init__(self, _):
         """Initialize variables."""
         self.responses = {}
 

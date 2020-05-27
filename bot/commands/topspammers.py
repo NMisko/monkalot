@@ -12,38 +12,32 @@ class TopSpammers(Command):
 
     perm = Permission.User
 
-    def __init__(self, bot):
-        """Initialize variables."""
-        self.responses = {}
-
     def match(self, bot, user, msg, tag_info):
         """Match if message is !topspammers."""
         return msg.lower() == "!topspammers"
 
     def run(self, bot, user, msg, tag_info):
         """Return the top spammers."""
-        self.responses = bot.responses["TopSpammers"]
+        responses = bot.responses["TopSpammers"]
         ranking = bot.ranking.get_top_spammers(5)
-        out = self.responses["heading"]["msg"]
+        out = responses["heading"]["msg"]
         if len(ranking) > 0:
-            # TODO: use a template string to do this?
             top = []
             for (viewer_id, point) in ranking:
                 # Since the id we're asking for can be one we added to the database a long time ago,
-                # the account may be deleted. This results in a RequestException. Display a spooky skeleton to show the account is dead.
+                # the account may be deleted. This results in a RequestException.
+                # Display a spooky skeleton to show the account is dead.
                 try:
-                    displayName = bot.get_display_name_from_id(viewer_id)
+                    display_name = bot.get_display_name_from_id(viewer_id)
                 except RequestException:
                     logging.info(
                         "Display name for id '{}' not found. Returning spooky ☠️ as top spammer.".format(
                             viewer_id
                         )
                     )
-                    displayName = "☠️"
+                    display_name = "☠️"
 
-                top.append(
-                    "{}: Rank {}".format(displayName, bot.ranking.get_hs_rank(point))
-                )
+                top.append(f"{display_name}: Rank {bot.ranking.get_hs_rank(point)}")
 
             out += ", ".join(top)
             out += "."

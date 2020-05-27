@@ -34,4 +34,7 @@ class TentaReply(Command):
             s = emote + " " + emote + " " + emote + " " + emote + " " + emote
         elif msg.lower().strip().startswith("!hentai"):
             s = "gachiGASM Squid4 " + emote + " Squid1 Jebaited"
+        else:
+            return
+
         bot.write(s)

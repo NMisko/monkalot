@@ -6,7 +6,7 @@ from bot.paths import QUOTES_FILE
 from bot.utilities.permission import Permission
 
 
-class editQuoteList(Command):
+class EditQuoteList(Command):
     """Add or delete quote from a json-file."""
 
     perm = Permission.Moderator

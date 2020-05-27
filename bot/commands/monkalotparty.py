@@ -20,7 +20,7 @@ class MonkalotParty(Command):
         """Initialize variables."""
         self.active = False
         self.responses = {}
-        self.mp = ""
+        self.monkalotparty = MiniGames(bot)
         self.answer = ""
         self.callID = None
 
@@ -29,19 +29,19 @@ class MonkalotParty(Command):
         if not self.active:
             return
 
-        game = random.choice(list(self.mp.games))
-        question = self.mp.games[game]["question"]
-        self.answer = str(self.mp.games[game]["answer"])
+        game = random.choice(list(self.monkalotparty.games))
+        question = self.monkalotparty.games[game]["question"]
+        self.answer = str(self.monkalotparty.games[game]["answer"])
 
         print("Answer: " + self.answer)
         bot.write(question)
 
-        del self.mp.games[game]
+        del self.monkalotparty.games[game]
 
     def game_winners(self, bot):
         """Announce game winners and give points."""
         s = self.responses["game_over1"]["msg"]
-        winners = self.mp.topranks()
+        winners = self.monkalotparty.topranks()
 
         if winners is None:
             s += self.responses["game_over2"]["msg"]
@@ -65,7 +65,6 @@ class MonkalotParty(Command):
         cmd = msg.strip()
 
         if not self.active:
-            self.mp = MiniGames(bot)
             self.active = True
             bot.gameRunning = True
             bot.write(self.responses["start_msg"]["msg"])
@@ -92,8 +91,8 @@ class MonkalotParty(Command):
                     )
                     self.answer = ""
                     bot.ranking.increment_points(user, 5, bot)
-                    self.mp.uprank(user)
-                    if len(self.mp.games) > 3:
+                    self.monkalotparty.uprank(user)
+                    if len(self.monkalotparty.games) > 3:
                         self.callID = reactor.callLater(6, self.select_game, bot)
                     else:
                         self.game_winners(bot)
