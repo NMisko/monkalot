@@ -12,11 +12,8 @@ from requests import RequestException
 import bot.commands
 import bot.emotecounter
 import bot.ranking
+from bot.data_sources.emotes import EmoteSource
 from bot.error_classes import UserNotFoundError
-from bot.utilities.permission import Permission
-from bot.utilities.tools import format_emote_list, sanitize_user_name
-from bot.utilities.webcache import WebCache
-
 from bot.paths import (
     TRUSTED_MODS_PATH,
     IGNORED_USERS_PATH,
@@ -27,18 +24,15 @@ from bot.paths import (
 )
 from bot.paths import (
     USERLIST_API,
-    CHANNEL_BTTVEMOTES_API,
     USER_NAME_API,
     USER_ID_API,
-    USER_EMOTE_API,
     CHANNEL_API,
     STREAMS_API,
-    TWITCH_EMOTE_API,
-    GLOBAL_BTTVEMOTES_API,
     HEARTHSTONE_CARD_API,
-    EMOJI_API,
-    FFZ_API,
 )
+from bot.utilities.permission import Permission
+from bot.utilities.tools import sanitize_user_name
+from bot.utilities.webcache import WebCache
 
 DEFAULT_RAID_ANNOUNCE_THRESHOLD = 15
 CACHE_DURATION = 10800
@@ -70,7 +64,6 @@ class TwitchBot:
 
         # user cache related:
         self.setup_cache()
-
         self.reload_config(first_run=True)
 
         # Initialize emote counter
@@ -90,84 +83,13 @@ class TwitchBot:
         # practice or not
         self.reload_commands()
 
-    def get_channel_ffz_emotes(self):
-        """Return FFZ emotes for this channel."""
-
-        def f(emote_json):
-            return [
-                emote["name"]
-                for set_id in emote_json["sets"]
-                for emote in emote_json["sets"][set_id]["emoticons"]
-            ]
-
-        url = FFZ_API.format(self.channel[1:])
-        emotes = self.cache.get(url, f, fallback=[])
-        return emotes
-
-    def get_channel_bttv_emotes(self):
-        """Return the bttv emotes enabled for the channel this bot runs on."""
-
-        def f(emote_json):
-            emotelist = emote_json["emotes"]
-            return format_emote_list(emotelist)
-
-        url = CHANNEL_BTTVEMOTES_API.format(self.channel[1:])
-        emotes = self.cache.get(url, f, fallback=[])
-        return emotes
-
-    def get_global_twitch_emotes(self):
-        """Return available global twitch emotes."""
-
-        def f(emote_json):
-            result = []
-            for emote in format_emote_list(emote_json["emoticon_sets"]["0"]):
-                if ("\\") not in emote:
-                    # print("Simple single word twitch emote", emote)
-                    result.append(emote)
-                else:
-                    # They are all regex, for example :p, :P, :-p, :-P have the same id of 12, there are many ways to input this emote
-                    # print("Complex twitch emotes that we can't handle", emote)
-                    pass
-            return result
-
-        return self.cache.get(
-            TWITCH_EMOTE_API, f, fallback=[], headers=self.TWITCH_API_COMMON_HEADERS
-        )
-
-    def get_global_bttv_emotes(self):
-        """Return available global bttv emotes."""
-
-        def f(emote_json):
-            return format_emote_list(emote_json["emotes"])
-
-        return self.cache.get(GLOBAL_BTTVEMOTES_API, f, fallback=[])
-
-    def get_emotes(self):
-        """Return all emotes which can be used by all users on this channel."""
-        return (
-            self.get_channel_bttv_emotes()
-            + self.get_global_twitch_emotes()
-            + self.get_global_bttv_emotes()
-            + self.get_channel_ffz_emotes()
-        )
+    def reload_sources(self):
+        """Reloads data sources."""
+        self.emotes = EmoteSource(self.channel, cache=self.cache, twitch_api_headers=self.twitch_api_headers)
 
     def get_hearthstone_cards(self):
         """Return all Hearthstone cards."""
         return self.cache.get(HEARTHSTONE_CARD_API, fallback=[])
-
-    def get_emojis(self):
-        """Return all available emojis."""
-
-        def f(emojis_json):
-            emojis = []
-            for e in emojis_json:
-                try:
-                    emojis.append(e["emoji"])
-                except KeyError:
-                    pass  # No Emoji found.
-            return emojis
-
-        return self.cache.get(EMOJI_API, f, fallback=[])
 
     def set_config(self, config):
         """Write the config file and reload."""
@@ -228,7 +150,7 @@ class TwitchBot:
         self.password = str(CONFIG["oauth_key"])
         # Not really part of config, but getuserID() will need this, so we use this hacky way to put it here
 
-        self.TWITCH_API_COMMON_HEADERS = {
+        self.twitch_api_headers = {
             "Accept": "application/vnd.twitchtv.v5+json",
             "Client-ID": self.clientID,
             "Authorization": self.password,
@@ -257,7 +179,7 @@ class TwitchBot:
         self.RAID_ANNOUNCE_THRESHOLD = CONFIG.get(
             "raid_announce_threshold", DEFAULT_RAID_ANNOUNCE_THRESHOLD
         )
-
+        self.reload_sources()
         if not first_run:
             self.reload_commands()
 
@@ -579,7 +501,7 @@ class TwitchBot:
     def get_json_object_from_twitch_api(self, url):
         """Get and handle JSON object from Twitch API."""
         try:
-            r = requests.get(url, headers=self.TWITCH_API_COMMON_HEADERS)
+            r = requests.get(url, headers=self.twitch_api_headers)
             r.raise_for_status()
             return r.json()
 
@@ -651,20 +573,7 @@ class TwitchBot:
                 logging.info("Seems no such user as {}".format(username))
                 raise UserNotFoundError("No user with login id of {}".format(username))
 
-    def get_user_emotes(self, userID):
-        """Get the emotes a user can use from userID without the global emoticons."""
-        url = USER_EMOTE_API.format(userID)
-        data = self.get_json_object_from_twitch_api(url)
 
-        try:
-            emotelist = data["emoticon_sets"]
-        except (IndexError, KeyError):
-            logging.error(traceback.format_exc())
-            print("Error in getting emotes from userID")
-
-        # remove dict contains global emotes
-        emotelist.pop("0", None)
-        return emotelist
 
     def access_to_emote(self, username, emote):
         """Check if user has access to a certain emote."""
@@ -676,7 +585,7 @@ class TwitchBot:
         # Twitch internally parse your message and change them to emotes with the emote tag in IRC message
         #
         userID = self.get_user_id(username)
-        emotelist = self.get_user_emotes(userID)
+        emotelist = self.emotes.get_user_emotes(userID)
         for sets in emotelist:
             for key in range(0, len(emotelist[sets])):
                 if emote == emotelist[sets][key]["code"]:

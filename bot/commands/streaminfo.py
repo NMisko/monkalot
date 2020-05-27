@@ -27,7 +27,7 @@ class StreamInfo(Command):
         cmd = msg.lower()
 
         if cmd.startswith("!bttv"):
-            var = {"<MULTIEMOTES>": emote_list_to_string(bot.get_channel_bttv_emotes())}
+            var = {"<MULTIEMOTES>": emote_list_to_string(bot.emotes.get_channel_bttv_emotes())}
             bot.write(bot.replace_vars(responses["bttv_msg"]["msg"], var))
         elif stream["stream"] is None:
             bot.write(responses["stream_off"]["msg"])

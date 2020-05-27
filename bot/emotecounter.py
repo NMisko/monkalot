@@ -124,7 +124,7 @@ class EmoteCounterForBot(EmoteCounter):
                     refresh_file = True
                 else:
                     # If there are new emotes, add them here
-                    for emote in self.bot.get_emotes():
+                    for emote in self.bot.emotes.get_emotes():
                         if emote not in total_data:
                             logging.info(
                                 "New emote {} added to Twitch/BTTV, adding it to count file".format(
@@ -152,7 +152,7 @@ class EmoteCounterForBot(EmoteCounter):
         """
         empty_list = {}
 
-        for emote in self.bot.get_emotes():
+        for emote in self.bot.emotes.get_emotes():
             empty_list[emote] = 0
 
         return empty_list
@@ -181,7 +181,7 @@ class EmoteCounterForBot(EmoteCounter):
         split_msg = split_msg.split(" ")
 
         for m in split_msg:
-            if m in self.bot.get_emotes():
+            if m in self.bot.emotes.get_emotes():
                 if m in emote_dict:
                     emote_dict[m] += 1
                 else:

@@ -80,7 +80,7 @@ class MonkalotParty(Command):
                 return
             if self.answer != "":  # If we are not between games.
                 if (
-                    self.answer not in bot.get_emotes()
+                    self.answer not in bot.emotes.get_emotes()
                 ):  # If not an emote compare in lowercase.
                     self.answer = self.answer.lower()
                     cmd = cmd.lower()
