@@ -11,7 +11,11 @@ class TentaReply(Command):
     def match(self, bot, user, msg, tag_info):
         """Match if the message starts with '!tenta ' or '!penta ' followed by an emote."""
         cmd = msg.split(" ")
-        if (msg.lower().strip().startswith("!tenta ") or msg.lower().strip().startswith("!penta ") or msg.lower().strip().startswith("!hentai ")):
+        if (
+            msg.lower().strip().startswith("!tenta ")
+            or msg.lower().strip().startswith("!penta ")
+            or msg.lower().strip().startswith("!hentai ")
+        ):
             if len(cmd) == 2:
                 arg = cmd[1].strip()
                 """Check if arg is an emote."""

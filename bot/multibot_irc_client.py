@@ -19,11 +19,11 @@ class MultiBotIRCClient(irc.IRCClient, object):
     def __init__(self):
         """Set up IRC Client."""
         # Right now, only one bot can listen, so we take the values of the first one.
-        with open(CONFIG_PATH.format(self.bots[0].root), 'r', encoding="utf-8") as file:
+        with open(CONFIG_PATH.format(self.bots[0].root), "r", encoding="utf-8") as file:
             CONFIG = json.load(file)
-        self.nickname = str(CONFIG['username'])
-        self.clientID = str(CONFIG['clientID'])
-        self.password = str(CONFIG['oauth_key'])
+        self.nickname = str(CONFIG["username"])
+        self.clientID = str(CONFIG["clientID"])
+        self.password = str(CONFIG["oauth_key"])
 
     def signedOn(self):
         """Call when first signed on."""
@@ -51,10 +51,10 @@ class MultiBotIRCClient(irc.IRCClient, object):
         logging.warning("Joined %s" % channel)
 
     # def irc_PRIVMSG(self, prefix, params):
-        # super().irc_PRIVMSG(prefix, params)
+    # super().irc_PRIVMSG(prefix, params)
 
     # def privmsg(self, user, channel, msg):
-        # pass
+    # pass
 
     def twitch_privmsg(self, user, channel, msg, tags):
         """React to messages in a channel."""
@@ -64,7 +64,7 @@ class MultiBotIRCClient(irc.IRCClient, object):
         # Once it is implemented, we can probably just copy and paste the content here to the updated privmsg()
 
         # Extract twitch name
-        name = user.split('!', 1)[0]
+        name = user.split("!", 1)[0]
 
         # Log the message
         logging.info("[{}] {}: {}".format(channel, name, msg))
@@ -97,17 +97,17 @@ class MultiBotIRCClient(irc.IRCClient, object):
     def parsemsg(self, s):
         """Break a message from an IRC server into its prefix, command, and arguments."""
         tags = {}
-        prefix = ''
+        prefix = ""
         trailing = []
-        if s[0] == '@':
+        if s[0] == "@":
             # remove 1st '@', then take everything until the 1st space
-            tags_str, s = s[1:].split(' ', 1)
-            tag_list = tags_str.split(';')
-            tags = self.unescapeTags(dict(t.split('=') for t in tag_list))
-        if s[0] == ':':
-            prefix, s = s[1:].split(' ', 1)
-        if s.find(' :') != -1:
-            s, trailing = s.split(' :', 1)
+            tags_str, s = s[1:].split(" ", 1)
+            tag_list = tags_str.split(";")
+            tags = self.unescapeTags(dict(t.split("=") for t in tag_list))
+        if s[0] == ":":
+            prefix, s = s[1:].split(" ", 1)
+        if s.find(" :") != -1:
+            s, trailing = s.split(" :", 1)
             args = s.split()
             args.append(trailing)
         else:
@@ -128,7 +128,7 @@ class MultiBotIRCClient(irc.IRCClient, object):
         for k, v in tags.items():
             content = v
 
-            content = content.replace("\:",  ";")
+            content = content.replace("\:", ";")
             content = content.replace("\s:", " ")
             # \\ -> \
             content = content.replace("\\\\", "\\")
@@ -179,7 +179,7 @@ class MultiBotIRCClient(irc.IRCClient, object):
 
         # Remove tag information
         if line[0] == "@":
-            line = line.split(' ', 1)[1]
+            line = line.split(" ", 1)[1]
 
         # Then we let IRCClient handle the rest
         super().lineReceived(line)
@@ -190,14 +190,14 @@ class MultiBotIRCClient(irc.IRCClient, object):
         # another way could be using unique tags for special type of message
 
         # pass in msg just in case we need them later
-        msg_type = tags['msg-id']
-        if msg_type == 'raid':
+        msg_type = tags["msg-id"]
+        if msg_type == "raid":
             bot.incomingRaid(tags)
-        elif msg_type == 'ritual':
+        elif msg_type == "ritual":
             bot.incomingRitual(tags, msg)
-        elif msg_type in ['sub', 'resub']:
+        elif msg_type in ["sub", "resub"]:
             bot.subMessage(tags, msg)
-        elif msg_type == 'subgift':
+        elif msg_type == "subgift":
             # seems cannot add custom message like normal sub at 20/12/17
             bot.subGift(tags)
 
@@ -227,7 +227,7 @@ class MultiBotIRCClient(irc.IRCClient, object):
 
     def hostTarget(self, channel, target):
         """Track and update hosting status."""
-        target = target.split(' ')[0]
+        target = target.split(" ")[0]
         for b in MultiBotIRCClient.bots:
             if b.channel == channel:
                 b.setHost(channel, target)
@@ -245,7 +245,7 @@ class MultiBotIRCClient(irc.IRCClient, object):
             return
 
         channel = args[0]
-        msg_id = tags['msg-id']
+        msg_id = tags["msg-id"]
         if msg_id == "subs_on":
             logging.warning("[{}] Subonly mode ON".format(channel))
         elif msg_id == "subs_off":
@@ -266,19 +266,19 @@ class MultiBotIRCClient(irc.IRCClient, object):
         result = {}
 
         # not an exhaustive parse, just get something useful for us now
-        result['display_name'] = tags.get('display-name', None)
-        result['user_id'] = tags['user-id']
-        result['is_mod'] = tags['mod'] == '1'
-        result['is_sub'] = tags['subscriber'] == '1'
+        result["display_name"] = tags.get("display-name", None)
+        result["user_id"] = tags["user-id"]
+        result["is_mod"] = tags["mod"] == "1"
+        result["is_sub"] = tags["subscriber"] == "1"
         # stremer can get is_mod and is_sub False too
-        result['is_broadcaster'] = 'broadcaster' in tags['badges']
+        result["is_broadcaster"] = "broadcaster" in tags["badges"]
 
         # won't even have 'emote-only' tag if 'not emote only' actually
         # Only True when all message is only emote (no other text)
-        result['twitch_emote_only'] = tags.get('emote-only', False) == '1'
+        result["twitch_emote_only"] = tags.get("emote-only", False) == "1"
 
         emote_result = {}
-        emote_result_string = tags['emotes']
+        emote_result_string = tags["emotes"]
 
         # Possible outcomes:
         # just an empty string if no emotes
@@ -288,14 +288,14 @@ class MultiBotIRCClient(irc.IRCClient, object):
         # Note that LuL is not Twitch emote, so it is not included (5-7)
         # '55338:10-19/425618:27-29/1902:31-35/25:0-4,21-25'
 
-        emote_and_count = emote_result_string.split('/')
+        emote_and_count = emote_result_string.split("/")
         for s in emote_and_count:
             if s:
                 # only if s is not empty
-                emote_id, occurance_s = s.split(':')
-                emote_result[emote_id] = occurance_s.count('-')
+                emote_id, occurance_s = s.split(":")
+                emote_result[emote_id] = occurance_s.count("-")
 
         # dict of Twitch emote id to count of emote in message
-        result['twitch_emotes'] = emote_result
+        result["twitch_emotes"] = emote_result
 
         return result

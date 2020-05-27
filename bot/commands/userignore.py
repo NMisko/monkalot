@@ -14,7 +14,9 @@ class UserIgnore(Command):
 
     def match(self, bot, user, msg, tag_info):
         """Check if command starts with !ignore or !unignore."""
-        if (msg.lower().strip().startswith("!ignore ") or msg.lower().strip().startswith("!unignore ")):
+        if msg.lower().strip().startswith("!ignore ") or msg.lower().strip().startswith(
+            "!unignore "
+        ):
             cmd = msg.split(" ")
             if len(cmd) == 2:
                 return True
@@ -30,9 +32,11 @@ class UserIgnore(Command):
             ignoreReply = self.responses["ignore"]
             # bot can ignore ANYONE, we just add the name to bot.ignored_users
             # IMPORTNT: ANYONE includes owner, mod and the bot itself, we do the checking here to prevent it
-            if (target == bot.nickname) or any(target in coll for coll in (bot.owner_list, bot.trusted_mods)):
+            if (target == bot.nickname) or any(
+                target in coll for coll in (bot.owner_list, bot.trusted_mods)
+            ):
                 reply = ignoreReply["privileged"]
-            elif (target in bot.ignored_users):
+            elif target in bot.ignored_users:
                 # already ignored
                 reply = ignoreReply["already"]
             else:
@@ -43,7 +47,7 @@ class UserIgnore(Command):
 
         elif cmd[0].strip() == "!unignore":
             unignoreReply = self.responses["unignore"]
-            if (target in bot.ignored_users):
+            if target in bot.ignored_users:
                 bot.ignored_users.remove(target)
                 reply = unignoreReply["success"]
                 # To make the change temporary (before bot reboot) comment out next line

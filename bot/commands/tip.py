@@ -4,6 +4,7 @@ import time
 from bot.commands.command import Command
 from bot.utilities.permission import Permission
 
+
 class Tip(Command):
     """Tip spampoints to another user."""
 
@@ -12,11 +13,10 @@ class Tip(Command):
     def __init__(self, bot):
         """Initialize variables."""
         self.responses = bot.responses["Tip"]
-        self.tipcooldown = 900 # Cooldown between tips of the same user in seconds
-        self.tiptimer = {} # Tiptimer dictionary for all users
-        self.mintip = 50 # Minimum amount a user can tip
-        self.maxtip = 500 # Maximum amount a user can tip
-
+        self.tipcooldown = 900  # Cooldown between tips of the same user in seconds
+        self.tiptimer = {}  # Tiptimer dictionary for all users
+        self.mintip = 50  # Minimum amount a user can tip
+        self.maxtip = 500  # Maximum amount a user can tip
 
     def match(self, bot, user, msg, tag_info):
         """Match if command is !tip <chatter>."""
@@ -31,14 +31,15 @@ class Tip(Command):
                     amount = int(tip_arg)
                 except ValueError:
                     var = {"<MINTIP>": self.mintip, "<MAXTIP>": self.maxtip}
-                    bot.write(bot.replace_vars(self.responses["numbererror"]["msg"], var))
+                    bot.write(
+                        bot.replace_vars(self.responses["numbererror"]["msg"], var)
+                    )
                     return False
 
                 """Check if user is in chat and not trying to tip himself."""
-                if (target in bot.users and target != user.lower()):
+                if target in bot.users and target != user.lower():
                     return True
         return False
-
 
     def getTypeEmote(self, amount):
         """Depending on the amount donated return a different emote."""
@@ -57,7 +58,6 @@ class Tip(Command):
         else:
             return "FeelsOkayMan"
 
-
     def run(self, bot, user, msg, tag_info):
         """Donate spampoints to the target and remove them from the initiator."""
         bot.antispeech = True
@@ -67,9 +67,9 @@ class Tip(Command):
 
         """Check when the user tipped last."""
         if user in self.tiptimer.keys():
-            if ((time.time() - self.tiptimer[user]) < self.tipcooldown):
+            if (time.time() - self.tiptimer[user]) < self.tipcooldown:
                 timer = int(self.tipcooldown - time.time() + self.tiptimer[user])
-                cooldown = int(self.tipcooldown / 60);
+                cooldown = int(self.tipcooldown / 60)
                 var = {"<USER>": user, "<TIMER>": timer, "<COOLDOWN>": cooldown}
                 bot.write(bot.replace_vars(self.responses["cooldown"]["msg"], var))
                 return
@@ -87,7 +87,12 @@ class Tip(Command):
             bot.ranking.incrementPoints(user, -amount, bot)
             bot.ranking.incrementPoints(target, amount, bot)
             typeemote = self.getTypeEmote(amount)
-            var = {"<USER>": user, "<TARGET>": target, "<AMOUNT>": amount, "<TYPE>": typeemote}
+            var = {
+                "<USER>": user,
+                "<TARGET>": target,
+                "<AMOUNT>": amount,
+                "<TYPE>": typeemote,
+            }
             bot.write(bot.replace_vars(self.responses["tipsend"]["msg"], var))
             self.tiptimer[user] = time.time()
         else:

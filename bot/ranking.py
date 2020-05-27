@@ -6,7 +6,7 @@ import sqlite3
 from bot.paths import CONFIG_PATH, DATABASE_PATH
 
 
-class Ranking():
+class Ranking:
     """Manages spam points ranking."""
 
     def __init__(self, bot):
@@ -43,10 +43,10 @@ class Ranking():
 
         sql_command = "SELECT amount FROM points WHERE viewer_id = ?;"
 
-        cursor, connection = self.executeCommandGetConnection(sql_command, (viewer_id, ))
+        cursor, connection = self.executeCommandGetConnection(sql_command, (viewer_id,))
         one = cursor.fetchone()
 
-        if(one is None):
+        if one is None:
             output = 0
 
             # initialization for user first talking in chat
@@ -54,7 +54,7 @@ class Ranking():
             # this way we prevent inserting random entries to db by !rank something
             if new_entry:
                 sql_command = "INSERT INTO points (viewer_id, amount) VALUES (?, 0);"
-                cursor.execute(sql_command, (viewer_id, ))
+                cursor.execute(sql_command, (viewer_id,))
                 connection.commit()
         else:
             output = one[0]
@@ -86,7 +86,9 @@ class Ranking():
             rank = self.getHSRank(points)
             if "Legend" in rank:
                 var = {"<USER>": bot.displayName(username), "<RANK>": rank}
-                bot.write(bot.replace_vars(bot.responses["ranking"]["msg_legend"]["msg"], var))
+                bot.write(
+                    bot.replace_vars(bot.responses["ranking"]["msg_legend"]["msg"], var)
+                )
 
     def getRank(self, points):
         """Get the absolute for a certain amount of points."""

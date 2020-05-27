@@ -10,17 +10,9 @@ class Questions(Command):
 
     perm = Permission.User
 
-    whatis = [
-        'what\'s',
-        'whats',
-        'what is'
-    ]
+    whatis = ["what's", "whats", "what is"]
 
-    twohead = [
-        '2head + 2head',
-        '2head+2head',
-        '2head and 2head'
-    ]
+    twohead = ["2head + 2head", "2head+2head", "2head and 2head"]
 
     def __init__(self, bot):
         """Initialize the command."""
@@ -36,7 +28,13 @@ class Questions(Command):
         """Match if the bot is tagged, the sentence contains 'what is' (in various forms) or proper math syntax."""
         if bot.nickname.lower() in msg.lower() and self.wordInMsg(self.whatis, msg):
             index = self.wordInMsg(self.whatis, msg)
-            cmd = msg.lower().replace(self.whatis[index-1], '').replace('@', '').replace(bot.nickname, '').replace('?', '')
+            cmd = (
+                msg.lower()
+                .replace(self.whatis[index - 1], "")
+                .replace("@", "")
+                .replace(bot.nickname, "")
+                .replace("?", "")
+            )
             if self.wordInMsg(self.twohead, msg) or self.calc.checkSymbols(cmd):
                 bot.antispeech = True
                 return True
@@ -45,7 +43,13 @@ class Questions(Command):
         """Define answers based on pieces in the message."""
         index = self.wordInMsg(self.whatis, msg)
         if self.wordInMsg(self.twohead, msg):
-            bot.write('@' + bot.displayName(user) + ' It\'s 4Head')
+            bot.write("@" + bot.displayName(user) + " It's 4Head")
         else:
-            cmd = msg.lower().replace(self.whatis[index-1], '').replace('@', '').replace(bot.nickname, '').replace('?', '')
+            cmd = (
+                msg.lower()
+                .replace(self.whatis[index - 1], "")
+                .replace("@", "")
+                .replace(bot.nickname, "")
+                .replace("?", "")
+            )
             self.calc.run(bot, user, "!calc " + cmd, tag_info)

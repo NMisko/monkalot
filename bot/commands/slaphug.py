@@ -36,12 +36,14 @@ class SlapHug(Command):
 
     def match(self, bot, user, msg, tag_info):
         """Match if command is !slap/!hug <chatter>."""
-        if (msg.lower().strip().startswith("!slap ") or msg.lower().strip().startswith("!hug ")):
+        if msg.lower().strip().startswith("!slap ") or msg.lower().strip().startswith(
+            "!hug "
+        ):
             cmd = msg.split(" ")
             if len(cmd) == 2:
                 target = cmd[1].lower().strip()
                 """Check if user is in chat."""
-                if (target in bot.users and target != bot.nickname.lower()):
+                if target in bot.users and target != bot.nickname.lower():
                     return True
         return False
 

@@ -28,7 +28,7 @@ class GuessEmoteGame(Command):
         """Initialize GuessEmoteGame."""
         emotelist = []
 
-        if 'rng' in msg.lower():
+        if "rng" in msg.lower():
             """Get all twitch- and BTTV-Emotes, assemble a list of random emotes."""
             twitchemotes = bot.getGlobalTwitchEmotes()
             bttvemotes = bot.getChannelBTTVEmotes() + bot.getGlobalBttvEmotes()
@@ -37,7 +37,7 @@ class GuessEmoteGame(Command):
             n_bttv = 10
 
             i = 0
-            while i < (n_total-n_bttv):
+            while i < (n_total - n_bttv):
                 rng_emote = random.choice(twitchemotes)
 
                 if rng_emote not in emotelist:
@@ -62,7 +62,11 @@ class GuessEmoteGame(Command):
 
     def match(self, bot, user, msg, tag_info):
         """Match if the game is active or gets started with !estart."""
-        return self.active or startGame(bot, user, msg, "!estart") or startGame(bot, user, msg, "!rngestart")
+        return (
+            self.active
+            or startGame(bot, user, msg, "!estart")
+            or startGame(bot, user, msg, "!rngestart")
+        )
 
     def run(self, bot, user, msg, tag_info):
         """Initalize the command on first run. Check for right emote for each new msg."""
@@ -76,13 +80,21 @@ class GuessEmoteGame(Command):
             var = {"<MULTIEMOTES>": EmoteListToString(self.emotes)}
             bot.write(bot.replace_vars(self.responses["start_msg"]["msg"], var))
         else:
-            if cmd == "!estop" and bot.get_permission(user) not in [Permission.User, Permission.Subscriber]:
+            if cmd == "!estop" and bot.get_permission(user) not in [
+                Permission.User,
+                Permission.Subscriber,
+            ]:
                 bot.write(self.responses["stop_msg"]["msg"])
                 self.close(bot)
                 return
 
             if cmd == self.emote:
-                var = {"<USER>": bot.displayName(user), "<EMOTE>": self.emote, "<PRONOUN0>": bot.pronoun(user)[0].capitalize(), "<AMOUNT>": bot.EMOTEGAMEP}
+                var = {
+                    "<USER>": bot.displayName(user),
+                    "<EMOTE>": self.emote,
+                    "<PRONOUN0>": bot.pronoun(user)[0].capitalize(),
+                    "<AMOUNT>": bot.EMOTEGAMEP,
+                }
                 bot.write(bot.replace_vars(self.responses["winner_msg"]["msg"], var))
                 bot.ranking.incrementPoints(user, bot.EMOTEGAMEP, bot)
                 bot.gameRunning = False

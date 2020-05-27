@@ -37,7 +37,10 @@ class KappaGame(Command):
             print("Kappas: " + str(self.n))
             bot.write(self.responses["start_msg"]["msg"])
         else:
-            if msg == "!kstop" and bot.get_permission(user) not in [Permission.User, Permission.Subscriber]:
+            if msg == "!kstop" and bot.get_permission(user) not in [
+                Permission.User,
+                Permission.Subscriber,
+            ]:
                 self.close(bot)
                 bot.write(self.responses["stop_msg"]["msg"])
                 return
@@ -53,13 +56,15 @@ class KappaGame(Command):
             elif i != -1:
                 if i not in self.answered:
                     var = {"<AMOUNT>": i}
-                    bot.write(bot.replace_vars(self.responses["wrong_amount"]["msg"], var))
+                    bot.write(
+                        bot.replace_vars(self.responses["wrong_amount"]["msg"], var)
+                    )
                     self.answered.append(i)
 
     def countEmotes(self, msg, emote):
         """Count the number of emotes in a message."""
         msg = msg.strip()
-        arr = msg.split(' ')
+        arr = msg.split(" ")
         for e in arr:
             if e != emote:
                 return -1

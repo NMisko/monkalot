@@ -31,9 +31,11 @@ class outputQuote(Command):
             quote = random.choice(self.quotelist)
             bot.write(quote)
         elif cmd.startswith("!quote "):
-            arg = cmd[len("!quote "):]
+            arg = cmd[len("!quote ") :]
             try:
-                arg = int(arg.strip()) - 1      # -1: So list for users goes from 1 to len + 1
+                arg = (
+                    int(arg.strip()) - 1
+                )  # -1: So list for users goes from 1 to len + 1
                 if arg >= 0 and arg < len(self.quotelist):
                     quote = self.quotelist[arg]
                     bot.write(quote)

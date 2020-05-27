@@ -42,22 +42,26 @@ class AutoGames(Command):
 
     def match(self, bot, user, msg, tag_info):
         """Match if message starts with !games."""
-        return (msg.lower().startswith("!games on") or msg.lower().startswith("!games off"))
+        return msg.lower().startswith("!games on") or msg.lower().startswith(
+            "!games off"
+        )
 
     def run(self, bot, user, msg, tag_info):
         """Start/stop automatic games."""
         self.responses = bot.responses["AutoGames"]
-        cmd = msg[len("!games "):]
+        cmd = msg[len("!games ") :]
         cmd.strip()
 
-        if cmd == 'on':
+        if cmd == "on":
             if not self.active:
                 self.active = True
-                self.callID = reactor.callLater(bot.AUTO_GAME_INTERVAL, self.randomGame, bot)
+                self.callID = reactor.callLater(
+                    bot.AUTO_GAME_INTERVAL, self.randomGame, bot
+                )
                 bot.write(self.responses["autogames_activate"]["msg"])
             else:
                 bot.write(self.responses["autogames_already_on"]["msg"])
-        elif cmd == 'off':
+        elif cmd == "off":
             if is_callID_active(self.callID):
                 self.callID.cancel()
             if self.active:

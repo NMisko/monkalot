@@ -21,7 +21,7 @@ class Spam(Command):
     def match(self, bot, user, msg, tag_info):
         """Add message to queue. Match if a message was spammed more than NECESSARY_SPAM."""
         self.fifo.append(msg)
-        if (msg not in self.counter):
+        if msg not in self.counter:
             self.counter[msg] = 1
         else:
             self.counter[msg] = self.counter[msg] + 1

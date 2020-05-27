@@ -43,16 +43,9 @@ from .topspammers import TopSpammers
 from .userignore import UserIgnore
 
 
-activeGames = [
-    KappaGame,
-    GuessEmoteGame,
-    GuessMinionGame,
-    MonkalotParty
-]
+activeGames = [KappaGame, GuessEmoteGame, GuessMinionGame, MonkalotParty]
 
-passiveGames = [
-    Pyramid
-]
+passiveGames = [Pyramid]
 
 other = [
     # EmoteReply,     # Deactivated due to request from IGetNoKick in Zetalot's channel 26.09.2017
@@ -84,13 +77,11 @@ other = [
     Tip,
     TopSpammers,
     UserIgnore,
-    Speech  # Speech always has to be the last entry so it does not 'overwrite' commands which include the bots name.
+    Speech,  # Speech always has to be the last entry so it does not 'overwrite' commands which include the bots name.
 ]
 
 # Repeat here the commands that should not get reloaded if the config gets rewritten
-non_reload = [
-    Speech
-]
+non_reload = [Speech]
 
 commands = activeGames + passiveGames + other
 games = activeGames + passiveGames

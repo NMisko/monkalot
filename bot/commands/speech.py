@@ -20,12 +20,15 @@ class Speech(Command):
 
     def __init__(self, bot):
         """Initialize variables."""
-        if 'cleverbot_key' in bot.config and bot.config['cleverbot_key'] != "":
-            self.chatbot = Cleverbot(bot.config['cleverbot_key'])
-        elif 'chatterbot_trainer' in bot.config and bot.config['chatterbot_trainer'] != "":
-            self.chatbot = Chatterbot(bot.config['chatterbot_trainer'])
+        if "cleverbot_key" in bot.config and bot.config["cleverbot_key"] != "":
+            self.chatbot = Cleverbot(bot.config["cleverbot_key"])
+        elif (
+            "chatterbot_trainer" in bot.config
+            and bot.config["chatterbot_trainer"] != ""
+        ):
+            self.chatbot = Chatterbot(bot.config["chatterbot_trainer"])
         else:
-            self.chatbot = Chatterbot('chatterbot.corpus.english')
+            self.chatbot = Chatterbot("chatterbot.corpus.english")
 
     def match(self, bot, user, msg, tag_info):
         """Match if the bot is tagged."""
@@ -35,8 +38,8 @@ class Speech(Command):
         """Send message to cleverbot only if no other command got triggered."""
         if not bot.antispeech:
             msg = msg.lower()
-            msg = msg.replace("@", '')
-            msg = msg.replace(bot.nickname, '')
+            msg = msg.replace("@", "")
+            msg = msg.replace(bot.nickname, "")
 
             """Get reply in extra thread, so bot doesnt pause while waiting for the reply."""
             reactor.callInThread(self.answer, bot, user, msg)
@@ -46,7 +49,11 @@ class Speech(Command):
         output = self.chatbot.get_reply(msg, user)
 
         if output is None:
-            logging.warning("WARNING: No chatbot ({}) reply retrieved. Cannot reply.".format(self.chatbot.name))
+            logging.warning(
+                "WARNING: No chatbot ({}) reply retrieved. Cannot reply.".format(
+                    self.chatbot.name
+                )
+            )
 
         if not random.randint(0, 3):
             output = (output or "") + " monkaS"
@@ -56,6 +63,7 @@ class Speech(Command):
 
 class Replier(object):
     """Class that replies to messages."""
+
     def __init__(self):
         """Initialize the command."""
         pass
@@ -70,6 +78,7 @@ class Replier(object):
 
 class Cleverbot(Replier):
     """A replier that uses cleverbot."""
+
     name = "cleverbot"
 
     def __init__(self, key):
@@ -85,6 +94,7 @@ class Cleverbot(Replier):
 
 class Chatterbot(Replier):
     """A replier that uses chatterbot."""
+
     name = "chatterbot"
 
     def __init__(self, corpus_string):
@@ -95,13 +105,9 @@ class Chatterbot(Replier):
         self._train(corpus_string)
 
     def _train(self, corpus_string):
-        chatbot_logger = logging.Logger('WARNING')
+        chatbot_logger = logging.Logger("WARNING")
         # Train based on the english corpus
-        self.chatterbot = ChatBot(
-            'Monkalot',
-            read_only=True,
-            logger=chatbot_logger
-        )
+        self.chatterbot = ChatBot("Monkalot", read_only=True, logger=chatbot_logger)
         trainer = ChatterBotCorpusTrainer(self.chatterbot)
         trainer.train(corpus_string)
         self.trained = True

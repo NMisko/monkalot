@@ -18,7 +18,11 @@ class StreamInfo(Command):
     def match(self, bot, user, msg, tag_info):
         """Match if a stream information command is triggered."""
         cmd = msg.lower()
-        return (cmd.startswith("!fps") or cmd.startswith("!uptime") or cmd.startswith("!bttv"))
+        return (
+            cmd.startswith("!fps")
+            or cmd.startswith("!uptime")
+            or cmd.startswith("!bttv")
+        )
 
     def run(self, bot, user, msg, tag_info):
         """Get stream object and return requested information."""
@@ -32,7 +36,7 @@ class StreamInfo(Command):
         elif self.stream["stream"] is None:
             bot.write(self.responses["stream_off"]["msg"])
         elif cmd.startswith("!fps"):
-            fps = format(self.stream["stream"]["average_fps"], '.2f')
+            fps = format(self.stream["stream"]["average_fps"], ".2f")
             var = {"<FPS>": fps}
             bot.write(bot.replace_vars(self.responses["fps_msg"]["msg"], var))
         elif cmd.startswith("!uptime"):

@@ -10,6 +10,7 @@ from bot.utilities.permission import Permission
 
 PRECISION = 5
 
+
 class Calculator(Command):
     """A chat calculator that can do some pretty advanced stuff like sqrt and trigonometry.
 
@@ -32,7 +33,7 @@ class Calculator(Command):
     def run(self, bot, user, msg, tag_info):
         """Evaluate second part of message and write the result."""
         self.responses = bot.responses["Calculator"]
-        expr = msg.split(' ', 1)[1]
+        expr = msg.split(" ", 1)[1]
         try:
             result = self.nsp.eval(expr)
 
@@ -41,7 +42,9 @@ class Calculator(Command):
             # E.g.: 0.30000004 -> 0.3
             #       0.000030030004 -> 0.00003003
             if abs(result) < 1:
-                dist = abs(int(math.log10(abs(result)))) # How many zeroes are after ., before a non zero digit
+                dist = abs(
+                    int(math.log10(abs(result)))
+                )  # How many zeroes are after ., before a non zero digit
                 result = round(result, PRECISION + dist)
             else:
                 result = round(result, PRECISION)
@@ -64,5 +67,5 @@ class Calculator(Command):
         """Check whether s contains no letters, except e, pi, sin, cos, tan, abs, trunc, round, sgn."""
         msg = msg.lower()
         for s in self.symbols:
-            msg = msg.lower().replace(s, '')
-        return re.search('[a-zA-Z]', msg) is None
+            msg = msg.lower().replace(s, "")
+        return re.search("[a-zA-Z]", msg) is None

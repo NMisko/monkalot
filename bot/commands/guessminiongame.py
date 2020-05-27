@@ -22,11 +22,11 @@ class GuessMinionGame(Command):
         """Initialize variables."""
         self.responses = {}
         self.active = False
-        self.cluetime = 10   # time between clues in seconds
+        self.cluetime = 10  # time between clues in seconds
         self.callID = None
         self.statToSet = {}
 
-    def giveClue(self, bot): # noqa (let's ignore the high complexity for now)
+    def giveClue(self, bot):  # noqa (let's ignore the high complexity for now)
         """Give a random clue to the chat.
 
         This stops the threading once all clues have been
@@ -39,10 +39,10 @@ class GuessMinionGame(Command):
         self.attributes.remove(stat)
 
         """ Write a clue in chat. Some set names have to be renamed. """
-        if(stat == "cardClass"):
+        if stat == "cardClass":
             var = {"<STAT>": str(self.minion[stat]).lower()}
             bot.write(bot.replace_vars(self.responses["clue_stat"]["msg"], var))
-        elif(stat == "set"):
+        elif stat == "set":
             self.statToSet = self.responses["setnames"]["msg"]
             if self.minion[stat] in self.statToSet:
                 setname = self.statToSet[self.minion[stat]]
@@ -50,20 +50,20 @@ class GuessMinionGame(Command):
                 setname = str(self.minion[stat])
             var = {"<STAT>": setname}
             bot.write(bot.replace_vars(self.responses["clue_set"]["msg"], var))
-        elif(stat == "name"):
+        elif stat == "name":
             var = {"<STAT>": self.minion[stat][0]}
             bot.write(bot.replace_vars(self.responses["clue_letter"]["msg"], var))
-        elif(stat == "rarity"):
+        elif stat == "rarity":
             var = {"<STAT>": str(self.minion[stat]).lower()}
             bot.write(bot.replace_vars(self.responses["clue_rarity"]["msg"], var))
-        elif(stat == "attack"):
+        elif stat == "attack":
             var = {"<STAT>": self.minion[stat]}
             bot.write(bot.replace_vars(self.responses["clue_attackpower"]["msg"], var))
-        elif(stat == "cost"):
+        elif stat == "cost":
             var = {"<STAT>": self.minion[stat]}
             bot.write(bot.replace_vars(self.responses["clue_manacost"]["msg"], var))
-        elif(stat == "health"):
-            if(self.minion[stat] == 1):
+        elif stat == "health":
+            if self.minion[stat] == 1:
                 var = {"<STAT>": self.minion[stat], "<PLURAL>": ""}
             else:
                 var = {"<STAT>": self.minion[stat], "<PLURAL>": "s"}
@@ -74,11 +74,19 @@ class GuessMinionGame(Command):
 
     def initGame(self, bot):
         """Initialize GuessMinionGame."""
-        self.attributes = ['cardClass', 'set', 'name', 'rarity', 'attack', 'cost', 'health']
+        self.attributes = [
+            "cardClass",
+            "set",
+            "name",
+            "rarity",
+            "attack",
+            "cost",
+            "health",
+        ]
         nominion = True
         while nominion:
             self.minion = random.choice(bot.getHearthstoneCards())
-            if self.minion['type'] == 'MINION':
+            if self.minion["type"] == "MINION":
                 nominion = False
 
     def match(self, bot, user, msg, tag_info):
@@ -93,18 +101,26 @@ class GuessMinionGame(Command):
         if not self.active:
             self.active = True
             self.initGame(bot)
-            print("Right Minion: " + self.minion['name'])
+            print("Right Minion: " + self.minion["name"])
             bot.write(self.responses["start_msg"]["msg"])
             self.giveClue(bot)
         else:
-            if cmd == "!mstop" and bot.get_permission(user) not in [Permission.User, Permission.Subscriber]:
+            if cmd == "!mstop" and bot.get_permission(user) not in [
+                Permission.User,
+                Permission.Subscriber,
+            ]:
                 self.close(bot)
                 bot.write(self.responses["stop_msg"]["msg"])
                 return
 
-            name = self.minion['name'].strip()
+            name = self.minion["name"].strip()
             if cmd.strip().lower() == name.lower():
-                var = {"<USER>": bot.displayName(user), "<MINION>": name, "<PRONOUN0>": bot.pronoun(user)[0].capitalize(), "<AMOUNT>": bot.MINIONGAMEP}
+                var = {
+                    "<USER>": bot.displayName(user),
+                    "<MINION>": name,
+                    "<PRONOUN0>": bot.pronoun(user)[0].capitalize(),
+                    "<AMOUNT>": bot.MINIONGAMEP,
+                }
                 bot.write(bot.replace_vars(self.responses["winner_msg"]["msg"], var))
                 bot.ranking.incrementPoints(user, bot.MINIONGAMEP, bot)
                 self.close(bot)

@@ -8,7 +8,7 @@ from datetime import datetime
 DEFAULT_DURATION = 21600  # 6 hrs in sec
 
 
-class WebCache():
+class WebCache:
     """Caches web requests."""
 
     def __init__(self, duration=DEFAULT_DURATION):

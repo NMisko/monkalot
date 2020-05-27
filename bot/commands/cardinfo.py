@@ -24,7 +24,7 @@ class CardInfo(Command):
 
     def match(self, bot, user, msg, tag_info):
         """Match if message is inside [] and message length < 30."""
-        return (re.match('^\[.*\]$', msg) and len(msg)<30)
+        return re.match("^\[.*\]$", msg) and len(msg) < 30
 
     def run(self, bot, user, msg, tag_info):
         """Print out information about a card."""
@@ -36,25 +36,37 @@ class CardInfo(Command):
                 return
             else:
                 for c in bot.getHearthstoneCards():
-                    if c['name'].lower() == name:
+                    if c["name"].lower() == name:
                         card = c
         else:
             card = bot.getHearthstoneCards()[name]
 
         # Remove formatting and weird [x] I don't know the meaning of
-        if 'text' in card:
-            text = re.sub(r'<.*?>|\[x\]|\$', "", card['text'])
-            text = " - " + re.sub(r'\n', " ", text)
+        if "text" in card:
+            text = re.sub(r"<.*?>|\[x\]|\$", "", card["text"])
+            text = " - " + re.sub(r"\n", " ", text)
         else:
             text = ""
 
-        if card['type'] == 'MINION':
-            bot.write("{}, Minion - {} Mana, {}/{}{}".format(card['name'], card['cost'], card['attack'], card['health'], text))
-        elif card['type'] == 'SPELL':
-            bot.write("{}, Spell - {} Mana{}".format(card['name'], card['cost'], text))
-        elif card['type'] == 'HERO':
-            bot.write("{}, Hero - {} Mana, {} Armor{}".format(card['name'], card['cost'], card['armor'], text))
-        elif card['type'] == 'WEAPON':
-            bot.write("{}, Weapon - {} Mana, {}/{}{}".format(card['name'], card['cost'], card['attack'], card['durability'], text))
+        if card["type"] == "MINION":
+            bot.write(
+                "{}, Minion - {} Mana, {}/{}{}".format(
+                    card["name"], card["cost"], card["attack"], card["health"], text
+                )
+            )
+        elif card["type"] == "SPELL":
+            bot.write("{}, Spell - {} Mana{}".format(card["name"], card["cost"], text))
+        elif card["type"] == "HERO":
+            bot.write(
+                "{}, Hero - {} Mana, {} Armor{}".format(
+                    card["name"], card["cost"], card["armor"], text
+                )
+            )
+        elif card["type"] == "WEAPON":
+            bot.write(
+                "{}, Weapon - {} Mana, {}/{}{}".format(
+                    card["name"], card["cost"], card["attack"], card["durability"], text
+                )
+            )
         else:
-            bot.write("{}{}".format(card['name'], text))
+            bot.write("{}{}".format(card["name"], text))

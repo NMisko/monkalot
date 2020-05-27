@@ -17,16 +17,34 @@ from bot.utilities.permission import Permission
 from bot.utilities.tools import formatEmoteList, sanitizeUserName
 from bot.utilities.webcache import WebCache
 
-from bot.paths import (TRUSTED_MODS_PATH, IGNORED_USERS_PATH, PRONOUNS_PATH, CONFIG_PATH, CUSTOM_RESPONSES_PATH,
-                       TEMPLATE_RESPONSES_PATH)
-from bot.paths import (USERLIST_API, CHANNEL_BTTVEMOTES_API, USER_NAME_API, USER_ID_API, USER_EMOTE_API, CHANNEL_API,
-                       STREAMS_API, TWITCH_EMOTE_API, GLOBAL_BTTVEMOTES_API, HEARTHSTONE_CARD_API, EMOJI_API, FFZ_API)
+from bot.paths import (
+    TRUSTED_MODS_PATH,
+    IGNORED_USERS_PATH,
+    PRONOUNS_PATH,
+    CONFIG_PATH,
+    CUSTOM_RESPONSES_PATH,
+    TEMPLATE_RESPONSES_PATH,
+)
+from bot.paths import (
+    USERLIST_API,
+    CHANNEL_BTTVEMOTES_API,
+    USER_NAME_API,
+    USER_ID_API,
+    USER_EMOTE_API,
+    CHANNEL_API,
+    STREAMS_API,
+    TWITCH_EMOTE_API,
+    GLOBAL_BTTVEMOTES_API,
+    HEARTHSTONE_CARD_API,
+    EMOJI_API,
+    FFZ_API,
+)
 
 DEFAULT_RAID_ANNOUNCE_THRESHOLD = 15
 CACHE_DURATION = 10800
 
 
-class TwitchBot():
+class TwitchBot:
     """TwitchBot extends the IRCClient to interact with Twitch.tv."""
 
     def __init__(self, root):
@@ -41,7 +59,9 @@ class TwitchBot():
         self.pause = False
         self.commands = []
         self.gameRunning = False
-        self.antispeech = False   # if a command gets executed which conflicts with native speech
+        self.antispeech = (
+            False  # if a command gets executed which conflicts with native speech
+        )
         self.pyramidBlock = False
 
         # This needs to be set, in order for the bot to be able to answer
@@ -61,7 +81,7 @@ class TwitchBot():
         # Get user list, seems better not to cache
         url = USERLIST_API.format(self.channel[1:])
         data = requests.get(url).json()
-        self.users = set(sum(data['chatters'].values(), []))
+        self.users = set(sum(data["chatters"].values(), []))
         self.mods = set()
         self.subs = set()
 
@@ -69,30 +89,39 @@ class TwitchBot():
         # yet in reloadConfig(). So we have to reload commands here ... not sure if this is good
         # practice or not
         self.reload_commands()
-    
+
     def getChannelFFZEmotes(self):
         """Return FFZ emotes for this channel."""
+
         def f(emote_json):
-            return [emote["name"] for set_id in emote_json["sets"] for emote in emote_json["sets"][set_id]["emoticons"]]
+            return [
+                emote["name"]
+                for set_id in emote_json["sets"]
+                for emote in emote_json["sets"][set_id]["emoticons"]
+            ]
+
         url = FFZ_API.format(self.channel[1:])
         emotes = self.cache.get(url, f, fallback=[])
         return emotes
 
     def getChannelBTTVEmotes(self):
         """Return the bttv emotes enabled for the channel this bot runs on."""
+
         def f(emoteJson):
-            emotelist = emoteJson['emotes']
+            emotelist = emoteJson["emotes"]
             return formatEmoteList(emotelist)
+
         url = CHANNEL_BTTVEMOTES_API.format(self.channel[1:])
         emotes = self.cache.get(url, f, fallback=[])
         return emotes
 
     def getGlobalTwitchEmotes(self):
         """Return available global twitch emotes."""
+
         def f(emoteJson):
             result = []
-            for emote in formatEmoteList(emoteJson['emoticon_sets']['0']):
-                if ('\\') not in emote:
+            for emote in formatEmoteList(emoteJson["emoticon_sets"]["0"]):
+                if ("\\") not in emote:
                     # print("Simple single word twitch emote", emote)
                     result.append(emote)
                 else:
@@ -100,18 +129,25 @@ class TwitchBot():
                     # print("Complex twitch emotes that we can't handle", emote)
                     pass
             return result
+
         return self.cache.get(TWITCH_EMOTE_API, f, fallback=[])
 
     def getGlobalBttvEmotes(self):
         """Return available global bttv emotes."""
+
         def f(emoteJson):
-            return formatEmoteList(emoteJson['emotes'])
+            return formatEmoteList(emoteJson["emotes"])
+
         return self.cache.get(GLOBAL_BTTVEMOTES_API, f, fallback=[])
 
     def getEmotes(self):
         """Return all emotes which can be used by all users on this channel."""
-        return self.getChannelBTTVEmotes() + self.getGlobalTwitchEmotes() \
-            + self.getGlobalBttvEmotes() + self.getChannelFFZEmotes()
+        return (
+            self.getChannelBTTVEmotes()
+            + self.getGlobalTwitchEmotes()
+            + self.getGlobalBttvEmotes()
+            + self.getChannelFFZEmotes()
+        )
 
     def getHearthstoneCards(self):
         """Return all Hearthstone cards."""
@@ -119,31 +155,35 @@ class TwitchBot():
 
     def getEmojis(self):
         """Return all available emojis."""
+
         def f(emojis_json):
             emojis = []
             for e in emojis_json:
                 try:
-                    emojis.append(e['emoji'])
+                    emojis.append(e["emoji"])
                 except KeyError:
-                    pass    # No Emoji found.
+                    pass  # No Emoji found.
             return emojis
+
         return self.cache.get(EMOJI_API, f, fallback=[])
 
     def setConfig(self, config):
         """Write the config file and reload."""
-        with open(CONFIG_PATH.format(self.root), 'w', encoding="utf-8") as file:
+        with open(CONFIG_PATH.format(self.root), "w", encoding="utf-8") as file:
             json.dump(config, file, indent=4)
         self.reloadConfig()
 
     def setResponses(self, responses):
         """Write the custom responses file and reload."""
-        with open(CUSTOM_RESPONSES_PATH.format(self.root), 'w', encoding="utf-8") as file:
+        with open(
+            CUSTOM_RESPONSES_PATH.format(self.root), "w", encoding="utf-8"
+        ) as file:
             json.dump(responses, file, indent=4)
         self.reloadConfig()
 
     def reloadConfig(self, firstRun=False):
         """Reload the entire config."""
-        with open(CONFIG_PATH.format(self.root), 'r', encoding="utf-8") as file:
+        with open(CONFIG_PATH.format(self.root), "r", encoding="utf-8") as file:
             CONFIG = json.load(file)
 
         with open(TRUSTED_MODS_PATH.format(self.root), encoding="utf-8") as fp:
@@ -156,19 +196,23 @@ class TwitchBot():
             self.pronouns = json.load(fp)
 
         # load template responses first
-        with open(TEMPLATE_RESPONSES_PATH, 'r', encoding="utf-8") as file:
+        with open(TEMPLATE_RESPONSES_PATH, "r", encoding="utf-8") as file:
             RESPONSES = json.load(file)
 
         # load custom responses
         try:
-            with open(CUSTOM_RESPONSES_PATH.format(self.root), 'r', encoding="utf-8") as file:
+            with open(
+                CUSTOM_RESPONSES_PATH.format(self.root), "r", encoding="utf-8"
+            ) as file:
                 CUSTOM_RESPONSES = json.load(file)
         except FileNotFoundError:  # noqa
             logging.warning("No custom responses file for {}.".format(self.root))
             CUSTOM_RESPONSES = {}
         except Exception:
             # Any errors else
-            logging.error("Unknown errors when reading custom responses of {}.".format(self.root))
+            logging.error(
+                "Unknown errors when reading custom responses of {}.".format(self.root)
+            )
             logging.error(traceback.format_exc())
             CUSTOM_RESPONSES = {}
 
@@ -176,21 +220,23 @@ class TwitchBot():
         RESPONSES = self.deepMergeDict(RESPONSES, CUSTOM_RESPONSES)
 
         self.last_warning = defaultdict(int)
-        self.owner_list = CONFIG['owner_list']
-        self.nickname = str(CONFIG['username'])
-        self.clientID = str(CONFIG['clientID'])
-        self.password = str(CONFIG['oauth_key'])
+        self.owner_list = CONFIG["owner_list"]
+        self.nickname = str(CONFIG["username"])
+        self.clientID = str(CONFIG["clientID"])
+        self.password = str(CONFIG["oauth_key"])
         # Not really part of config, but getuserID() will need this, so we use this hacky way to put it here
 
         self.TWITCH_API_COMMON_HEADERS = {
-            'Accept': 'application/vnd.twitchtv.v5+json',
-            'Client-ID': self.clientID,
-            'Authorization': self.password
+            "Accept": "application/vnd.twitchtv.v5+json",
+            "Client-ID": self.clientID,
+            "Authorization": self.password,
         }
 
-        self.channel = "#" + str(CONFIG['channel'])
-        self.channelID = self.getuserID(str(CONFIG['channel']))
-        self.pleb_cooldowntime = CONFIG["pleb_cooldown"]  # time between non-sub commands
+        self.channel = "#" + str(CONFIG["channel"])
+        self.channelID = self.getuserID(str(CONFIG["channel"]))
+        self.pleb_cooldowntime = CONFIG[
+            "pleb_cooldown"
+        ]  # time between non-sub commands
         self.pleb_gametimer = CONFIG["pleb_gametimer"]  # time between pleb games
         self.last_plebcmd = time.time() - self.pleb_cooldowntime
         self.last_plebgame = time.time() - self.pleb_gametimer
@@ -203,16 +249,20 @@ class TwitchBot():
         self.PYRAMIDP = CONFIG["points"]["pyramid"]
         self.GAMESTARTP = CONFIG["points"]["game_start"]
         self.AUTO_GAME_INTERVAL = CONFIG["auto_game_interval"]
-        self.NOTIFICATION_INTERVAL = CONFIG["notification_interval"]    # time between notification posts
-        self.RAID_ANNOUNCE_THRESHOLD = CONFIG.get("raid_announce_threshold", DEFAULT_RAID_ANNOUNCE_THRESHOLD)
+        self.NOTIFICATION_INTERVAL = CONFIG[
+            "notification_interval"
+        ]  # time between notification posts
+        self.RAID_ANNOUNCE_THRESHOLD = CONFIG.get(
+            "raid_announce_threshold", DEFAULT_RAID_ANNOUNCE_THRESHOLD
+        )
 
         if not firstRun:
             self.reload_commands()
 
     def modeChanged(self, user, channel, added, modes, args):
         """Update IRC mod list when mod joins or leaves. Seems not useful."""
-        change = 'added' if added else 'removed'
-        info_msg = "[{}] IRC Mod {}: {}".format(channel, change, ', '.join(args))
+        change = "added" if added else "removed"
+        info_msg = "[{}] IRC Mod {}: {}".format(channel, change, ", ".join(args))
         logging.warning(info_msg)
 
     def pronoun(self, user):
@@ -225,7 +275,11 @@ class TwitchBot():
     def handleWhisper(self, sender, content):
         """Entry point for all incoming whisper messages to bot."""
         # currently do nothing at all
-        print("{} sent me [{}] this in a whisper: {}".format(sender, self.nickname, content))
+        print(
+            "{} sent me [{}] this in a whisper: {}".format(
+                sender, self.nickname, content
+            )
+        )
 
     def setHost(self, channel, target):
         """React to a channel being hosted."""
@@ -250,15 +304,15 @@ class TwitchBot():
 
         self.updateCacheData(name, display_name, twitch_user_id)
 
-        if 'subscriber' in tags:
-            if tags['subscriber'] == '1':
+        if "subscriber" in tags:
+            if tags["subscriber"] == "1":
                 self.subs.add(name)
             elif name in self.subs:
                 self.subs.discard(name)
 
-        if 'user-type' in tags:
+        if "user-type" in tags:
             # This also works #if tags['user-type'] == 'mod':
-            if tags['mod'] == '1':
+            if tags["mod"] == "1":
                 self.mods.add(name)
             elif name in self.mods:
                 self.mods.discard(name)
@@ -279,7 +333,7 @@ class TwitchBot():
         If no game is active only allow 'passive games' a.k.a PyramidGame
         """
         if perm == 0:
-            if (time.time() - self.last_plebcmd < self.pleb_cooldowntime):
+            if time.time() - self.last_plebcmd < self.pleb_cooldowntime:
                 if self.gameRunning:
                     return self.games
                 else:
@@ -301,7 +355,7 @@ class TwitchBot():
         if self.pause and user not in self.owner_list and user not in self.trusted_mods:
             return
 
-        perm_levels = ['User', 'Subscriber', 'Moderator', 'Owner']
+        perm_levels = ["User", "Subscriber", "Moderator", "Owner"]
         perm = self.get_permission(user)
         msg = msg.strip()
         self.cmdExecuted = False
@@ -328,7 +382,9 @@ class TwitchBot():
                     reply = "{}: You don't have access to that command. Minimum level is {}."
                     self.write(reply.format(user, perm_levels[cmd.perm]))
                 else:
-                    if (perm == 0 and cmd not in self.games):   # Only reset plebtimer if no game was played
+                    if (
+                        perm == 0 and cmd not in self.games
+                    ):  # Only reset plebtimer if no game was played
                         self.last_plebcmd = time.time()
                     cmd.run(self, user, msg, tag_info)
             except (ValueError, TypeError):  # Not sure which Errors might happen here.
@@ -343,7 +399,7 @@ class TwitchBot():
 
         # log raid?
         logging.warning("New raid detected")
-        logging.warning(tags['system-msg'])
+        logging.warning(tags["system-msg"])
 
         amount = int(tags["msg-param-viewerCount"])
         channel = tags["msg-param-displayName"]
@@ -366,23 +422,36 @@ class TwitchBot():
         """Send a message when someone gift a sub to another viewer."""
         # Auto-message generated by Twitch - "XXX gifted a $x.xx sub to xxx!"
         logging.warning("New sub donation detected")
-        logging.warning(tags['system-msg'])
+        logging.warning(tags["system-msg"])
 
         # Setup message to be printed
         responses = self.responses["usernotice"]["subgift"]
         plan = responses["subplan"]["msg"]
 
-        donor = tags['display-name'] if tags['display-name'] else tags['login']
-        recipient = tags['msg-param-recipient-display-name'] if tags['msg-param-recipient-display-name'] else tags['msg-param-recipient-user-name']
+        donor = tags["display-name"] if tags["display-name"] else tags["login"]
+        recipient = (
+            tags["msg-param-recipient-display-name"]
+            if tags["msg-param-recipient-display-name"]
+            else tags["msg-param-recipient-user-name"]
+        )
 
-        months = int(tags['msg-param-months'])
-        subtype = tags['msg-param-sub-plan']
+        months = int(tags["msg-param-months"])
+        subtype = tags["msg-param-sub-plan"]
 
         if int(months) <= 1:
-            var = {"<DONOR>": donor, "<RECIPIENT>": recipient, "<SUBPLAN>": plan[subtype]}
+            var = {
+                "<DONOR>": donor,
+                "<RECIPIENT>": recipient,
+                "<SUBPLAN>": plan[subtype],
+            }
             reply = self.replace_vars(responses["msg_standard"]["msg"], var)
         else:
-            var = {"<DONOR>": donor, "<RECIPIENT>": recipient, "<SUBPLAN>": plan[subtype], "<MONTHS>": months}
+            var = {
+                "<DONOR>": donor,
+                "<RECIPIENT>": recipient,
+                "<SUBPLAN>": plan[subtype],
+                "<MONTHS>": months,
+            }
             reply = self.replace_vars(responses["msg_with_months"]["msg"], var)
 
         self.write(reply)
@@ -392,16 +461,16 @@ class TwitchBot():
         # Sub message by user is in subMsg, which is not part of IRC tags
         # Auto-message generated by Twitch - "XXX has subscribed for n months"
         logging.warning("New sub detected")
-        logging.warning(tags['system-msg'])
+        logging.warning(tags["system-msg"])
 
         # Setup message to be printed by bot
         responses = self.responses["usernotice"]["sub"]
         plan = responses["subplan"]["msg"]
 
         # according to Twitch doc, display-name can be empty if it is never set
-        user = tags['display-name'] if tags['display-name'] else tags['login']
-        months = tags['msg-param-months']
-        subtype = tags['msg-param-sub-plan']
+        user = tags["display-name"] if tags["display-name"] else tags["login"]
+        months = tags["msg-param-months"]
+        subtype = tags["msg-param-sub-plan"]
 
         if int(months) <= 1:
             var = {"<USER>": user, "<SUBPLAN>": plan[subtype]}
@@ -412,7 +481,7 @@ class TwitchBot():
 
         self.write(reply)
 
-    def get_active_users(self, t=60*10):
+    def get_active_users(self, t=60 * 10):
         """Return list of users active in chat in the past t seconds (default: 10m)."""
         now = time.time()
         active_users = []
@@ -475,13 +544,19 @@ class TwitchBot():
             return self.userNametoDisplayName[u_name]
         else:
             try:
-                logging.info("User data not in cache when trying to access user display name, user tag is {}".format(username))
+                logging.info(
+                    "User data not in cache when trying to access user display name, user tag is {}".format(
+                        username
+                    )
+                )
                 name = self.getuserTag(u_name)["users"][0]["display_name"]
                 # save the record as well
                 self.userNametoDisplayName[username] = name
                 return name
             except (RequestException, IndexError, KeyError):
-                logging.info("Cannot get user info from API call, have to return username directly")
+                logging.info(
+                    "Cannot get user info from API call, have to return username directly"
+                )
                 return username
 
     def setupCache(self):
@@ -509,13 +584,17 @@ class TwitchBot():
         except RequestException as e:
             # 4xx/5xx errors from server
 
-            msg = "Twitch server-side error, URL sent is {}, status code is {}".format(url, r.status_code)
+            msg = "Twitch server-side error, URL sent is {}, status code is {}".format(
+                url, r.status_code
+            )
             msg += "\nError message from twitch's JSON {} ".format(r.json())
             raise RequestException(msg)
 
         except ValueError as e:
             # likely can't parse JSON
-            msg = "Error in getting user JSON with URL {}, status code is {}".format(url, r.status_code)
+            msg = "Error in getting user JSON with URL {}, status code is {}".format(
+                url, r.status_code
+            )
             raise ValueError(msg)
 
     def getUserDataFromID(self, user_id):
@@ -543,7 +622,11 @@ class TwitchBot():
         if u_name in self.userNametoID:
             return self.userNametoID[u_name]
         else:
-            logging.info("User data not in cache when trying to access user ID. User tag {}".format(username))
+            logging.info(
+                "User data not in cache when trying to access user ID. User tag {}".format(
+                    username
+                )
+            )
 
             try:
                 data = self.getuserTag(username)
@@ -555,7 +638,11 @@ class TwitchBot():
                 return id
 
             except (ValueError, KeyError) as e:
-                logging.info("Cannot get user info from API call, can't get user ID of {}".format(username))
+                logging.info(
+                    "Cannot get user info from API call, can't get user ID of {}".format(
+                        username
+                    )
+                )
                 raise e
 
             except (IndexError, RequestException):
@@ -568,13 +655,13 @@ class TwitchBot():
         data = self.getJSONObjectFromTwitchAPI(url)
 
         try:
-            emotelist = data['emoticon_sets']
+            emotelist = data["emoticon_sets"]
         except (IndexError, KeyError):
             logging.error(traceback.format_exc())
             print("Error in getting emotes from userID")
 
         # remove dict contains global emotes
-        emotelist.pop('0', None)
+        emotelist.pop("0", None)
         return emotelist
 
     def accessToEmote(self, username, emote):
@@ -590,7 +677,7 @@ class TwitchBot():
         emotelist = self.getuserEmotes(userID)
         for sets in emotelist:
             for key in range(0, len(emotelist[sets])):
-                if emote == emotelist[sets][key]['code']:
+                if emote == emotelist[sets][key]["code"]:
                     return True
         return False
 
@@ -657,8 +744,12 @@ class TwitchBot():
                 base[k] = custom[k]
             else:
                 dictPath += "[{}]".format(k)
-                if type(base[k]) != type(custom[k]): # noqa - intended, we check for same type
-                    raise TypeError("Different type of data found on merging key{}".format(dictPath))
+                if type(base[k]) != type(
+                    custom[k]
+                ):  # noqa - intended, we check for same type
+                    raise TypeError(
+                        "Different type of data found on merging key{}".format(dictPath)
+                    )
                 else:
                     # Have same key and same type of data
                     # Do recursive merge for dictionary
@@ -671,7 +762,7 @@ class TwitchBot():
 
     def dumpIgnoredUsersFile(self):
         """Output ignored users file."""
-        with open(IGNORED_USERS_PATH.format(self.root), 'w', encoding="utf-8") as file:
+        with open(IGNORED_USERS_PATH.format(self.root), "w", encoding="utf-8") as file:
             json.dump(self.ignored_users, file, indent=4)
 
     def clearCache(self):
@@ -686,7 +777,11 @@ class TwitchBot():
         if self.irc is not None:
             self.irc.write(self.channel, msg)
         else:
-            logging.warning("The bot {} in channel {} wanted to say something, but irc isn't set.".format(self.nickname, self.channel))
+            logging.warning(
+                "The bot {} in channel {} wanted to say something, but irc isn't set.".format(
+                    self.nickname, self.channel
+                )
+            )
 
     def whisper(self, msg, user):
         """Whisper a message to a user."""
@@ -694,7 +789,11 @@ class TwitchBot():
         if self.irc is not None:
             self.irc.write(self.channel, whisper)
         else:
-            logging.warning("The bot {} in channel {} wanted to whisper to {}, but irc isn't set.".format(self.nickname, self.channel, user))
+            logging.warning(
+                "The bot {} in channel {} wanted to whisper to {}, but irc isn't set.".format(
+                    self.nickname, self.channel, user
+                )
+            )
 
     def timeout(self, user, time):
         """Timout a user for a certain time in the channel."""
@@ -702,7 +801,11 @@ class TwitchBot():
         if self.irc is not None:
             self.irc.write(self.channel, timeout)
         else:
-            logging.warning("The bot {} in channel {} wanted to timout {}, but irc isn't set.".format(self.nickname, self.channel, user))
+            logging.warning(
+                "The bot {} in channel {} wanted to timout {}, but irc isn't set.".format(
+                    self.nickname, self.channel, user
+                )
+            )
 
     def ban(self, user):
         """Ban a user from the channel."""
@@ -710,7 +813,11 @@ class TwitchBot():
         if self.irc is not None:
             self.irc.write(self.channel, ban)
         else:
-            logging.warning("The bot {} in channel {} wanted to ban {}, but irc isn't set.".format(self.nickname, self.channel, user))
+            logging.warning(
+                "The bot {} in channel {} wanted to ban {}, but irc isn't set.".format(
+                    self.nickname, self.channel, user
+                )
+            )
 
     def unban(self, user):
         """Unban a user for the channel."""
@@ -718,4 +825,8 @@ class TwitchBot():
         if self.irc is not None:
             self.irc.write(self.channel, unban)
         else:
-            logging.warning("The bot {} in channel {} wanted to unban {}, but irc isn't set.".format(self.nickname, self.channel, user))
+            logging.warning(
+                "The bot {} in channel {} wanted to unban {}, but irc isn't set.".format(
+                    self.nickname, self.channel, user
+                )
+            )

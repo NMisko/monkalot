@@ -17,13 +17,13 @@ class Sleep(Command):
         """Match if message is !sleep or !wakeup."""
         cmd = msg.lower().strip()
 
-        if (user in bot.trusted_mods or bot.get_permission(user) == 3):
+        if user in bot.trusted_mods or bot.get_permission(user) == 3:
             return cmd.startswith("!sleep") or cmd.startswith("!wakeup")
 
     def run(self, bot, user, msg, tag_info):
         """Put the bot to sleep or wake it up."""
         self.responses = bot.responses["Sleep"]
-        cmd = msg.lower().replace(' ', '')
+        cmd = msg.lower().replace(" ", "")
         if cmd.startswith("!sleep"):
             bot.write(self.responses["bot_deactivate"]["msg"])
             bot.close_commands()

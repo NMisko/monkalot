@@ -28,7 +28,11 @@ class Pyramid(Command):
     def __init__(self, bot):
         """Initialize variables."""
         self.responses = bot.responses["Pyramid"]
-        self.nonTwitchEmotes = bot.getGlobalBttvEmotes() + bot.getChannelBTTVEmotes() + bot.getChannelFFZEmotes()
+        self.nonTwitchEmotes = (
+            bot.getGlobalBttvEmotes()
+            + bot.getChannelBTTVEmotes()
+            + bot.getChannelFFZEmotes()
+        )
         self.emojis = bot.getEmojis()
 
         self.pyramidBuilders = []
@@ -126,7 +130,11 @@ class Pyramid(Command):
         """
         # invalid maxLv -- it wants a smaller pyramid?
         if maxLv < self.maxLevel:
-            logging.error("[Pyramid]: finishPyramid() -- wrong params provided, current max lv is {}, but input requested a lv {} pyramid".format(self.maxLevel, maxLv))
+            logging.error(
+                "[Pyramid]: finishPyramid() -- wrong params provided, current max lv is {}, but input requested a lv {} pyramid".format(
+                    self.maxLevel, maxLv
+                )
+            )
 
         # get current state, then write the message level by level
 
@@ -136,12 +144,12 @@ class Pyramid(Command):
         lv = self.pyramidLevel
 
         # if increasing (and valid), fill up to maxLv.
-        while(lv < maxLv):
+        while lv < maxLv:
             lv += 1
             bot.write(emoteStr(emote, lv))
 
         # if decreasing/invalid lv provided, just fill decreasing emote at 2, then finish it
-        while(lv > 0):
+        while lv > 0:
             lv -= 1
 
             if lv == 1:
@@ -165,12 +173,20 @@ class Pyramid(Command):
         if len(uniqueUsers) == 1:
             user = uniqueUsers[0]
             if bot.get_permission(user) in [Permission.User, Permission.Subscriber]:
-                var = {"<USER>": bot.displayName(user), "<PRONOUN0>": bot.pronoun(user)[0]}
+                var = {
+                    "<USER>": bot.displayName(user),
+                    "<PRONOUN0>": bot.pronoun(user)[0],
+                }
                 bot.write(bot.replace_vars(self.responses["plebpyramid"]["msg"], var))
                 bot.timeout(user, 60)
             else:
-                var = {"<USER>": bot.displayName(user), "<PRONOUN0>": bot.pronoun(user)[0]}
-                bot.write(bot.replace_vars(self.responses["mod_plebpyramid"]["msg"], var))
+                var = {
+                    "<USER>": bot.displayName(user),
+                    "<PRONOUN0>": bot.pronoun(user)[0],
+                }
+                bot.write(
+                    bot.replace_vars(self.responses["mod_plebpyramid"]["msg"], var)
+                )
         else:
             s = formatList(list(map(lambda x: bot.displayName(x), uniqueUsers)))
             var = {"<MULTIUSERS>": s}
@@ -186,11 +202,17 @@ class Pyramid(Command):
         points = self.calculatePoints(bot)
         if len(points) == 1:
             user = self.pyramidBuilders[0]
-            var = {"<USER>": bot.displayName(user), "<PRONOUN0>": bot.pronoun(user)[0], "<AMOUNT>": points[user]}
+            var = {
+                "<USER>": bot.displayName(user),
+                "<PRONOUN0>": bot.pronoun(user)[0],
+                "<AMOUNT>": points[user],
+            }
             bot.write(bot.replace_vars(self.responses["pyramid"]["msg"], var))
             bot.ranking.incrementPoints(user, points[user], bot)
         else:
-            s = formatList(list(map(lambda x: bot.displayName(x), list(points.keys()))))  # calls bot.displayName on every user
+            s = formatList(
+                list(map(lambda x: bot.displayName(x), list(points.keys())))
+            )  # calls bot.displayName on every user
             p = formatList(list(points.values()))
             var = {"<MULTIUSERS>": s, "<AMOUNT>": p}
             bot.write(bot.replace_vars(self.responses["multi_pyramid"]["msg"], var))
@@ -211,17 +233,23 @@ class Pyramid(Command):
             user = self.pyramidBuilders[i]
 
             if user not in m:
-                if bot.get_permission(user) not in [Permission.Admin, Permission.Moderator]:
+                if bot.get_permission(user) not in [
+                    Permission.Admin,
+                    Permission.Moderator,
+                ]:
                     m[user] = points[i]
                 else:
                     # mods get one tenth of the points
-                    m[user] = int(points[i]/10)
+                    m[user] = int(points[i] / 10)
             else:
-                if bot.get_permission(user) not in [Permission.Admin, Permission.Moderator]:
+                if bot.get_permission(user) not in [
+                    Permission.Admin,
+                    Permission.Moderator,
+                ]:
                     m[user] = m[user] + points[i]
                 else:
                     # mods get one tenth of the points
-                    m[user] = m[user] + int(points[i]/10)
+                    m[user] = m[user] + int(points[i] / 10)
 
         return m
 
@@ -268,8 +296,10 @@ class Pyramid(Command):
         # We need to change our logic if that happens ... have to loop all regex emote to check if any matches
 
     def checkValidTwitchEmoteWithCount(self, tag_info):
-        if tag_info['twitch_emote_only']:
-            emote_stats = tag_info['twitch_emotes'].copy()  # make a copy since we will popitem()
+        if tag_info["twitch_emote_only"]:
+            emote_stats = tag_info[
+                "twitch_emotes"
+            ].copy()  # make a copy since we will popitem()
             emote_id, freq = emote_stats.popitem()
 
             if len(emote_stats) == 0:
@@ -285,9 +315,9 @@ class Pyramid(Command):
         return (msgType in [EmoteType.TWITCH, EmoteType.NONTWITCH]) and msgCount == 1
 
     def validNextLevel(self, msgType, msgCount, emote):
-        ''' Return True if incoming message forms a valid level of pyramid
+        """ Return True if incoming message forms a valid level of pyramid
             with some exceptions.
-        '''
+        """
         # Implement as FSM. Each state is the count of valid single emote
 
         # These 2 states are always valid
@@ -328,18 +358,23 @@ class Pyramid(Command):
             return msgCount == level + 1 or (msgCount == level - 1 and level >= 2)
         else:
             if level == 1:
-                raise ValueError("We have a decreasing level 1 pyramid asking for level 0 next level")
+                raise ValueError(
+                    "We have a decreasing level 1 pyramid asking for level 0 next level"
+                )
             return msgCount == level - 1
 
     def reset(self):
         self.pyramidLevel = 0  # current pyramid level
         self.maxLevel = 0
         self.increasing = True
-        self.currentEmote = ""  # can be both Twitch emote ID (int) or str (non Twitch emote)
+        self.currentEmote = (
+            ""  # can be both Twitch emote ID (int) or str (non Twitch emote)
+        )
         self.currentType = EmoteType.INVALID
         # store the string input of that emote if user enters a valid emote level. Currently used by bot only
         self.emoteInputStr = ""
         self.pyramidBuilders.clear()
+
 
 # Expected test cases:
 

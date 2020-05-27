@@ -34,10 +34,16 @@ class TopSpammers(Command):
                 try:
                     displayName = bot.getDisplayNameFromID(viewer_id)
                 except RequestException:
-                    logging.info("Display name for id '{}' not found. Returning spooky ☠️ as top spammer.".format(viewer_id))
+                    logging.info(
+                        "Display name for id '{}' not found. Returning spooky ☠️ as top spammer.".format(
+                            viewer_id
+                        )
+                    )
                     displayName = "☠️"
 
-                top.append("{}: Rank {}".format(displayName, bot.ranking.getHSRank(point)))
+                top.append(
+                    "{}: Rank {}".format(displayName, bot.ranking.getHSRank(point))
+                )
 
             out += ", ".join(top)
             out += "."

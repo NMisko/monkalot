@@ -17,9 +17,9 @@ class Rank(Command):
 
     def match(self, bot, user, msg, tag_info):
         """Match if message is !rank or starts with !rank and has one argument."""
-        if msg.lower() == '!rank':
+        if msg.lower() == "!rank":
             return True
-        elif msg.startswith('!rank ') and len(msg.split(' ')) == 2:
+        elif msg.startswith("!rank ") and len(msg.split(" ")) == 2:
             return True
         else:
             return False
@@ -32,8 +32,8 @@ class Rank(Command):
         """
 
         self.responses = bot.responses["Rank"]
-        if msg.startswith('!rank '):
-            user = sanitizeUserName(msg.split(' ')[1])
+        if msg.startswith("!rank "):
+            user = sanitizeUserName(msg.split(" ")[1])
 
             if user in bot.displayNameToUserName:
                 # force display name to login id ... if that user is in our cache
@@ -44,7 +44,11 @@ class Rank(Command):
         # does not show up in chat so that we can't get his login_id
         try:
             points = bot.ranking.getPoints(user)
-            var = {"<USER>": bot.displayName(user), "<RANK>": bot.ranking.getHSRank(points), "<POINTS>": points}
+            var = {
+                "<USER>": bot.displayName(user),
+                "<RANK>": bot.ranking.getHSRank(points),
+                "<POINTS>": points,
+            }
             bot.write(bot.replace_vars(self.responses["display_rank"]["msg"], var))
 
         except UserNotFoundError:

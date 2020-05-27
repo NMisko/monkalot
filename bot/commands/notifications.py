@@ -29,7 +29,9 @@ class Notifications(Command):
 
         """If notifications are enabled by default, start the threading."""
         if self.active:
-            self.callID = reactor.callLater(bot.NOTIFICATION_INTERVAL, self.writeNotification, bot)
+            self.callID = reactor.callLater(
+                bot.NOTIFICATION_INTERVAL, self.writeNotification, bot
+            )
 
     def raiselistindex(self):
         """Raise the listindex by 1 if it's exceeding the list's length reset the index.
@@ -55,13 +57,17 @@ class Notifications(Command):
             self.raiselistindex()
 
         """Threading to keep notifications running, if class active."""
-        self.callID = reactor.callLater(bot.NOTIFICATION_INTERVAL, self.writeNotification, bot)
+        self.callID = reactor.callLater(
+            bot.NOTIFICATION_INTERVAL, self.writeNotification, bot
+        )
 
     def addnotification(self, bot, arg):
         """Add a new notification to the list."""
         if arg not in self.notifications:
             self.notifications.append(arg)
-            with open(NOTIFICATIONS_FILE.format(bot.root), 'w', encoding="utf-8") as file:
+            with open(
+                NOTIFICATIONS_FILE.format(bot.root), "w", encoding="utf-8"
+            ) as file:
                 json.dump(self.notifications, file, indent=4)
             bot.write(self.responses["notification_added"]["msg"])
         else:
@@ -71,7 +77,9 @@ class Notifications(Command):
         """Add a new notification to the list."""
         if arg in self.notifications:
             self.notifications.remove(arg)
-            with open(NOTIFICATIONS_FILE.format(bot.root), 'w', encoding="utf-8") as file:
+            with open(
+                NOTIFICATIONS_FILE.format(bot.root), "w", encoding="utf-8"
+            ) as file:
                 json.dump(self.notifications, file, indent=4)
             bot.write(self.responses["notification_removed"]["msg"])
         else:
@@ -83,9 +91,15 @@ class Notifications(Command):
         Or if they want add or remove a notification from the list.
         """
         if user in bot.trusted_mods or bot.get_permission(user) == 3:
-            if msg.lower().startswith("!notifications on") or msg.lower().startswith("!notifications off"):
+            if msg.lower().startswith("!notifications on") or msg.lower().startswith(
+                "!notifications off"
+            ):
                 return True
-            elif msg.lower().startswith("!addnotification ") or msg.lower().startswith("!delnotification ") and len(msg.split(" ")) > 1:
+            elif (
+                msg.lower().startswith("!addnotification ")
+                or msg.lower().startswith("!delnotification ")
+                and len(msg.split(" ")) > 1
+            ):
                 return True
         return False
 
@@ -94,7 +108,9 @@ class Notifications(Command):
         if msg.lower().startswith("!notifications on"):
             if not self.active:
                 self.active = True
-                self.callID = reactor.callLater(bot.NOTIFICATION_INTERVAL, self.writeNotification, bot)
+                self.callID = reactor.callLater(
+                    bot.NOTIFICATION_INTERVAL, self.writeNotification, bot
+                )
                 bot.write(self.responses["notifications_activate"]["msg"])
             else:
                 bot.write(self.responses["notifications_already_on"]["msg"])

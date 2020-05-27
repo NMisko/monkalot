@@ -6,7 +6,7 @@ def is_callID_active(callID):
     """Check if reactor.callLater() from callID is active."""
     if callID is None:
         return False
-    elif ((callID.called == 0) and (callID.cancelled == 0)):
+    elif (callID.called == 0) and (callID.cancelled == 0):
         return True
     else:
         return False
@@ -23,7 +23,7 @@ def formatList(list):
         return list[0]
     else:
         s = ""
-        for e in list[:len(list) - 2]:
+        for e in list[: len(list) - 2]:
             s = s + str(e) + ", "
         s = s + str(list[len(list) - 2]) + " and " + str(list[len(list) - 1])
         return s
@@ -33,7 +33,7 @@ def formatEmoteList(emotelist):
     """Format emote json correctly."""
     emotes = []
     for emoteEntry in emotelist:
-        emote = emoteEntry['code'].strip()
+        emote = emoteEntry["code"].strip()
         emotes.append(emote)
     return emotes
 
@@ -43,7 +43,7 @@ def TwitchTime2datetime(twitch_time):
 
     E.g.: 2017-09-08T22:35:33.449961Z
     """
-    for ch in ['-', 'T', 'Z', ':']:
+    for ch in ["-", "T", "Z", ":"]:
         twitch_time = twitch_time.replace(ch, "")
 
     return datetime.strptime(twitch_time, "%Y%m%d%H%M%S")

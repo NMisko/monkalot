@@ -16,14 +16,14 @@ class outputStats(Command):
         """Match if msg = !total <emote> or !minute <emote>."""
         cmd = msg.strip().lower()
 
-        if cmd.startswith('!total ') or cmd.startswith('!minute '):
-            cmd = msg.strip()   # now without .lower()
-            cmd = cmd.split(' ', 1)
+        if cmd.startswith("!total ") or cmd.startswith("!minute "):
+            cmd = msg.strip()  # now without .lower()
+            cmd = cmd.split(" ", 1)
 
             return cmd[1].strip() in bot.getEmotes()
-        elif cmd == '!kpm':
+        elif cmd == "!kpm":
             return True
-        elif cmd == '!tkp':
+        elif cmd == "!tkp":
             return True
 
     def run(self, bot, user, msg, tag_info):
@@ -31,24 +31,24 @@ class outputStats(Command):
         self.responses = bot.responses["outputStats"]
         cmd = msg.strip().lower()
 
-        if cmd.startswith('!total '):
+        if cmd.startswith("!total "):
             cmd = msg.strip()
-            cmd = cmd.split(' ', 1)
+            cmd = cmd.split(" ", 1)
             emote = cmd[1]
             count = bot.ecount.getTotalcount(emote)
             response = self.responses["total_reply"]["msg"]
-        elif cmd.startswith('!minute '):
+        elif cmd.startswith("!minute "):
             cmd = msg.strip()
-            cmd = cmd.split(' ', 1)
+            cmd = cmd.split(" ", 1)
             emote = cmd[1]
             count = bot.ecount.getMinuteCount(emote)
             response = self.responses["minute_reply"]["msg"]
-        elif cmd == '!tkp':
-            emote = 'Kappa'
+        elif cmd == "!tkp":
+            emote = "Kappa"
             count = bot.ecount.getTotalcount(emote)
             response = self.responses["total_reply"]["msg"]
-        elif cmd == '!kpm':
-            emote = 'Kappa'
+        elif cmd == "!kpm":
+            emote = "Kappa"
             count = bot.ecount.getMinuteCount(emote)
             response = self.responses["minute_reply"]["msg"]
 

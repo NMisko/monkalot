@@ -30,8 +30,8 @@ class MonkalotParty(Command):
             return
 
         game = random.choice(list(self.mp.games))
-        question = self.mp.games[game]['question']
-        self.answer = str(self.mp.games[game]['answer'])
+        question = self.mp.games[game]["question"]
+        self.answer = str(self.mp.games[game]["answer"])
 
         print("Answer: " + self.answer)
         bot.write(question)
@@ -73,17 +73,23 @@ class MonkalotParty(Command):
             """Start of threading"""
             self.callID = reactor.callLater(5, self.selectGame, bot)
         else:
-            if cmd.lower() == "!pstop" and (bot.get_permission(user) > 1): #Fix for Subs stopping pstop - Bellyria
+            if cmd.lower() == "!pstop" and (
+                bot.get_permission(user) > 1
+            ):  # Fix for Subs stopping pstop - Bellyria
                 self.close(bot)
                 bot.write(self.responses["stop_msg"]["msg"])
                 return
-            if self.answer != "":    # If we are not between games.
-                if self.answer not in bot.getEmotes():   # If not an emote compare in lowercase.
+            if self.answer != "":  # If we are not between games.
+                if (
+                    self.answer not in bot.getEmotes()
+                ):  # If not an emote compare in lowercase.
                     self.answer = self.answer.lower()
                     cmd = cmd.lower()
                 if cmd == self.answer:
                     var = {"<USER>": bot.displayName(user), "<ANSWER>": self.answer}
-                    bot.write(bot.replace_vars(self.responses["winner_msg"]["msg"], var))
+                    bot.write(
+                        bot.replace_vars(self.responses["winner_msg"]["msg"], var)
+                    )
                     self.answer = ""
                     bot.ranking.incrementPoints(user, 5, bot)
                     self.mp.uprank(user)

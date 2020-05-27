@@ -14,12 +14,15 @@ def startGame(bot, user, msg, cmd):
 
     if bot.gameRunning:
         return False
-    elif bot.get_permission(user) in [Permission.User, Permission.Subscriber] and msg == cmd:
+    elif (
+        bot.get_permission(user) in [Permission.User, Permission.Subscriber]
+        and msg == cmd
+    ):
         """Check if pleb_gametimer is not on cooldown."""
-        if ((time.time() - bot.last_plebgame) > bot.pleb_gametimer):
+        if (time.time() - bot.last_plebgame) > bot.pleb_gametimer:
             # The calling user is not a mod, so we subtract 5 points.
-            if(bot.ranking.getPoints(user) > bot.GAMESTARTP):
-                bot.setlast_plebgame(time.time())      # Set pleb_gametimer
+            if bot.ranking.getPoints(user) > bot.GAMESTARTP:
+                bot.setlast_plebgame(time.time())  # Set pleb_gametimer
                 bot.ranking.incrementPoints(user, -bot.GAMESTARTP, bot)
                 bot.gameRunning = True
                 return True

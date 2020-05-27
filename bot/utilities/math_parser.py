@@ -24,8 +24,8 @@ class NumericStringParser(object):
 
     def pushUMinus(self, strg, loc, toks):
         """Push a unary minus."""
-        if toks and toks[0] == '-':
-            self.exprStack.append('unary -')
+        if toks and toks[0] == "-":
+            self.exprStack.append("unary -")
 
     def __init__(self):
         """
@@ -42,10 +42,12 @@ class NumericStringParser(object):
         """
         point = pyp.Literal(".")
         e = pyp.CaselessLiteral("E")
-        fnumber = pyp.Combine(pyp.Word("+-"+pyp.nums, pyp.nums) +
-                              pyp.Optional(point + pyp.Optional(pyp.Word(pyp.nums))) +
-                              pyp.Optional(e + pyp.Word("+-"+pyp.nums, pyp.nums)))
-        ident = pyp.Word(pyp.alphas, pyp.alphas+pyp.nums+"_$")
+        fnumber = pyp.Combine(
+            pyp.Word("+-" + pyp.nums, pyp.nums)
+            + pyp.Optional(point + pyp.Optional(pyp.Word(pyp.nums)))
+            + pyp.Optional(e + pyp.Word("+-" + pyp.nums, pyp.nums))
+        )
+        ident = pyp.Word(pyp.alphas, pyp.alphas + pyp.nums + "_$")
         plus = pyp.Literal("+")
         minus = pyp.Literal("-")
         mult = pyp.Literal("*")
@@ -57,18 +59,21 @@ class NumericStringParser(object):
         expop = pyp.Literal("^")
         pi = pyp.CaselessLiteral("PI")
         expr = pyp.Forward()
-        atom = ((pyp.Optional(pyp.oneOf("- +")) +
-                 (pi | e | fnumber | ident+lpar+expr+rpar).setParseAction(self.pushFirst))
-                | pyp.Optional(pyp.oneOf("- +")) + pyp.Group(lpar+expr+rpar)
-                ).setParseAction(self.pushUMinus)
+        atom = (
+            (
+                pyp.Optional(pyp.oneOf("- +"))
+                + (pi | e | fnumber | ident + lpar + expr + rpar).setParseAction(
+                    self.pushFirst
+                )
+            )
+            | pyp.Optional(pyp.oneOf("- +")) + pyp.Group(lpar + expr + rpar)
+        ).setParseAction(self.pushUMinus)
         # by defining exponentiation as "atom [ ^ factor ]..." instead of
         # "atom [ ^ atom ]...", we get right-to-left exponents, instead of left-to-right
         # that is, 2^3^2 = 2^(3^2), not (2^3)^2.
         factor = pyp.Forward()
-        factor << atom + pyp.ZeroOrMore((expop + factor).setParseAction(
-            self.pushFirst))
-        term = factor + pyp.ZeroOrMore((multop + factor).setParseAction(
-            self.pushFirst))
+        factor << atom + pyp.ZeroOrMore((expop + factor).setParseAction(self.pushFirst))
+        term = factor + pyp.ZeroOrMore((multop + factor).setParseAction(self.pushFirst))
         expr << term + pyp.ZeroOrMore((addop + term).setParseAction(self.pushFirst))
         self.bnf = expr
         # map operator symbols to corresponding arithmetic operations
@@ -78,13 +83,13 @@ class NumericStringParser(object):
             "-": operator.sub,
             "*": operator.mul,
             "/": operator.truediv,
-            "^": operator.pow
+            "^": operator.pow,
         }
         self.fn = {
             "abs": abs,
             "trunc": lambda a: int(a),
             "round": round,
-            "sgn": lambda a: abs(a) > epsilon and a > 0 or 0
+            "sgn": lambda a: abs(a) > epsilon and a > 0 or 0,
         }
 
         for n in dir(math):
@@ -97,7 +102,7 @@ class NumericStringParser(object):
     def evaluateStack(self, s):
         """Evaluate content of stack."""
         op = s.pop()
-        if op == 'unary -':
+        if op == "unary -":
             return -self.evaluateStack(s)
         if op in "+-*/^":
             op2 = self.evaluateStack(s)

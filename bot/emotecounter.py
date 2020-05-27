@@ -40,7 +40,7 @@ class EmoteCounter(object):
 
     # for debugging only
     # def showRecord(self):
-        # return self.emoteRecord
+    # return self.emoteRecord
 
     # NOTE: Not minute if holdingTime is not 60
     def getMinuteCount(self, emote):
@@ -54,7 +54,7 @@ class EmoteCounter(object):
 
         # This is like Priority Queue (priority, task), we have (time, emote)
         # The order of content (emote) is unimportant for this case
-        while(len(self.emoteRecord) > 0 and timeLimit > self.emoteRecord[0][0]):
+        while len(self.emoteRecord) > 0 and timeLimit > self.emoteRecord[0][0]:
             emoteEntry = self.emoteRecord.popleft()[1]
             self.__updateMinuteCount(emoteEntry, minus=True)
 
@@ -74,7 +74,11 @@ class EmoteCounter(object):
         for k in emoteEntry:
             if k not in self.emoteCount:
                 if minus:
-                    raise ValueError("Attempt to minus count on non-exist entries of {} in emoteCount".format(k))
+                    raise ValueError(
+                        "Attempt to minus count on non-exist entries of {} in emoteCount".format(
+                            k
+                        )
+                    )
                 else:
                     self.emoteCount[k] = 0
             self.emoteCount[k] += emoteEntry[k] * multiplier
@@ -121,17 +125,23 @@ class EmoteCounterForBot(EmoteCounter):
                     # If there are new emotes, add them here
                     for emote in self.bot.getEmotes():
                         if emote not in totalData:
-                            logging.info("New emote {} added to Twitch/BTTV, adding it to count file".format(emote))
+                            logging.info(
+                                "New emote {} added to Twitch/BTTV, adding it to count file".format(
+                                    emote
+                                )
+                            )
                             totalData[emote] = 0
                             refreshFile = True
 
-        except FileNotFoundError: # noqa
+        except FileNotFoundError:  # noqa
             logging.info("No EmoteCountFile found, creating new one.")
             totalData = self.__createEmptyTotalList()
             refreshFile = True
 
         if refreshFile:
-            with open(STATISTIC_FILE.format(self.bot.root), 'w+', encoding="utf-8") as file:
+            with open(
+                STATISTIC_FILE.format(self.bot.root), "w+", encoding="utf-8"
+            ) as file:
                 json.dump(totalData, file, indent=4)
 
     def __createEmptyTotalList(self):
@@ -157,7 +167,7 @@ class EmoteCounterForBot(EmoteCounter):
             else:
                 totalCount[emote] = emoteDict[emote]
 
-        with open(STATISTIC_FILE.format(self.bot.root), 'w', encoding="utf-8") as file:
+        with open(STATISTIC_FILE.format(self.bot.root), "w", encoding="utf-8") as file:
             json.dump(totalCount, file, indent=4)
 
     def __countEmotes(self, msg):
@@ -167,7 +177,7 @@ class EmoteCounterForBot(EmoteCounter):
         """
         emoteDict = {}
         splitMsg = msg.strip()
-        splitMsg = splitMsg.split(' ')
+        splitMsg = splitMsg.split(" ")
 
         for m in splitMsg:
             if m in self.bot.getEmotes():
