@@ -3,8 +3,8 @@ import random
 
 from bot.commands.command import Command
 from bot.utilities.permission import Permission
-from bot.utilities.startgame import startGame
-from bot.utilities.tools import EmoteListToString
+from bot.utilities.startgame import start_game
+from bot.utilities.tools import emote_list_to_string
 
 
 class GuessEmoteGame(Command):
@@ -24,7 +24,7 @@ class GuessEmoteGame(Command):
         self.emotes = []
         self.emote = ""
 
-    def initGame(self, bot, msg):
+    def init_game(self, bot, msg):
         """Initialize GuessEmoteGame."""
         emotelist = []
 
@@ -63,9 +63,9 @@ class GuessEmoteGame(Command):
     def match(self, bot, user, msg, tag_info):
         """Match if the game is active or gets started with !estart."""
         return (
-            self.active
-            or startGame(bot, user, msg, "!estart")
-            or startGame(bot, user, msg, "!rngestart")
+                self.active
+                or start_game(bot, user, msg, "!estart")
+                or start_game(bot, user, msg, "!rngestart")
         )
 
     def run(self, bot, user, msg, tag_info):
@@ -75,9 +75,9 @@ class GuessEmoteGame(Command):
 
         if not self.active:
             self.active = True
-            self.initGame(bot, msg)
+            self.init_game(bot, msg)
             print("Right emote: " + self.emote)
-            var = {"<MULTIEMOTES>": EmoteListToString(self.emotes)}
+            var = {"<MULTIEMOTES>": emote_list_to_string(self.emotes)}
             bot.write(bot.replace_vars(self.responses["start_msg"]["msg"], var))
         else:
             if cmd == "!estop" and bot.get_permission(user) not in [
@@ -96,11 +96,11 @@ class GuessEmoteGame(Command):
                     "<AMOUNT>": bot.EMOTEGAMEP,
                 }
                 bot.write(bot.replace_vars(self.responses["winner_msg"]["msg"], var))
-                bot.ranking.incrementPoints(user, bot.EMOTEGAMEP, bot)
+                bot.ranking.increment_points(user, bot.EMOTEGAMEP, bot)
                 bot.gameRunning = False
                 self.active = False
             elif cmd == "!emotes":
-                var = {"<MULTIEMOTES>": EmoteListToString(self.emotes)}
+                var = {"<MULTIEMOTES>": emote_list_to_string(self.emotes)}
                 bot.write(bot.replace_vars(self.responses["emote_msg"]["msg"], var))
 
     def close(self, bot):

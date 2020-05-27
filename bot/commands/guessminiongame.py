@@ -5,8 +5,8 @@ from twisted.internet import reactor
 
 from bot.commands.command import Command
 from bot.utilities.permission import Permission
-from bot.utilities.startgame import startGame
-from bot.utilities.tools import is_callID_active
+from bot.utilities.startgame import start_game
+from bot.utilities.tools import is_call_id_active
 
 
 class GuessMinionGame(Command):
@@ -72,7 +72,7 @@ class GuessMinionGame(Command):
         """Start of threading"""
         self.callID = reactor.callLater(self.cluetime, self.giveClue, bot)
 
-    def initGame(self, bot):
+    def init_game(self, bot):
         """Initialize GuessMinionGame."""
         self.attributes = [
             "cardClass",
@@ -91,7 +91,7 @@ class GuessMinionGame(Command):
 
     def match(self, bot, user, msg, tag_info):
         """Match if the game is active or gets started with !mstart."""
-        return self.active or startGame(bot, user, msg, "!mstart")
+        return self.active or start_game(bot, user, msg, "!mstart")
 
     def run(self, bot, user, msg, tag_info):
         """On first run initialize game."""
@@ -100,7 +100,7 @@ class GuessMinionGame(Command):
 
         if not self.active:
             self.active = True
-            self.initGame(bot)
+            self.init_game(bot)
             print("Right Minion: " + self.minion["name"])
             bot.write(self.responses["start_msg"]["msg"])
             self.giveClue(bot)
@@ -122,12 +122,12 @@ class GuessMinionGame(Command):
                     "<AMOUNT>": bot.MINIONGAMEP,
                 }
                 bot.write(bot.replace_vars(self.responses["winner_msg"]["msg"], var))
-                bot.ranking.incrementPoints(user, bot.MINIONGAMEP, bot)
+                bot.ranking.increment_points(user, bot.MINIONGAMEP, bot)
                 self.close(bot)
 
     def close(self, bot):
         """Close minion game."""
-        if is_callID_active(self.callID):
+        if is_call_id_active(self.callID):
             self.callID.cancel()
         self.active = False
         bot.gameRunning = False

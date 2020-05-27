@@ -39,12 +39,18 @@ class MultiBotIRCClient(irc.IRCClient, object):
         self.sendLine("CAP REQ :twitch.tv/commands")
         self.sendLine("CAP REQ :twitch.tv/tags")
 
-        joinedChannels = []
+        joined_channels = []
         for b in MultiBotIRCClient.bots:
             b.irc = self
-            if b.channel not in joinedChannels:
+            if b.channel not in joined_channels:
                 self.join(b.channel)
-                joinedChannels.append(b.channel)
+                joined_channels.append(b.channel)
+
+    def rawDataReceived(self, data):
+        pass
+
+    def dccSend(self, user, file):
+        pass
 
     def joined(self, channel):
         """Log when channel is joined."""
@@ -55,26 +61,6 @@ class MultiBotIRCClient(irc.IRCClient, object):
 
     # def privmsg(self, user, channel, msg):
     # pass
-
-    def twitch_privmsg(self, user, channel, msg, tags):
-        """React to messages in a channel."""
-        # http://twisted.readthedocs.io/en/twisted-17.9.0/words/howto/ircserverclientcomm.html
-        # Twisted 17.9.0 still have not implemented receiving messages with Tags yet
-        # So we have to try to do something similar here.
-        # Once it is implemented, we can probably just copy and paste the content here to the updated privmsg()
-
-        # Extract twitch name
-        name = user.split("!", 1)[0]
-
-        # Log the message
-        logging.info("[{}] {}: {}".format(channel, name, msg))
-
-        # print("Show tags", tags)
-        tag_info = self.parseTagForChatMessage(tags)
-
-        for b in MultiBotIRCClient.bots:
-            if b.channel == channel:
-                b.process_command(name, msg, tag_info)
 
     def modeChanged(self, user, channel, added, modes, args):
         """Not sure what this does. Maybe gets called when mods get added/removed."""
@@ -103,7 +89,7 @@ class MultiBotIRCClient(irc.IRCClient, object):
             # remove 1st '@', then take everything until the 1st space
             tags_str, s = s[1:].split(" ", 1)
             tag_list = tags_str.split(";")
-            tags = self.unescapeTags(dict(t.split("=") for t in tag_list))
+            tags = self.unescape_tags(dict(t.split("=") for t in tag_list))
         if s[0] == ":":
             prefix, s = s[1:].split(" ", 1)
         if s.find(" :") != -1:
@@ -115,16 +101,80 @@ class MultiBotIRCClient(irc.IRCClient, object):
         command = args.pop(0).lower()
         return tags, prefix, command, args
 
-    def parseIRCLastLine(self, args):
-        # normal has 2 objects inside only, check the quoted part
-        # :tmi.twitch.tv USERNOTICE '#dallas :Great stream -- keep it up!'
+    def write(self, channel, msg):
+        """Send message to channel and log it."""
+        self.msg(channel, msg)
+        logging.info("[{}] {}: {}".format(channel, self.nickname, msg))
+
+    def lineReceived(self, line):
+        """Parse IRC line."""
+        line = line.decode("utf-8")
+        # First, we check for any custom twitch commands
+        tags, prefix, cmd, args = self.parsemsg(line)
+
+        # print("< " + line)
+
+        if cmd == "hosttarget":
+            self.host_target(*args)
+        elif cmd == "clearchat":
+            self.clear_chat(*args)
+        elif cmd == "notice":
+            self.send_notice(prefix, tags, args)
+        elif cmd == "privmsg":
+            self.user_state(prefix, tags, args)
+
+            # Now we do the parse chat message ourself, not by privmsg() anymore
+            # copy from twisted's irc.py
+            user = prefix
+            channel, message = self.parse_irc_last_line(args)
+            self.twitch_privmsg(user, channel, message, tags)
+
+        # elif cmd == "whisper":
+        # pass
+        elif cmd == "usernotice":
+            channel, msg = self.parse_irc_last_line(args)
+            for b in MultiBotIRCClient.bots:
+                if b.channel == channel:
+                    self.handle_usernotice(b, tags, msg)
+
+        # Remove tag information
+        if line[0] == "@":
+            line = line.split(" ", 1)[1]
+
+        # Then we let IRCClient handle the rest
+        super().lineReceived(line)
+
+    def twitch_privmsg(self, user, channel, msg, tags):
+        """React to messages in a channel."""
+        # http://twisted.readthedocs.io/en/twisted-17.9.0/words/howto/ircserverclientcomm.html
+        # Twisted 17.9.0 still have not implemented receiving messages with Tags yet
+        # So we have to try to do something similar here.
+        # Once it is implemented, we can probably just copy and paste the content here to the updated privmsg()
+
+        # Extract twitch name
+        name = user.split("!", 1)[0]
+
+        # Log the message
+        logging.info("[{}] {}: {}".format(channel, name, msg))
+
+        # print("Show tags", tags)
+        tag_info = self.parse_tag_for_chat_message(tags)
+
+        for b in MultiBotIRCClient.bots:
+            if b.channel == channel:
+                b.process_command(name, msg, tag_info)
+
+    @staticmethod
+    def parse_irc_last_line(args):
+        """normal has 2 objects inside only, check the quoted part
+        # :tmi.twitch.tv USERNOTICE '#dallas :Great stream -- keep it up!'"""
         channel = args[0]
         msg = args[-1]
-
         return channel, msg
 
-    def unescapeTags(self, tags):
-        # http://ircv3.net/specs/core/message-tags-3.2.html#escaping-values
+    @staticmethod
+    def unescape_tags(tags):
+        """http://ircv3.net/specs/core/message-tags-3.2.html#escaping-values"""
         for k, v in tags.items():
             content = v
 
@@ -141,53 +191,11 @@ class MultiBotIRCClient(irc.IRCClient, object):
 
         return tags
 
-    def write(self, channel, msg):
-        """Send message to channel and log it."""
-        self.msg(channel, msg)
-        logging.info("[{}] {}: {}".format(channel, self.nickname, msg))
-
-    def lineReceived(self, line):
-        """Parse IRC line."""
-        line = line.decode("utf-8")
-        # First, we check for any custom twitch commands
-        tags, prefix, cmd, args = self.parsemsg(line)
-
-        # print("< " + line)
-
-        if cmd == "hosttarget":
-            self.hostTarget(*args)
-        elif cmd == "clearchat":
-            self.clearChat(*args)
-        elif cmd == "notice":
-            self.notice(prefix, tags, args)
-        elif cmd == "privmsg":
-            self.userState(prefix, tags, args)
-
-            # Now we do the parse chat message ourself, not by privmsg() anymore
-            # copy from twisted's irc.py
-            user = prefix
-            channel, message = self.parseIRCLastLine(args)
-            self.twitch_privmsg(user, channel, message, tags)
-
-        # elif cmd == "whisper":
-        # pass
-        elif cmd == "usernotice":
-            channel, msg = self.parseIRCLastLine(args)
-            for b in MultiBotIRCClient.bots:
-                if b.channel == channel:
-                    self.handleUSERNOTICE(b, tags, msg)
-
-        # Remove tag information
-        if line[0] == "@":
-            line = line.split(" ", 1)[1]
-
-        # Then we let IRCClient handle the rest
-        super().lineReceived(line)
-
-    def handleUSERNOTICE(self, bot, tags, msg):
-        # https://dev.twitch.tv/docs/irc#usernotice-twitch-tags
-        # Use 'msg-id' to identify type of action - only sub, resub, raid, ritual currently on 19.11.2017
-        # another way could be using unique tags for special type of message
+    @staticmethod
+    def handle_usernotice(bot, tags, msg):
+        """ https://dev.twitch.tv/docs/irc#usernotice-twitch-tags
+        Use 'msg-id' to identify type of action - only sub, resub, raid, ritual currently on 19.11.2017
+        another way could be using unique tags for special type of message"""
 
         # pass in msg just in case we need them later
         msg_type = tags["msg-id"]
@@ -201,7 +209,7 @@ class MultiBotIRCClient(irc.IRCClient, object):
             # seems cannot add custom message like normal sub at 20/12/17
             bot.subGift(tags)
 
-    def userState(self, prefix, tags, args):
+    def user_state(self, prefix, tags, args):
         # NOTE: In Twitch IRC, USERSTATE can be called in 2 ways:
         # part of PRIVMSG (in this function) or called directly if we define irc_USERSTATE()
         """Update user list when user leaves."""
@@ -212,9 +220,10 @@ class MultiBotIRCClient(irc.IRCClient, object):
         for b in MultiBotIRCClient.bots:
             # our bot store channel starting with '#'
             if b.channel == channel:
-                b.userState(prefix, tags)
+                b.user_state(prefix, tags)
 
-    def irc_WHISPER(self, prefix, args):
+    @staticmethod
+    def irc_whisper(prefix, args):
         """Method to let twisted to handle non standard IRC message (whisper)."""
         # sender: string of username, the whisper sender
         sender = prefix.split("!")[0]
@@ -225,21 +234,24 @@ class MultiBotIRCClient(irc.IRCClient, object):
             if b.nickname == args[0]:
                 b.handleWhisper(sender, args[1])
 
-    def hostTarget(self, channel, target):
+    @staticmethod
+    def host_target(channel, target):
         """Track and update hosting status."""
         target = target.split(" ")[0]
         for b in MultiBotIRCClient.bots:
             if b.channel == channel:
                 b.setHost(channel, target)
 
-    def clearChat(self, channel, target=None):
+    @staticmethod
+    def clear_chat(channel, target=None):
         """Log chat clear notices."""
         if target:
             logging.warning("[{}] {} was timed out".format(channel, target))
         else:
             logging.warning("[{}] chat was cleared".format(channel))
 
-    def notice(self, prefix, tags, args):
+    @staticmethod
+    def send_notice(prefix, tags, args):
         """Log all chat mode changes."""
         if "msg-id" not in tags:
             return
@@ -259,23 +271,21 @@ class MultiBotIRCClient(irc.IRCClient, object):
         elif msg_id == "r9k_off":
             logging.warning("[{}] R9K mode OFF".format(channel))
 
-    def parseTagForChatMessage(self, tags):
+    @staticmethod
+    def parse_tag_for_chat_message(tags):
         """Return a simple dict for normal chat message from tags."""
 
         # I prefer parse tag here for chat messages instead of parsing in bot.py
-        result = {}
+        result = {"display_name": tags.get("display-name", None), "user_id": tags["user-id"],
+                  "is_mod": tags["mod"] == "1", "is_sub": tags["subscriber"] == "1",
+                  "is_broadcaster": "broadcaster" in tags["badges"],
+                  "twitch_emote_only": tags.get("emote-only", False) == "1"}
 
         # not an exhaustive parse, just get something useful for us now
-        result["display_name"] = tags.get("display-name", None)
-        result["user_id"] = tags["user-id"]
-        result["is_mod"] = tags["mod"] == "1"
-        result["is_sub"] = tags["subscriber"] == "1"
         # stremer can get is_mod and is_sub False too
-        result["is_broadcaster"] = "broadcaster" in tags["badges"]
 
         # won't even have 'emote-only' tag if 'not emote only' actually
         # Only True when all message is only emote (no other text)
-        result["twitch_emote_only"] = tags.get("emote-only", False) == "1"
 
         emote_result = {}
         emote_result_string = tags["emotes"]

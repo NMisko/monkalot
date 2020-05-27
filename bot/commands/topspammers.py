@@ -23,7 +23,7 @@ class TopSpammers(Command):
     def run(self, bot, user, msg, tag_info):
         """Return the top spammers."""
         self.responses = bot.responses["TopSpammers"]
-        ranking = bot.ranking.getTopSpammers(5)
+        ranking = bot.ranking.get_top_spammers(5)
         out = self.responses["heading"]["msg"]
         if len(ranking) > 0:
             # TODO: use a template string to do this?
@@ -42,7 +42,7 @@ class TopSpammers(Command):
                     displayName = "☠️"
 
                 top.append(
-                    "{}: Rank {}".format(displayName, bot.ranking.getHSRank(point))
+                    "{}: Rank {}".format(displayName, bot.ranking.get_hs_rank(point))
                 )
 
             out += ", ".join(top)

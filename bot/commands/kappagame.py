@@ -3,7 +3,7 @@ import random
 
 from bot.commands.command import Command
 from bot.utilities.permission import Permission
-from bot.utilities.startgame import startGame
+from bot.utilities.startgame import start_game
 
 
 class KappaGame(Command):
@@ -23,7 +23,7 @@ class KappaGame(Command):
 
     def match(self, bot, user, msg, tag_info):
         """Match if the game is active or gets started with !kstart by a user who pays 5 points."""
-        return self.active or startGame(bot, user, msg, "!kstart")
+        return self.active or start_game(bot, user, msg, "!kstart")
 
     def run(self, bot, user, msg, tag_info):
         """Generate a random number n when game gets first started. Afterwards, check if a message contains the emote n times."""
@@ -45,11 +45,11 @@ class KappaGame(Command):
                 bot.write(self.responses["stop_msg"]["msg"])
                 return
 
-            i = self.countEmotes(cmd, "Kappa")
+            i = self.count_emotes(cmd, "Kappa")
             if i == self.n:
                 var = {"<USER>": bot.displayName(user), "<AMOUNT>": self.n}
                 bot.write(bot.replace_vars(self.responses["winner_msg"]["msg"], var))
-                bot.ranking.incrementPoints(user, bot.KAPPAGAMEP, bot)
+                bot.ranking.increment_points(user, bot.KAPPAGAMEP, bot)
                 bot.gameRunning = False
                 self.active = False
                 self.answered = []
@@ -61,7 +61,8 @@ class KappaGame(Command):
                     )
                     self.answered.append(i)
 
-    def countEmotes(self, msg, emote):
+    @staticmethod
+    def count_emotes(msg, emote):
         """Count the number of emotes in a message."""
         msg = msg.strip()
         arr = msg.split(" ")

@@ -102,46 +102,49 @@ class WebAPI(object):
         """Stop the server."""
         api_server.stop()
 
+    @staticmethod
     @route("/hello")
     def hello():
         """Return hw."""
         return "Hello World!\n"
 
+    @staticmethod
     @route("/bots", method="POST")
-    def getBots():
+    def get_bots():
         """Return list of all bots for given user."""
-        WebAPI.checkIfFormExists(["user", "auth"])
+        WebAPI.check_if_form_exists(["user", "auth"])
         username = urllib.parse.unquote(request.forms.user)
         auth = urllib.parse.unquote(request.forms.auth)
 
-        if not WebAPI.hasUserPermission(username, auth):
+        if not WebAPI.has_user_permission(username, auth):
             abort(403, "Bad authentication")
 
         logging.info("[API] [User: {}] /bots ".format(username))
         bots = []
         for bot in api_bots:
-            if WebAPI.hasBotPermission(username, bot):
+            if WebAPI.has_bot_permission(username, bot):
                 bots.append(bot)
 
         out = []
         for bot in bots:
-            out.append(WebAPI.getBotName(bot))
+            out.append(WebAPI.get_bot_name(bot))
         return json.dumps(out)
 
+    @staticmethod
     @route("/files", method="POST")
-    def getFiles():
+    def get_files():
         """Return list of all modifiable files for a given bot."""
-        WebAPI.checkIfFormExists(["user", "bot", "auth"])
+        WebAPI.check_if_form_exists(["user", "bot", "auth"])
         username = urllib.parse.unquote(request.forms.user)
         botname = urllib.parse.unquote(request.forms.bot)
         auth = urllib.parse.unquote(request.forms.auth)
 
-        bot = WebAPI.getBot(botname)
+        bot = WebAPI.get_bot(botname)
 
-        if not WebAPI.hasUserPermission(username, auth):
+        if not WebAPI.has_user_permission(username, auth):
             abort(403, "Bad authentication")
 
-        if not WebAPI.hasBotPermission(username, bot):
+        if not WebAPI.has_bot_permission(username, bot):
             abort(403, "User doesn't have access to this bot.")
 
         logging.info("[API] [#{}] [User: {}] /files ".format(botname, username))
@@ -154,20 +157,21 @@ class WebAPI(object):
                 out.append(d)
         return json.dumps(out)
 
+    @staticmethod
     @route("/file", method="POST")
-    def getFile():
+    def get_file():
         """Return the content of a specific file."""
-        WebAPI.checkIfFormExists(["user", "bot", "file", "auth"])
+        WebAPI.check_if_form_exists(["user", "bot", "file", "auth"])
         username = urllib.parse.unquote(request.forms.user)
         botname = urllib.parse.unquote(request.forms.bot)
         filename = urllib.parse.unquote(request.forms.file)
         auth = urllib.parse.unquote(request.forms.auth)
 
-        bot = WebAPI.getBot(botname)
-        if not WebAPI.hasUserPermission(username, auth):
+        bot = WebAPI.get_bot(botname)
+        if not WebAPI.has_user_permission(username, auth):
             abort(403, "Bad authentication")
 
-        if not WebAPI.hasBotPermission(username, bot):
+        if not WebAPI.has_bot_permission(username, bot):
             abort(403, "User doesn't have access to this bot.")
 
         # For security
@@ -191,21 +195,22 @@ class WebAPI(object):
 
         return {"content": data}
 
+    @staticmethod
     @route("/setfile", method="POST")
-    def setFile():
+    def set_file():
         """Set the json of a specific file."""
-        WebAPI.checkIfFormExists(["user", "bot", "file", "content", "auth"])
+        WebAPI.check_if_form_exists(["user", "bot", "file", "content", "auth"])
         username = urllib.parse.unquote(request.forms.user)
         botname = urllib.parse.unquote(request.forms.bot)
         filename = urllib.parse.unquote(request.forms.file)
         content = urllib.parse.unquote(request.forms.content)
         auth = urllib.parse.unquote(request.forms.auth)
 
-        bot = WebAPI.getBot(botname)
-        if not WebAPI.hasUserPermission(username, auth):
+        bot = WebAPI.get_bot(botname)
+        if not WebAPI.has_user_permission(username, auth):
             abort(403, "Bad authentication")
 
-        if not WebAPI.hasBotPermission(username, bot):
+        if not WebAPI.has_bot_permission(username, bot):
             abort(403, "User doesn't have access to this bot.")
 
         try:
@@ -234,31 +239,33 @@ class WebAPI(object):
 
         bot.reloadConfig()
 
+    @staticmethod
     @route("/getTwitchUsername", method="POST")
-    def getUserNameI():
+    def get_user_name_i():
         """Get the username based on an id_token. Also verifies token."""
-        WebAPI.checkIfFormExists(["auth"])
+        WebAPI.check_if_form_exists(["auth"])
         auth = urllib.parse.unquote(request.forms.auth)
 
-        username = WebAPI.getUserNameAndVerifyToken(auth)
+        username = WebAPI.get_user_name_and_verify_token(auth)
         logging.info("[API] /getTwitchUsername => {} ".format(username))
 
         return {"username": username}
 
+    @staticmethod
     @route("/pause", method="POST")
     def pause():
         """Pause or unpause a bot."""
-        WebAPI.checkIfFormExists(["user", "bot", "auth", "pause"])
+        WebAPI.check_if_form_exists(["user", "bot", "auth", "pause"])
         username = urllib.parse.unquote(request.forms.user)
         botname = urllib.parse.unquote(request.forms.bot)
         auth = urllib.parse.unquote(request.forms.auth)
         pause = urllib.parse.unquote(request.forms.pause)
 
-        bot = WebAPI.getBot(botname)
-        if not WebAPI.hasUserPermission(username, auth):
+        bot = WebAPI.get_bot(botname)
+        if not WebAPI.has_user_permission(username, auth):
             abort(403, "Bad authentication")
 
-        if not WebAPI.hasBotPermission(username, bot):
+        if not WebAPI.has_bot_permission(username, bot):
             abort(403, "User doesn't have access to this bot.")
 
         logging.info(
@@ -272,28 +279,32 @@ class WebAPI(object):
         else:
             abort(400, "pause must be either 'True' or 'False'")
 
-    def checkIfFormExists(keys):
+    @staticmethod
+    def check_if_form_exists(keys):
         """Get all forms for the given keys."""
         for k in keys:
             if k not in request.forms:
                 abort(400, "Bad Request, expecting the following data:\n" + str(keys))
 
-    def getBot(botname):
+    @staticmethod
+    def get_bot(botname):
         """Return the correct bot, based on its directory name."""
         bot = None
         for b in api_bots:
-            if WebAPI.getBotName(b) == botname:
+            if WebAPI.get_bot_name(b) == botname:
                 bot = b
         if bot is None:
             abort(404, 'Bot "' + botname + '"not found.\n')
 
         return bot
 
-    def getBotName(bot):
+    @staticmethod
+    def get_bot_name(bot):
         """Return the correct bot name, based on its bot."""
         return bot.root.split("/")[len(bot.root.split("/")) - 2]
 
-    def hasUserPermission(username, auth):
+    @staticmethod
+    def has_user_permission(username, auth):
         """Check if the user is authenticated."""
         # Check for password
         if api_password is not None:
@@ -301,19 +312,21 @@ class WebAPI(object):
                 return True
 
         # If auth doesn't match password, assume id_token is submitted. Verify it.
-        id_token_username = WebAPI.getUserNameAndVerifyToken(auth)
+        id_token_username = WebAPI.get_user_name_and_verify_token(auth)
 
         # Compare username from id_token with given username
         return username == id_token_username
 
-    def hasBotPermission(username, bot):
+    @staticmethod
+    def has_bot_permission(username, bot):
         """Check if the user is allowed to access the bot."""
         with open(CONFIG_PATH.format(bot.root), "r", encoding="utf-8") as file:
             CONFIG = json.load(file)
         admins = CONFIG["owner_list"]
         return username in admins
 
-    def getUserNameAndVerifyToken(auth):
+    @staticmethod
+    def get_user_name_and_verify_token(auth):
         """Verify id_token and returns the username."""
         r = requests.get(OIDC_API)
         if r.status_code != 200:

@@ -21,9 +21,9 @@ class WebCache:
 
         If a 'function' is defined, the result of 'function(json)' gets returned.
         """
-        if self.isExpired(url):
+        if self.is_expired(url):
             timestamp = datetime.now()
-            json = self.loadJSON(url)
+            json = self.load_json(url)
             if json:
                 if function is not None:
                     result = function(json)
@@ -44,14 +44,15 @@ class WebCache:
         else:
             return self.data[url][0]
 
-    def isExpired(self, url):
+    def is_expired(self, url):
         """Return whether recent data exists for the given url."""
         if url in self.data:
             return (datetime.now() - self.data[url][1]).seconds > self.duration
         else:
             return True
 
-    def loadJSON(self, url):
+    @staticmethod
+    def load_json(url):
         """Load a JSON from an url, return False if something fails."""
         try:
             r = requests.get(url)

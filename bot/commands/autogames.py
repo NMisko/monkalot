@@ -5,7 +5,7 @@ from twisted.internet import reactor
 
 from bot.commands.command import Command
 from bot.utilities.permission import Permission
-from bot.utilities.tools import is_callID_active
+from bot.utilities.tools import is_call_id_active
 
 
 class AutoGames(Command):
@@ -19,7 +19,7 @@ class AutoGames(Command):
         self.active = False
         self.callID = None
 
-    def randomGame(self, bot):
+    def random_game(self, bot):
         """Start a random game."""
         gamecmds = ["!kstart", "!estart", "!mstart", "!pstart"]
 
@@ -38,7 +38,7 @@ class AutoGames(Command):
             bot.process_command(user, cmd)
 
         """ start of threading """
-        self.callID = reactor.callLater(bot.AUTO_GAME_INTERVAL, self.randomGame, bot)
+        self.callID = reactor.callLater(bot.AUTO_GAME_INTERVAL, self.random_game, bot)
 
     def match(self, bot, user, msg, tag_info):
         """Match if message starts with !games."""
@@ -56,13 +56,13 @@ class AutoGames(Command):
             if not self.active:
                 self.active = True
                 self.callID = reactor.callLater(
-                    bot.AUTO_GAME_INTERVAL, self.randomGame, bot
+                    bot.AUTO_GAME_INTERVAL, self.random_game, bot
                 )
                 bot.write(self.responses["autogames_activate"]["msg"])
             else:
                 bot.write(self.responses["autogames_already_on"]["msg"])
         elif cmd == "off":
-            if is_callID_active(self.callID):
+            if is_call_id_active(self.callID):
                 self.callID.cancel()
             if self.active:
                 self.active = False
@@ -72,6 +72,6 @@ class AutoGames(Command):
 
     def close(self, bot):
         """Close the game."""
-        if is_callID_active(self.callID):
+        if is_call_id_active(self.callID):
             self.callID.cancel()
         self.active = False

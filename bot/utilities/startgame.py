@@ -4,7 +4,7 @@ import time
 from bot.utilities.permission import Permission
 
 
-def startGame(bot, user, msg, cmd):
+def start_game(bot, user, msg, cmd):
     """Return whether a user can start a game.
 
     Takes off points if a non moderator wants to start a game.
@@ -21,9 +21,9 @@ def startGame(bot, user, msg, cmd):
         """Check if pleb_gametimer is not on cooldown."""
         if (time.time() - bot.last_plebgame) > bot.pleb_gametimer:
             # The calling user is not a mod, so we subtract 5 points.
-            if bot.ranking.getPoints(user) > bot.GAMESTARTP:
+            if bot.ranking.get_points(user) > bot.GAMESTARTP:
                 bot.setlast_plebgame(time.time())  # Set pleb_gametimer
-                bot.ranking.incrementPoints(user, -bot.GAMESTARTP, bot)
+                bot.ranking.increment_points(user, -bot.GAMESTARTP, bot)
                 bot.gameRunning = True
                 return True
             else:

@@ -18,7 +18,7 @@ class Questions(Command):
         """Initialize the command."""
         self.calc = Calculator(bot)
 
-    def wordInMsg(self, wordlist, msg):
+    def word_in_msg(self, wordlist, msg):
         """Check if one of the words is in the string. Returns index + 1, can be used as boolean."""
         for i in range(0, len(wordlist)):
             if wordlist[i] in msg.lower():
@@ -26,8 +26,8 @@ class Questions(Command):
 
     def match(self, bot, user, msg, tag_info):
         """Match if the bot is tagged, the sentence contains 'what is' (in various forms) or proper math syntax."""
-        if bot.nickname.lower() in msg.lower() and self.wordInMsg(self.whatis, msg):
-            index = self.wordInMsg(self.whatis, msg)
+        if bot.nickname.lower() in msg.lower() and self.word_in_msg(self.whatis, msg):
+            index = self.word_in_msg(self.whatis, msg)
             cmd = (
                 msg.lower()
                 .replace(self.whatis[index - 1], "")
@@ -35,14 +35,14 @@ class Questions(Command):
                 .replace(bot.nickname, "")
                 .replace("?", "")
             )
-            if self.wordInMsg(self.twohead, msg) or self.calc.checkSymbols(cmd):
+            if self.word_in_msg(self.twohead, msg) or self.calc.check_symbols(cmd):
                 bot.antispeech = True
                 return True
 
     def run(self, bot, user, msg, tag_info):
         """Define answers based on pieces in the message."""
-        index = self.wordInMsg(self.whatis, msg)
-        if self.wordInMsg(self.twohead, msg):
+        index = self.word_in_msg(self.whatis, msg)
+        if self.word_in_msg(self.twohead, msg):
             bot.write("@" + bot.displayName(user) + " It's 4Head")
         else:
             cmd = (

@@ -36,14 +36,14 @@ class Ranking:
     def _get_user_id(self, username):
         return self.bot.getuserID(username)
 
-    def getPoints(self, username, new_entry=False):
+    def get_points(self, username, new_entry=False):
         """Get the points of a user."""
         username = username.lower()
         viewer_id = self._get_user_id(username)
 
         sql_command = "SELECT amount FROM points WHERE viewer_id = ?;"
 
-        cursor, connection = self.executeCommandGetConnection(sql_command, (viewer_id,))
+        cursor, connection = self.execute_command_get_connection(sql_command, (viewer_id,))
         one = cursor.fetchone()
 
         if one is None:
@@ -63,7 +63,7 @@ class Ranking:
         connection.close()
         return output
 
-    def incrementPoints(self, username, amount, bot):
+    def increment_points(self, username, amount, bot):
         """Increment points of a user by a certain value.
 
         Check if the user reached legend in the process.
@@ -71,44 +71,44 @@ class Ranking:
         username = username.lower()
         viewer_id = self._get_user_id(username)
 
-        points = int(self.getPoints(username, new_entry=True))
+        points = int(self.get_points(username, new_entry=True))
 
-        rank = self.getHSRank(points)
+        rank = self.get_hs_rank(points)
         legend = "Legend" in rank
 
         points += amount
 
         sql_command = "UPDATE points SET amount = ? WHERE viewer_id = ?;"
-        self.executeCommand(sql_command, [points, viewer_id])
+        self.execute_command(sql_command, [points, viewer_id])
 
         """Check for legend rank if user was not legend before."""
         if not legend:
-            rank = self.getHSRank(points)
+            rank = self.get_hs_rank(points)
             if "Legend" in rank:
                 var = {"<USER>": bot.displayName(username), "<RANK>": rank}
                 bot.write(
                     bot.replace_vars(bot.responses["ranking"]["msg_legend"]["msg"], var)
                 )
 
-    def getRank(self, points):
+    def get_rank(self, points):
         """Get the absolute for a certain amount of points."""
         sql_command = "SELECT * FROM points WHERE amount > ?;"
-        cursor, connection = self.executeCommandGetConnection(sql_command, [points])
+        cursor, connection = self.execute_command_get_connection(sql_command, [points])
 
         all = cursor.fetchall()
         cursor.close()
         connection.close()
         return len(all) + 1
 
-    def getTopSpammers(self, n):
+    def get_top_spammers(self, n):
         """Get the n top spammers."""
         sql_command = "SELECT * FROM points ORDER BY amount DESC;"
-        cursor, connection = self.executeCommandGetConnection(sql_command, [])
+        cursor, connection = self.execute_command_get_connection(sql_command, [])
         all = cursor.fetchall()
 
         return all[:n]
 
-    def getHSRank(self, points):
+    def get_hs_rank(self, points):
         """Return spam rank of a user in hearthstone units."""
         p = points
         rank = self.RANKS
@@ -119,9 +119,9 @@ class Ranking:
         if rank > 0:
             return str(rank)
         else:
-            return str(self.getRank(points)) + " Legend"
+            return str(self.get_rank(points)) + " Legend"
 
-    def executeCommandGetConnection(self, sql_command, args):
+    def execute_command_get_connection(self, sql_command, args):
         """Execute a command and return the cursor and connection.
 
         Use this if you need the output of the command, or need the cursor and connection.
@@ -133,11 +133,11 @@ class Ranking:
         connection.commit()
         return cursor, connection
 
-    def executeCommand(self, sql_command, args):
+    def execute_command(self, sql_command, args):
         """Execute an sql command and closes all connections.
 
         Does not return output.
         """
-        cursor, connection = self.executeCommandGetConnection(sql_command, args)
+        cursor, connection = self.execute_command_get_connection(sql_command, args)
         cursor.close()
         connection.close()

@@ -20,7 +20,29 @@ class MiniGames(object):
         "write",
     ]
 
-    def storycalc(self):
+    def __init__(self, bot):
+        """Initialize mini game structure."""
+        with open(DATA_OBJECT.format(bot.root), "r", encoding="utf-8") as file:
+            self.data = json.load(file)
+
+        """Reset rankings and games."""
+        self.ranks = {}
+        self.games = {}
+
+        """Create the minigames."""
+        self.games.update(self.oppositeof())
+        self.games.update(self.capitalof())
+        self.games.update(self.colorof())
+        self.games.update(self.completelyric())
+        self.games.update(self.completewithemote())
+        self.games.update(self.oneisnotliketheother())
+        self.games.update(self.bethefirsttowrite())
+        self.games.update(self.coolstorybob())
+        self.games.update(self.simplecalc())
+        self.games.update(self.storycalc())
+
+    @staticmethod
+    def storycalc():
         """Give a math text question."""
         start_a = random.randrange(2, 10, 2)
         start_b = random.randrange(2, 10, 2)
@@ -81,7 +103,8 @@ class MiniGames(object):
         question = story + quest
         return {"storycalc": {"question": question, "answer": answer}}
 
-    def simplecalc(self):
+    @staticmethod
+    def simplecalc():
         """Do a simple calculation."""
         a = randint(2, 9)
         b = randint(2, 9)
@@ -115,7 +138,7 @@ class MiniGames(object):
         emote2 = emotes[1]
 
         relative = random.choice(list(self.data["relative"]))
-        location = self.randomLocation()
+        location = self.random_location()
 
         color = random.choice(list(self.data["similars"]["colors"]))
         vehicle = random.choice(list(self.data["similars"]["vehicles"]))
@@ -190,7 +213,7 @@ class MiniGames(object):
         question = story + quest
         return {"coolstorybob": {"question": question, "answer": answer}}
 
-    def randomLocation(self):
+    def random_location(self):
         """Return either a random country or a random capital."""
         location_key = random.choice(list(self.data["capitalof"]))
         if bool(random.getrandbits(1)):
@@ -353,24 +376,3 @@ class MiniGames(object):
             spampoints = 10
 
         return winners, topscore, spampoints
-
-    def __init__(self, bot):
-        """Initialize mini game structure."""
-        with open(DATA_OBJECT.format(bot.root), "r", encoding="utf-8") as file:
-            self.data = json.load(file)
-
-        """Reset rankings and games."""
-        self.ranks = {}
-        self.games = {}
-
-        """Create the minigames."""
-        self.games.update(self.oppositeof())
-        self.games.update(self.capitalof())
-        self.games.update(self.colorof())
-        self.games.update(self.completelyric())
-        self.games.update(self.completewithemote())
-        self.games.update(self.oneisnotliketheother())
-        self.games.update(self.bethefirsttowrite())
-        self.games.update(self.coolstorybob())
-        self.games.update(self.simplecalc())
-        self.games.update(self.storycalc())

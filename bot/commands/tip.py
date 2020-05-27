@@ -41,7 +41,8 @@ class Tip(Command):
                     return True
         return False
 
-    def getTypeEmote(self, amount):
+    @staticmethod
+    def get_type_emote(amount):
         """Depending on the amount donated return a different emote."""
         if amount == 69:
             return "Kreygasm"
@@ -83,10 +84,10 @@ class Tip(Command):
 
         """If the user has enough points transfer them to the target
         and set tiptimer."""
-        if bot.ranking.getPoints(user) >= amount:
-            bot.ranking.incrementPoints(user, -amount, bot)
-            bot.ranking.incrementPoints(target, amount, bot)
-            typeemote = self.getTypeEmote(amount)
+        if bot.ranking.get_points(user) >= amount:
+            bot.ranking.increment_points(user, -amount, bot)
+            bot.ranking.increment_points(target, amount, bot)
+            typeemote = self.get_type_emote(amount)
             var = {
                 "<USER>": user,
                 "<TARGET>": target,

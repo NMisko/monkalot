@@ -6,7 +6,7 @@ from twisted.internet import reactor
 from bot.commands.command import Command
 from bot.paths import NOTIFICATIONS_FILE
 from bot.utilities.permission import Permission
-from bot.utilities.tools import is_callID_active
+from bot.utilities.tools import is_call_id_active
 
 
 class Notifications(Command):
@@ -30,10 +30,10 @@ class Notifications(Command):
         """If notifications are enabled by default, start the threading."""
         if self.active:
             self.callID = reactor.callLater(
-                bot.NOTIFICATION_INTERVAL, self.writeNotification, bot
+                bot.NOTIFICATION_INTERVAL, self.write_notification, bot
             )
 
-    def raiselistindex(self):
+    def raise_list_index(self):
         """Raise the listindex by 1 if it's exceeding the list's length reset the index.
 
         Maybe randomizing the list after each run could make sense?
@@ -42,7 +42,7 @@ class Notifications(Command):
         if self.listindex >= len(self.notifications):
             self.listindex = 0
 
-    def writeNotification(self, bot):
+    def write_notification(self, bot):
         """Write a notification in chat."""
         if not self.active:
             return
@@ -54,11 +54,11 @@ class Notifications(Command):
         """Only write notifications if the bot is unpaused."""
         if not bot.pause:
             bot.write(self.notifications[self.listindex])
-            self.raiselistindex()
+            self.raise_list_index()
 
         """Threading to keep notifications running, if class active."""
         self.callID = reactor.callLater(
-            bot.NOTIFICATION_INTERVAL, self.writeNotification, bot
+            bot.NOTIFICATION_INTERVAL, self.write_notification, bot
         )
 
     def addnotification(self, bot, arg):
@@ -109,13 +109,13 @@ class Notifications(Command):
             if not self.active:
                 self.active = True
                 self.callID = reactor.callLater(
-                    bot.NOTIFICATION_INTERVAL, self.writeNotification, bot
+                    bot.NOTIFICATION_INTERVAL, self.write_notification, bot
                 )
                 bot.write(self.responses["notifications_activate"]["msg"])
             else:
                 bot.write(self.responses["notifications_already_on"]["msg"])
         elif msg.lower().startswith("!notifications off"):
-            if is_callID_active(self.callID):
+            if is_call_id_active(self.callID):
                 self.callID.cancel()
             if self.active:
                 self.active = False
@@ -129,6 +129,6 @@ class Notifications(Command):
 
     def close(self, bot):
         """Close the game."""
-        if is_callID_active(self.callID):
+        if is_call_id_active(self.callID):
             self.callID.cancel()
         self.active = False

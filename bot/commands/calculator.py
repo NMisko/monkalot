@@ -63,7 +63,7 @@ class Calculator(Command):
             var = {"<USER>": bot.displayName(user), "<EXPRESSION>": expr}
             bot.write(bot.replace_vars(self.responses["default_error"]["msg"], var))
 
-    def checkSymbols(self, msg):
+    def check_symbols(self, msg):
         """Check whether s contains no letters, except e, pi, sin, cos, tan, abs, trunc, round, sgn."""
         msg = msg.lower()
         for s in self.symbols:

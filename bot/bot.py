@@ -14,7 +14,7 @@ import bot.emotecounter
 import bot.ranking
 from bot.error_classes import UserNotFoundError
 from bot.utilities.permission import Permission
-from bot.utilities.tools import formatEmoteList, sanitizeUserName
+from bot.utilities.tools import format_emote_list, sanitize_user_name
 from bot.utilities.webcache import WebCache
 
 from bot.paths import (
@@ -75,7 +75,7 @@ class TwitchBot:
 
         # Initialize emote counter
         self.ecount = bot.emotecounter.EmoteCounterForBot(self)
-        self.ecount.startCPM()
+        self.ecount.start_cpm()
         self.ranking = bot.ranking.Ranking(self)
 
         # Get user list, seems better not to cache
@@ -109,7 +109,7 @@ class TwitchBot:
 
         def f(emoteJson):
             emotelist = emoteJson["emotes"]
-            return formatEmoteList(emotelist)
+            return format_emote_list(emotelist)
 
         url = CHANNEL_BTTVEMOTES_API.format(self.channel[1:])
         emotes = self.cache.get(url, f, fallback=[])
@@ -120,7 +120,7 @@ class TwitchBot:
 
         def f(emoteJson):
             result = []
-            for emote in formatEmoteList(emoteJson["emoticon_sets"]["0"]):
+            for emote in format_emote_list(emoteJson["emoticon_sets"]["0"]):
                 if ("\\") not in emote:
                     # print("Simple single word twitch emote", emote)
                     result.append(emote)
@@ -136,7 +136,7 @@ class TwitchBot:
         """Return available global bttv emotes."""
 
         def f(emoteJson):
-            return formatEmoteList(emoteJson["emotes"])
+            return format_emote_list(emoteJson["emotes"])
 
         return self.cache.get(GLOBAL_BTTVEMOTES_API, f, fallback=[])
 
@@ -300,7 +300,7 @@ class TwitchBot:
         twitch_user_id = tags["user-id"]
         display_name = tags["display-name"]
 
-        name = sanitizeUserName(twitch_user_tag)
+        name = sanitize_user_name(twitch_user_tag)
 
         self.updateCacheData(name, display_name, twitch_user_id)
 
@@ -349,7 +349,7 @@ class TwitchBot:
         if user in self.ignored_users:
             return
 
-        self.ranking.incrementPoints(user, 1, self)
+        self.ranking.increment_points(user, 1, self)
 
         # Check if bot is paused
         if self.pause and user not in self.owner_list and user not in self.trusted_mods:
@@ -361,7 +361,7 @@ class TwitchBot:
         self.cmdExecuted = False
 
         """Emote Count Function"""
-        self.ecount.processMessage(msg)
+        self.ecount.process_message(msg)
 
         """Limit pleb bot spam. Only allow certain commands to be processed by plebs, if plebcmds on cooldown."""
         cmdlist = self.select_commands(perm)
@@ -538,7 +538,7 @@ class TwitchBot:
 
     def displayName(self, username):
         """Get the proper capitalization of a twitch user."""
-        u_name = sanitizeUserName(username)
+        u_name = sanitize_user_name(username)
 
         if u_name in self.userNametoDisplayName:
             return self.userNametoDisplayName[u_name]
@@ -602,7 +602,7 @@ class TwitchBot:
         url = USER_ID_API.format(user_id)
         data = self.getJSONObjectFromTwitchAPI(url)
 
-        u_name = sanitizeUserName(data["name"])
+        u_name = sanitize_user_name(data["name"])
         display_name = data["display_name"]
         id = data["_id"]
 
@@ -617,7 +617,7 @@ class TwitchBot:
 
     def getuserID(self, username):
         """Get the twitch id (numbers) from username."""
-        u_name = sanitizeUserName(username)
+        u_name = sanitize_user_name(username)
 
         if u_name in self.userNametoID:
             return self.userNametoID[u_name]

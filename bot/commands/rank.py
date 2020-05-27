@@ -1,7 +1,7 @@
 """Commands: "!rank [username]"."""
 from bot.commands.command import Command
 from bot.utilities.permission import Permission
-from bot.utilities.tools import sanitizeUserName
+from bot.utilities.tools import sanitize_user_name
 
 from bot.error_classes import UserNotFoundError
 
@@ -33,7 +33,7 @@ class Rank(Command):
 
         self.responses = bot.responses["Rank"]
         if msg.startswith("!rank "):
-            user = sanitizeUserName(msg.split(" ")[1])
+            user = sanitize_user_name(msg.split(" ")[1])
 
             if user in bot.displayNameToUserName:
                 # force display name to login id ... if that user is in our cache
@@ -43,10 +43,10 @@ class Rank(Command):
         # if user input !rank XXXX, where XXXX is a display name, but that user
         # does not show up in chat so that we can't get his login_id
         try:
-            points = bot.ranking.getPoints(user)
+            points = bot.ranking.get_points(user)
             var = {
                 "<USER>": bot.displayName(user),
-                "<RANK>": bot.ranking.getHSRank(points),
+                "<RANK>": bot.ranking.get_hs_rank(points),
                 "<POINTS>": points,
             }
             bot.write(bot.replace_vars(self.responses["display_rank"]["msg"], var))
