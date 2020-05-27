@@ -28,7 +28,7 @@ class TopSpammers(Command):
                 # the account may be deleted. This results in a RequestException.
                 # Display a spooky skeleton to show the account is dead.
                 try:
-                    display_name = bot.get_display_name_from_id(viewer_id)
+                    display_name = bot.twitch.get_display_name_from_id(viewer_id)
                 except RequestException:
                     logging.info(
                         "Display name for id '{}' not found. Returning spooky ☠️ as top spammer.".format(

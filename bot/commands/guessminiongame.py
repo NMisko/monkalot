@@ -119,7 +119,7 @@ class GuessMinionGame(Command):
             name = self.minion["name"].strip()
             if cmd.strip().lower() == name.lower():
                 var = {
-                    "<USER>": bot.display_name(user),
+                    "<USER>": bot.twitch.display_name(user),
                     "<MINION>": name,
                     "<PRONOUN0>": bot.pronoun(user)[0].capitalize(),
                     "<AMOUNT>": bot.MINIONGAMEP,

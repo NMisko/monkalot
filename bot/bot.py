@@ -1,19 +1,15 @@
 """Module for Twitch bot and threaded logging."""
-import copy
 import json
 import logging
 import time
 import traceback
 from collections import defaultdict
 
-import requests
-from requests import RequestException
-
 import bot.commands
 import bot.emotecounter
 import bot.ranking
 from bot.data_sources.emotes import EmoteSource
-from bot.error_classes import UserNotFoundError
+from bot.data_sources.twitch import TwitchSource
 from bot.paths import (
     TRUSTED_MODS_PATH,
     IGNORED_USERS_PATH,
@@ -22,11 +18,10 @@ from bot.paths import (
     CUSTOM_RESPONSES_PATH,
     TEMPLATE_RESPONSES_PATH,
 )
-
+from bot.utilities.dict_utilities import deep_merge_dict
 from bot.utilities.permission import Permission
 from bot.utilities.tools import sanitize_user_name
 from bot.utilities.webcache import WebCache
-from bot.utilities.dict_utilities import deep_merge_dict
 
 DEFAULT_RAID_ANNOUNCE_THRESHOLD = 15
 CACHE_DURATION = 10800
@@ -54,7 +49,6 @@ class TwitchBot:
         self.pyramidBlock = False
 
         # user cache related:
-        self.setup_cache()
         self.reload_config(first_run=True)
 
         # Initialize emote counter
@@ -62,10 +56,6 @@ class TwitchBot:
         self.ecount.start_cpm()
         self.ranking = bot.ranking.Ranking(self)
 
-        # Get user list, seems better not to cache
-        url = USERLIST_API.format(self.channel[1:])
-        data = requests.get(url).json()
-        self.users = set(sum(data["chatters"].values(), []))
         self.mods = set()
         self.subs = set()
 
@@ -74,9 +64,12 @@ class TwitchBot:
         # practice or not
         self.reload_commands()
 
+        self.users = self.twitch.get_chatters()
+
     def reload_sources(self):
         """Reloads data sources."""
         self.emotes = EmoteSource(self.channel, cache=self.cache, twitch_api_headers=self.twitch_api_headers)
+        self.twitch = TwitchSource(self.channel, cache=self.cache, twitch_api_headers=self.twitch_api_headers)
 
     def set_config(self, config):
         """Write the config file and reload."""
@@ -144,7 +137,8 @@ class TwitchBot:
         }
 
         self.channel = "#" + str(CONFIG["channel"])
-        self.channelID = self.get_user_id(str(CONFIG["channel"]))
+        self.reload_sources()
+        self.channelID = self.twitch.get_user_id(str(CONFIG["channel"]))
         self.pleb_cooldowntime = CONFIG[
             "pleb_cooldown"
         ]  # time between non-sub commands
@@ -166,7 +160,6 @@ class TwitchBot:
         self.RAID_ANNOUNCE_THRESHOLD = CONFIG.get(
             "raid_announce_threshold", DEFAULT_RAID_ANNOUNCE_THRESHOLD
         )
-        self.reload_sources()
         if not first_run:
             self.reload_commands()
 
@@ -209,13 +202,8 @@ class TwitchBot:
         # Also I don't want to crash the original PRIVMSG() functions by modifing them
 
         twitch_user_tag = prefix.split("!")[0]  # also known as login id
-        twitch_user_id = tags["user-id"]
-        display_name = tags["display-name"]
 
         name = sanitize_user_name(twitch_user_tag)
-
-        self.update_cache_data(name, display_name, twitch_user_id)
-
         if "subscriber" in tags:
             if tags["subscriber"] == "1":
                 self.subs.add(name)
@@ -438,89 +426,6 @@ class TwitchBot:
         """Terminate bot."""
         self.close_commands()
 
-    def display_name(self, username):
-        """Get the proper capitalization of a twitch user."""
-        u_name = sanitize_user_name(username)
-
-        if u_name in self.userNametoDisplayName:
-            return self.userNametoDisplayName[u_name]
-        else:
-            try:
-                logging.info(
-                    "User data not in cache when trying to access user display name, user tag is {}".format(
-                        username
-                    )
-                )
-                name = self.get_user_tag(u_name)["users"][0]["display_name"]
-                # save the record as well
-                self.userNametoDisplayName[username] = name
-                return name
-            except (RequestException, IndexError, KeyError):
-                logging.info(
-                    "Cannot get user info from API call, have to return username directly"
-                )
-                return username
-
-    def setup_cache(self):
-        """Setup a user cache."""
-        # We get these user data from userState(), or API calls
-        self.userNametoID = {}
-        self.userNametoDisplayName = {}
-        self.IDtoDisplayName = {}
-        self.displayNameToUserName = {}
-
-    def update_cache_data(self, login_id, display_name, id):
-        """Update the user cache."""
-        self.userNametoDisplayName[login_id] = display_name
-        self.IDtoDisplayName[id] = display_name
-        self.userNametoID[login_id] = id
-        self.displayNameToUserName[display_name] = login_id
-
-    def get_user_data_from_id(self, user_id):
-        """Get Twitch user data of a given id."""
-        data = self.cache.get(USER_ID_API.format(user_id), headers=self.twitch_api_headers)
-        sanitized_user_name = sanitize_user_name(data["name"])
-        self.update_cache_data(sanitized_user_name, data["display_name"], data["_id"])
-        return data
-
-    def get_user_tag(self, username):
-        """Get the full data of user from username."""
-        return self.cache.get(USER_NAME_API.format(username), headers=self.twitch_api_headers)
-
-    def get_user_id(self, username):
-        """Get the twitch id (numbers) from username."""
-        sanitized_user_name = sanitize_user_name(username)
-
-        if sanitized_user_name in self.userNametoID:
-            return self.userNametoID[sanitized_user_name]
-        else:
-            logging.info(
-                "User data not in cache when trying to access user ID. User tag {}".format(
-                    username
-                )
-            )
-
-            try:
-                data = self.get_user_tag(username)
-                user_id = data["users"][0]["_id"]
-                display_name = data["users"][0]["display_name"]
-
-                # update cache as well
-                self.update_cache_data(sanitized_user_name, display_name, id)
-                return user_id
-
-            except (ValueError, KeyError) as e:
-                logging.info(
-                    "Cannot get user info from API call, can't get user ID of {}".format(
-                        username
-                    )
-                )
-                raise e
-
-            except (IndexError, RequestException):
-                logging.info("Seems no such user as {}".format(username))
-                raise UserNotFoundError("No user with login id of {}".format(username))
-
     def access_to_emote(self, username, emote):
         """Check if user has access to a certain emote."""
         # Some notes about emotes and IRC:
@@ -530,29 +435,13 @@ class TwitchBot:
         #
         # Twitch internally parse your message and change them to emotes with the emote tag in IRC message
         #
-        user_id = self.get_user_id(username)
+        user_id = self.twitch.get_user_id(username)
         emotelist = self.emotes.get_user_emotes(user_id)
         for sets in emotelist:
             for key in range(0, len(emotelist[sets])):
                 if emote == emotelist[sets][key]["code"]:
                     return True
         return False
-
-    def get_channel(self, channel_id):
-        """Get the channel object from channelID."""
-        return requests.get(CHANNEL_API.format(channel_id), headers=self.twitch_api_headers).json()
-
-    def get_stream(self, channel_id):
-        """Get the channel object from channelID."""
-        return requests.get(STREAMS_API.format(channel_id), headers=self.twitch_api_headers).json()
-
-    def get_display_name_from_id(self, user_id):
-        """Convert user id to display name."""
-        if user_id in self.IDtoDisplayName:
-            return self.IDtoDisplayName[id]
-        else:
-            data = self.get_user_data_from_id(user_id)
-            return data["display_name"]
 
     @staticmethod
     def replace_vars(msg, args):

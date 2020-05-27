@@ -23,7 +23,7 @@ class StreamInfo(Command):
     def run(self, bot, user, msg, tag_info):
         """Get stream object and return requested information."""
         responses = bot.responses["StreamInfo"]
-        stream = bot.get_stream(bot.channelID)
+        stream = bot.twitch.get_stream(bot.channelID)
         cmd = msg.lower()
 
         if cmd.startswith("!bttv"):

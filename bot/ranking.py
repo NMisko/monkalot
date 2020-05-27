@@ -34,7 +34,7 @@ class Ranking:
         self.RANKS = CONFIG["ranking"]["ranks"]
 
     def _get_user_id(self, username):
-        return self.bot.get_user_id(username)
+        return self.bot.twitch.get_user_id(username)
 
     def get_points(self, username, new_entry=False):
         """Get the points of a user."""
@@ -87,7 +87,7 @@ class Ranking:
         if not legend:
             rank = self.get_hs_rank(points)
             if "Legend" in rank:
-                var = {"<USER>": bot.display_name(username), "<RANK>": rank}
+                var = {"<USER>": bot.twitch.display_name(username), "<RANK>": rank}
                 bot.write(
                     bot.replace_vars(bot.responses["ranking"]["msg_legend"]["msg"], var)
                 )

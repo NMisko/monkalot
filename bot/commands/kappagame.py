@@ -48,7 +48,7 @@ class KappaGame(Command):
 
             i = self.count_emotes(cmd, "Kappa")
             if i == self.n:
-                var = {"<USER>": bot.display_name(user), "<AMOUNT>": self.n}
+                var = {"<USER>": bot.twitch.display_name(user), "<AMOUNT>": self.n}
                 bot.write(bot.replace_vars(self.responses["winner_msg"]["msg"], var))
                 bot.ranking.increment_points(user, bot.KAPPAGAMEP, bot)
                 bot.gameRunning = False

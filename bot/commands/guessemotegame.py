@@ -90,7 +90,7 @@ class GuessEmoteGame(Command):
 
             if cmd == self.emote:
                 var = {
-                    "<USER>": bot.display_name(user),
+                    "<USER>": bot.twitch.display_name(user),
                     "<EMOTE>": self.emote,
                     "<PRONOUN0>": bot.pronoun(user)[0].capitalize(),
                     "<AMOUNT>": bot.EMOTEGAMEP,

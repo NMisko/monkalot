@@ -45,7 +45,7 @@ class Rank(Command):
         try:
             points = bot.ranking.get_points(user)
             var = {
-                "<USER>": bot.display_name(user),
+                "<USER>": bot.twitch.display_name(user),
                 "<RANK>": bot.ranking.get_hs_rank(points),
                 "<POINTS>": points,
             }

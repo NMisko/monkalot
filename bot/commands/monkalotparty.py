@@ -85,7 +85,7 @@ class MonkalotParty(Command):
                     self.answer = self.answer.lower()
                     cmd = cmd.lower()
                 if cmd == self.answer:
-                    var = {"<USER>": bot.display_name(user), "<ANSWER>": self.answer}
+                    var = {"<USER>": bot.twitch.display_name(user), "<ANSWER>": self.answer}
                     bot.write(
                         bot.replace_vars(self.responses["winner_msg"]["msg"], var)
                     )
