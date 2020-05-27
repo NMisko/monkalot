@@ -1,137 +1,83 @@
-"""Commands: "!mstart", "!mstop"."""
-import random
+"""Commands: "!mstart"."""
 
-from twisted.internet import reactor
-
-from bot.commands.abstract.command import Command
-from bot.utilities.permission import Permission
-from bot.utilities.startgame import start_game
-from bot.utilities.tools import is_call_id_active
+from bot.commands.abstract.guessinggame import GuessingGame
 from bot.data_sources.hearthstone import Hearthstone
 
 
-class GuessMinionGame(Command):
+class GuessMinionGame(GuessingGame):
     """Play the Guess The Minion Game.
 
     One Minion is randomly chosen from the list and the users
     have to guess which on it is. Give points to the winner.
     """
-
-    perm = Permission.User
-
     def __init__(self, bot):
-        """Initialize variables."""
-        self.responses = {}
-        self.active = False
-        self.cluetime = 10  # time between clues in seconds
-        self.callID = None
-        self.statToSet = {}
-        self.attributes = [
-            "cardClass",
-            "set",
-            "name",
-            "rarity",
-            "attack",
-            "cost",
-            "health",
-        ]
-        self.minion = None
-        self.hearthstone = Hearthstone(bot.cache)
-        self.minion_game_points = bot.config.config["points"]["minion_game"]
-
-    def giveClue(self, bot):  # noqa (let's ignore the high complexity for now)
-        """Give a random clue to the chat.
-
-        This stops the threading once all clues have been
-        given or the game is over.
-        """
-        if (not self.attributes) or (not self.active):
-            return
-
-        stat = random.choice(self.attributes)
-        self.attributes.remove(stat)
-
-        """ Write a clue in chat. Some set names have to be renamed. """
-        if stat == "cardClass":
-            var = {"<STAT>": str(self.minion[stat]).lower()}
-            bot.write(bot.replace_vars(self.responses["clue_stat"]["msg"], var))
-        elif stat == "set":
-            self.statToSet = self.responses["setnames"]["msg"]
-            if self.minion[stat] in self.statToSet:
-                setname = self.statToSet[self.minion[stat]]
-            else:
-                setname = str(self.minion[stat])
-            var = {"<STAT>": setname}
-            bot.write(bot.replace_vars(self.responses["clue_set"]["msg"], var))
-        elif stat == "name":
-            var = {"<STAT>": self.minion[stat][0]}
-            bot.write(bot.replace_vars(self.responses["clue_letter"]["msg"], var))
-        elif stat == "rarity":
-            var = {"<STAT>": str(self.minion[stat]).lower()}
-            bot.write(bot.replace_vars(self.responses["clue_rarity"]["msg"], var))
-        elif stat == "attack":
-            var = {"<STAT>": self.minion[stat]}
-            bot.write(bot.replace_vars(self.responses["clue_attackpower"]["msg"], var))
-        elif stat == "cost":
-            var = {"<STAT>": self.minion[stat]}
-            bot.write(bot.replace_vars(self.responses["clue_manacost"]["msg"], var))
-        elif stat == "health":
-            if self.minion[stat] == 1:
-                var = {"<STAT>": self.minion[stat], "<PLURAL>": ""}
-            else:
-                var = {"<STAT>": self.minion[stat], "<PLURAL>": "s"}
-            bot.write(bot.replace_vars(self.responses["clue_healthpoints"]["msg"], var))
-
-        """Start of threading"""
-        self.callID = reactor.callLater(self.cluetime, self.giveClue, bot)
-
-    def init_game(self, bot):
-        """Initialize GuessMinionGame."""
-        nominion = True
-        while nominion:
-            self.minion = random.choice(self.hearthstone.get_cards())
-            if self.minion["type"] == "MINION":
-                nominion = False
-
-    def match(self, bot, user, msg, tag_info):
-        """Match if the game is active or gets started with !mstart."""
-        return self.active or start_game(bot, user, msg, "!mstart")
-
-    def run(self, bot, user, msg, tag_info):
-        """On first run initialize game."""
+        hearthstone = Hearthstone(bot.cache)
+        super().__init__(
+            command="!mstart",
+            attributes=[
+                "cardClass",
+                "set",
+                "name",
+                "rarity",
+                "attack",
+                "cost",
+                "health",
+            ],
+            object_pool=[card for card in hearthstone.get_cards() if card["type"] == "MINION"],
+        )
         self.responses = bot.config.responses["GuessMinionGame"]
-        cmd = msg.strip()
+        self.bot = bot
+        self.points = bot.config.config["points"]["minion_game"]
 
-        if not self.active:
-            self.active = True
-            self.init_game(bot)
-            print("Right Minion: " + self.minion["name"])
-            bot.write(self.responses["start_msg"]["msg"])
-            self.giveClue(bot)
+    def start_message(self, _):
+        return self.responses["start_msg"]["msg"]
+
+    def stop_message(self):
+        return self.responses["stop_msg"]["msg"]
+
+    def winner_message(self, guessed_object, user):
+        var = {
+            "<USER>": self.bot.twitch.display_name(user),
+            "<MINION>": guessed_object["name"],
+            "<PRONOUN0>": self.bot.config.pronoun(user)[0].capitalize(),
+            "<AMOUNT>": self.points,
+        }
+        return self.bot.replace_vars(self.responses["winner_msg"]["msg"], var)
+
+    # --- Hints ---
+
+    def cardclass_hint(self, obj):
+        var = {"<STAT>": str(obj["cardClass"]).lower()}
+        return self.bot.replace_vars(self.responses["clue_stat"]["msg"], var)
+
+    def set_hint(self, obj):
+        self.statToSet = self.responses["setnames"]["msg"]
+        if obj["set"] in self.statToSet:
+            setname = self.statToSet[obj["set"]]
         else:
-            if cmd == "!mstop" and bot.get_permission(user) not in [
-                Permission.User,
-                Permission.Subscriber,
-            ]:
-                self.close(bot)
-                bot.write(self.responses["stop_msg"]["msg"])
-                return
+            setname = str(obj["set"])
+        var = {"<STAT>": setname}
+        return self.bot.replace_vars(self.responses["clue_set"]["msg"], var)
 
-            name = self.minion["name"].strip()
-            if cmd.strip().lower() == name.lower():
-                var = {
-                    "<USER>": bot.twitch.display_name(user),
-                    "<MINION>": name,
-                    "<PRONOUN0>": bot.config.pronoun(user)[0].capitalize(),
-                    "<AMOUNT>": bot.minion_game_points,
-                }
-                bot.write(bot.replace_vars(self.responses["winner_msg"]["msg"], var))
-                bot.ranking.increment_points(user, bot.minion_game_points, bot)
-                self.close(bot)
+    def name_hint(self, obj):
+        var = {"<STAT>": obj["name"][0]}
+        return self.bot.replace_vars(self.responses["clue_letter"]["msg"], var)
 
-    def close(self, bot):
-        """Close minion game."""
-        if is_call_id_active(self.callID):
-            self.callID.cancel()
-        self.active = False
-        bot.game_running = False
+    def rarity_hint(self, obj):
+        var = {"<STAT>": obj["rarity"]}
+        return self.bot.replace_vars(self.responses["clue_rarity"]["msg"], var)
+
+    def attack_hint(self, obj):
+        var = {"<STAT>": obj["attack"]}
+        return self.bot.replace_vars(self.responses["clue_attackpower"]["msg"], var)
+
+    def cost_hint(self, obj):
+        var = {"<STAT>": obj["cost"]}
+        return self.bot.replace_vars(self.responses["clue_manacost"]["msg"], var)
+
+    def health_hint(self, obj):
+        if obj["health"] == 1:
+            var = {"<STAT>": obj["health"], "<PLURAL>": ""}
+        else:
+            var = {"<STAT>": obj["health"], "<PLURAL>": "s"}
+        return self.bot.replace_vars(self.responses["clue_healthpoints"]["msg"], var)
