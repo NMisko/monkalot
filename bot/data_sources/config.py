@@ -87,3 +87,10 @@ class ConfigSource:
             return self.pronouns[user]
         else:
             return self.pronouns["default"]
+
+    def write_trusted_mods(self):
+        """Saves current trusted mods."""
+        with open(
+            TRUSTED_MODS_PATH.format(self.root), "w", encoding="utf-8"
+        ) as file:
+            json.dump(self.trusted_mods, file, indent=4)
