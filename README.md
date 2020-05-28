@@ -1,5 +1,7 @@
 **Monkalot**
 ===============
+SEE BRANCH 2.0 FOR CURRENT DEVELOPMENT STATE
+
 A bot for [Zetalot's Twitch stream](https://twitch.tv/zetalot).
 
 Users in chat gain "spam" points by chatting, playing games and building emote pyramids. Small emote pyramids (width: 3) get timed out, big emote pyramids (width: 5) reward points. The bot can be conversed with (requires Cleverbot key) and many more special commands exist (see list below).
