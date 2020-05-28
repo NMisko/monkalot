@@ -22,14 +22,14 @@ class ConfigSource:
     def __init__(self, root, cache):
         """Reload the entire config."""
         self.root = root
-        self.config = self._load_json(CONFIG_PATH)
-        self.trusted_mods = self._load_json(TRUSTED_MODS_PATH)
-        self.ignored_users = self._load_json(IGNORED_USERS_PATH)
-        self.pronouns = self._load_json(PRONOUNS_PATH)
+        self.config = self._read_json(CONFIG_PATH)
+        self.trusted_mods = self._read_json(TRUSTED_MODS_PATH)
+        self.ignored_users = self._read_json(IGNORED_USERS_PATH)
+        self.pronouns = self._read_json(PRONOUNS_PATH)
 
         # load template responses first
-        responses = self._load_json(TEMPLATE_RESPONSES_PATH)
-        custom_responses = self._load_json(CUSTOM_RESPONSES_PATH)
+        responses = self._read_json(TEMPLATE_RESPONSES_PATH)
+        custom_responses = self._read_json(CUSTOM_RESPONSES_PATH)
         # then merge with custom responses
         self.responses = deep_merge_dict(responses, custom_responses)
 
@@ -56,30 +56,32 @@ class ConfigSource:
             "raid_announce_threshold", DEFAULT_RAID_ANNOUNCE_THRESHOLD
         )
 
-    def _load_json(self, path):
+    def _read_json(self, path: str):
         try:
             with open(path.format(self.root), "r", encoding="utf-8") as file:
                 return json.load(file)
-        except FileNotFoundError:  # noqa
+        except FileNotFoundError:
             logging.warning(f"Config file {path} not found.")
             return {}
 
-    def set_config(self, config):
-        """Write the config file."""
-        with open(CONFIG_PATH.format(self.root), "w", encoding="utf-8") as file:
-            json.dump(config, file, indent=4)
+    def _write_json(self, path: str, data: dict):
+        try:
+            with open(path.format(self.root), "w", encoding="utf-8") as file:
+                json.dump(data, file, indent=4)
+        except FileNotFoundError:
+            logging.warning(f"Config file {path} not found.")
 
-    def set_responses(self, responses):
-        """Write the custom responses file and reload."""
-        with open(
-            CUSTOM_RESPONSES_PATH.format(self.root), "w", encoding="utf-8"
-        ) as file:
-            json.dump(responses, file, indent=4)
+    def write_ignored_users(self):
+        """Saves current ignored users."""
+        self._write_json(IGNORED_USERS_PATH, self.ignored_users)
 
-    def dump_ignored_users_file(self):
-        """Output ignored users file."""
-        with open(IGNORED_USERS_PATH.format(self.root), "w", encoding="utf-8") as file:
-            json.dump(self.ignored_users, file, indent=4)
+    def write_trusted_mods(self):
+        """Saves current trusted mods."""
+        self._write_json(TRUSTED_MODS_PATH, self.trusted_mods)
+
+    def write_pronouns(self):
+        """Saves current pronouns."""
+        self._write_json(PRONOUNS_PATH, self.pronouns)
 
     def pronoun(self, user):
         """Get the proper pronouns for a user."""
@@ -88,9 +90,4 @@ class ConfigSource:
         else:
             return self.pronouns["default"]
 
-    def write_trusted_mods(self):
-        """Saves current trusted mods."""
-        with open(
-            TRUSTED_MODS_PATH.format(self.root), "w", encoding="utf-8"
-        ) as file:
-            json.dump(self.trusted_mods, file, indent=4)
+

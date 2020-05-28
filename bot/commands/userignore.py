@@ -44,7 +44,7 @@ class UserIgnore(Command):
                 bot.ignored_users.append(target)
                 reply = ignore_reply["success"]
                 # To make the change temporary (before bot reboot) comment out next line
-                bot.dump_ignored_users_file()
+                bot.write_ignored_users()
 
         elif cmd[0].strip() == "!unignore":
             unignore_reply = self.responses["unignore"]
@@ -52,7 +52,7 @@ class UserIgnore(Command):
                 bot.ignored_users.remove(target)
                 reply = unignore_reply["success"]
                 # To make the change temporary (before bot reboot) comment out next line
-                bot.dump_ignored_users_file()
+                bot.write_ignored_users()
             else:
                 reply = unignore_reply["already"]
 
