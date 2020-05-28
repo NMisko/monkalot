@@ -4,6 +4,7 @@ import random
 from bot.commands.abstract.command import Command
 from bot.utilities.permission import Permission
 from bot.utilities.startgame import start_game
+from bot.utilities.tools import replace_vars
 
 
 class KappaGame(Command):
@@ -50,7 +51,7 @@ class KappaGame(Command):
             i = self.count_emotes(cmd, "Kappa")
             if i == self.n:
                 var = {"<USER>": bot.twitch.display_name(user), "<AMOUNT>": self.n}
-                bot.write(bot.replace_vars(self.responses["winner_msg"]["msg"], var))
+                bot.write(replace_vars(self.responses["winner_msg"]["msg"], var))
                 bot.ranking.increment_points(user, self.kappa_game_points, bot)
                 bot.game_running = False
                 self.active = False
@@ -58,9 +59,7 @@ class KappaGame(Command):
             elif i != -1:
                 if i not in self.answered:
                     var = {"<AMOUNT>": i}
-                    bot.write(
-                        bot.replace_vars(self.responses["wrong_amount"]["msg"], var)
-                    )
+                    bot.write(replace_vars(self.responses["wrong_amount"]["msg"], var))
                     self.answered.append(i)
 
     @staticmethod

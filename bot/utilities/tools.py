@@ -64,3 +64,18 @@ def emote_list_to_string(emote_list):
     # Use string.join to glue string of emotes in emoteList
     separator = " "
     return separator.join(emote_list)
+
+
+def replace_vars(msg, args):
+    """Replace the variables in the message."""
+    oldmsg = msg
+    newmsg = msg
+
+    for key in args:
+        newmsg = newmsg.replace(key, str(args[key]))
+        """Check if something was replaced, otherwise something went wrong."""
+        if newmsg is oldmsg:
+            print("ERROR: Could not replace variable in string!")
+
+        oldmsg = newmsg
+    return newmsg

@@ -11,15 +11,14 @@ class GuessRacetrackGame(GuessingGame):
     One Minion is randomly chosen from the list and the users
     have to guess which on it is. Give points to the winner.
     """
+
     def __init__(self, bot):
         excel_dict = pd.read_excel("data/Racetracks.xlsx").to_dict()
         data = self._convert_pandas_dict(excel_dict)
         data = [{**x, "name": x["Name"]} for x in data]
 
         super().__init__(
-            command="!rstart",
-            attributes=list(excel_dict.keys()),
-            object_pool=data,
+            command="!rstart", attributes=list(excel_dict.keys()), object_pool=data,
         )
         self.bot = bot
         self.points = 30

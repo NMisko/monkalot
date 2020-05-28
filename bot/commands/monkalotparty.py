@@ -7,7 +7,7 @@ from bot.commands.abstract.command import Command
 from bot.utilities.permission import Permission
 from bot.utilities.startgame import start_game
 from bot.utilities.tools import format_list, is_call_id_active
-
+from bot.utilities.tools import replace_vars
 from .minigames import MiniGames
 
 
@@ -51,7 +51,7 @@ class MonkalotParty(Command):
                 bot.ranking.increment_points(winners[0][i], winners[2], bot)
 
             var = {"<GAME_POINTS>": winners[1], "<USER_POINTS>": winners[2]}
-            s += bot.replace_vars(self.responses["game_over3"]["msg"], var)
+            s += replace_vars(self.responses["game_over3"]["msg"], var)
 
         bot.write(s)
 
@@ -89,9 +89,7 @@ class MonkalotParty(Command):
                         "<USER>": bot.twitch.display_name(user),
                         "<ANSWER>": self.answer,
                     }
-                    bot.write(
-                        bot.replace_vars(self.responses["winner_msg"]["msg"], var)
-                    )
+                    bot.write(replace_vars(self.responses["winner_msg"]["msg"], var))
                     self.answer = ""
                     bot.ranking.increment_points(user, 5, bot)
                     self.monkalotparty.uprank(user)

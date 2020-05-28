@@ -89,5 +89,3 @@ class ConfigSource:
             return self.pronouns[user]
         else:
             return self.pronouns["default"]
-
-

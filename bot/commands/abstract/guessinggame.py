@@ -15,12 +15,7 @@ class GuessingGame(Command):
 
     perm = Permission.User
 
-    def __init__(
-        self,
-        attributes: List[str],
-        object_pool: List[dict],
-        command: str
-    ):
+    def __init__(self, attributes: List[str], object_pool: List[dict], command: str):
         """Initialize variables.
 
         Objects need a "name" field.
@@ -58,7 +53,9 @@ class GuessingGame(Command):
         self.attributes.remove(stat)
 
         # Call _<stat>_hint method, e.g.: self._health_hint(self.object_to_guess)
-        function = getattr(self, f"_{stat.lower()}_hint", partial(self._default_hint, stat=stat))
+        function = getattr(
+            self, f"_{stat.lower()}_hint", partial(self._default_hint, stat=stat)
+        )
         bot.write(function(self.object_to_guess))
 
         self.callID = reactor.callLater(self.cluetime, self.give_clue, bot)

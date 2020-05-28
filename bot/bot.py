@@ -12,6 +12,7 @@ from bot.data_sources.config import ConfigSource
 from bot.data_sources.emotes import EmoteSource
 from bot.data_sources.twitch import TwitchSource
 from bot.utilities.permission import Permission
+from bot.utilities.tools import replace_vars
 from bot.utilities.tools import sanitize_user_name
 from bot.utilities.webcache import WebCache
 
@@ -254,7 +255,7 @@ class TwitchBot:
 
         responses = self.config.responses["usernotice"]["raid"]
         var = {"<AMOUNT>": amount, "<CHANNEL>": channel}
-        reply = self.replace_vars(responses["msg"], var)
+        reply = replace_vars(responses["msg"], var)
 
         self.write(reply)
 
@@ -289,7 +290,7 @@ class TwitchBot:
                 "<RECIPIENT>": recipient,
                 "<SUBPLAN>": plan[subtype],
             }
-            reply = self.replace_vars(responses["msg_standard"]["msg"], var)
+            reply = replace_vars(responses["msg_standard"]["msg"], var)
         else:
             var = {
                 "<DONOR>": donor,
@@ -297,7 +298,7 @@ class TwitchBot:
                 "<SUBPLAN>": plan[subtype],
                 "<MONTHS>": months,
             }
-            reply = self.replace_vars(responses["msg_with_months"]["msg"], var)
+            reply = replace_vars(responses["msg_with_months"]["msg"], var)
 
         self.write(reply)
 
@@ -319,10 +320,10 @@ class TwitchBot:
 
         if int(months) <= 1:
             var = {"<USER>": user, "<SUBPLAN>": plan[subtype]}
-            reply = self.replace_vars(responses["msg_standard"]["msg"], var)
+            reply = replace_vars(responses["msg_standard"]["msg"], var)
         else:
             var = {"<USER>": user, "<SUBPLAN>": plan[subtype], "<MONTHS>": months}
-            reply = self.replace_vars(responses["msg_with_months"]["msg"], var)
+            reply = replace_vars(responses["msg_with_months"]["msg"], var)
 
         self.write(reply)
 
@@ -354,21 +355,6 @@ class TwitchBot:
                 if emote == emotelist[sets][key]["code"]:
                     return True
         return False
-
-    @staticmethod
-    def replace_vars(msg, args):
-        """Replace the variables in the message."""
-        oldmsg = msg
-        newmsg = msg
-
-        for key in args:
-            newmsg = newmsg.replace(key, str(args[key]))
-            """Check if something was replaced, otherwise something went wrong."""
-            if newmsg is oldmsg:
-                print("ERROR: Could not replace variable in string!")
-
-            oldmsg = newmsg
-        return newmsg
 
     def clear_cache(self):
         """Clear the cache."""

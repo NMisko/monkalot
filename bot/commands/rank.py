@@ -42,6 +42,6 @@ class Rank(Command):
                 "<RANK>": bot.ranking.get_hs_rank(points),
                 "<POINTS>": points,
             }
-            bot.write(bot.replace_vars(self.responses["display_rank"]["msg"], var))
+            bot.write(replace_vars(self.responses["display_rank"]["msg"], var))
         except UserNotFoundError:
             bot.write(self.responses["user_not_found"]["msg"])

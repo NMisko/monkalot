@@ -1,7 +1,9 @@
 """Contains functions to control games."""
 
 import time
+
 from bot.utilities.permission import Permission
+from bot.utilities.tools import replace_vars
 
 
 def start_game(bot, user, msg, cmd):
@@ -28,13 +30,13 @@ def start_game(bot, user, msg, cmd):
                 return True
             else:
                 var = {"<AMOUNT>": bot.GAMESTARTP}
-                bot.write(bot.replace_vars(responses["points_needed"]["msg"], var))
+                bot.write(replace_vars(responses["points_needed"]["msg"], var))
                 return False
         else:
             t = bot.pleb_gametimer - time.time() + bot.last_plebgame
             next_plebgame = "%8.0f" % t
             var = {"<COOLDOWN>": next_plebgame}
-            bot.write(bot.replace_vars(responses["plebgames_on_cooldown"]["msg"], var))
+            bot.write(replace_vars(responses["plebgames_on_cooldown"]["msg"], var))
     else:  # The calling user is a mod, so we only check if the command is correct
         if msg == cmd:
             bot.game_running = True

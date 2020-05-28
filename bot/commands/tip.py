@@ -1,8 +1,10 @@
 """Commands: !tip <USERNAME> <AMOUNT>"""
 
 import time
+
 from bot.commands.abstract.command import Command
 from bot.utilities.permission import Permission
+from bot.utilities.tools import replace_vars
 
 
 class Tip(Command):
@@ -31,9 +33,7 @@ class Tip(Command):
                     int(tip_arg)
                 except ValueError:
                     var = {"<MINTIP>": self.mintip, "<MAXTIP>": self.maxtip}
-                    bot.write(
-                        bot.replace_vars(self.responses["numbererror"]["msg"], var)
-                    )
+                    bot.write(replace_vars(self.responses["numbererror"]["msg"], var))
                     return False
 
                 """Check if user is in chat and not trying to tip himself."""
@@ -72,14 +72,14 @@ class Tip(Command):
                 timer = int(self.tipcooldown - time.time() + self.tiptimer[user])
                 cooldown = int(self.tipcooldown / 60)
                 var = {"<USER>": user, "<TIMER>": timer, "<COOLDOWN>": cooldown}
-                bot.write(bot.replace_vars(self.responses["cooldown"]["msg"], var))
+                bot.write(replace_vars(self.responses["cooldown"]["msg"], var))
                 return
 
         """Only allow integers between mintip and maxtip."""
 
         if amount < self.mintip or amount > self.maxtip:
             var = {"<MINTIP>": self.mintip, "<MAXTIP>": self.maxtip}
-            bot.write(bot.replace_vars(self.responses["numbererror"]["msg"], var))
+            bot.write(replace_vars(self.responses["numbererror"]["msg"], var))
             return
 
         """If the user has enough points transfer them to the target
@@ -94,8 +94,8 @@ class Tip(Command):
                 "<AMOUNT>": amount,
                 "<TYPE>": typeemote,
             }
-            bot.write(bot.replace_vars(self.responses["tipsend"]["msg"], var))
+            bot.write(replace_vars(self.responses["tipsend"]["msg"], var))
             self.tiptimer[user] = time.time()
         else:
             var = {"<USER>": user, "<AMOUNT>": amount}
-            bot.write(bot.replace_vars(self.responses["notenough"]["msg"], var))
+            bot.write(replace_vars(self.responses["notenough"]["msg"], var))

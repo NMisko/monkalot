@@ -4,6 +4,7 @@ import json
 from bot.commands.abstract.command import Command
 from bot.paths import REPLIES_FILE
 from bot.utilities.permission import Permission
+from bot.utilities.tools import replace_vars
 
 
 class EditCommandList(Command):
@@ -42,7 +43,7 @@ class EditCommandList(Command):
 
             bot.reload_commands()  # Needs to happen to refresh the list.
             var = {"<COMMAND>": entrycmd}
-            bot.write(bot.replace_vars(self.responses["cmd_added"]["msg"], var))
+            bot.write(replace_vars(self.responses["cmd_added"]["msg"], var))
 
     def delcommand(self, bot, cmd):
         """Delete an existing command from the list."""
@@ -57,10 +58,10 @@ class EditCommandList(Command):
 
             bot.reload_commands()  # Needs to happen to refresh the list.
             var = {"<COMMAND>": entrycmd}
-            bot.write(bot.replace_vars(self.responses["cmd_removed"]["msg"], var))
+            bot.write(replace_vars(self.responses["cmd_removed"]["msg"], var))
         else:
             var = {"<COMMAND>": entrycmd}
-            bot.write(bot.replace_vars(self.responses["cmd_not_found"]["msg"], var))
+            bot.write(replace_vars(self.responses["cmd_not_found"]["msg"], var))
 
     def replylist(self, bot, _):
         """Write out the Commandlist in chat."""

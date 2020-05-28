@@ -1,12 +1,13 @@
 """Commands: "!calc"."""
+import math
 import re
 
-import math
 import pyparsing
 
 from bot.commands.abstract.command import Command
 from bot.utilities.math_parser import NumericStringParser
 from bot.utilities.permission import Permission
+from bot.utilities.tools import replace_vars
 
 PRECISION = 5
 
@@ -52,16 +53,16 @@ class Calculator(Command):
             bot.write(reply)
         except ZeroDivisionError:
             var = {"<USER>": bot.twitch.display_name(user)}
-            bot.write(bot.replace_vars(self.responses["div_by_zero"]["msg"], var))
+            bot.write(replace_vars(self.responses["div_by_zero"]["msg"], var))
         except OverflowError:
             var = {"<USER>": bot.twitch.display_name(user)}
-            bot.write(bot.replace_vars(self.responses["number_overflow"]["msg"], var))
+            bot.write(replace_vars(self.responses["number_overflow"]["msg"], var))
         except pyparsing.ParseException:
             var = {"<USER>": bot.twitch.display_name(user)}
-            bot.write(bot.replace_vars(self.responses["wrong_input"]["msg"], var))
+            bot.write(replace_vars(self.responses["wrong_input"]["msg"], var))
         except (TypeError, ValueError):  # Not sure which Errors might happen here.
             var = {"<USER>": bot.twitch.display_name(user), "<EXPRESSION>": expr}
-            bot.write(bot.replace_vars(self.responses["default_error"]["msg"], var))
+            bot.write(replace_vars(self.responses["default_error"]["msg"], var))
 
     def check_symbols(self, msg):
         """Check whether s contains no letters, except e, pi, sin, cos, tan, abs, trunc, round, sgn."""

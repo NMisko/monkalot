@@ -5,6 +5,7 @@ import random
 from bot.commands.abstract.command import Command
 from bot.paths import QUOTES_FILE
 from bot.utilities.permission import Permission
+from bot.utilities.tools import replace_vars
 
 
 class OutputQuote(Command):
@@ -41,6 +42,6 @@ class OutputQuote(Command):
                     bot.write(quote)
                 else:
                     var = {"<N_QUOTES>": len(self.quotelist)}
-                    bot.write(bot.replace_vars(self.responses["not_found"]["msg"], var))
+                    bot.write(replace_vars(self.responses["not_found"]["msg"], var))
             except ValueError:
                 bot.write(self.responses["wrong_input"]["msg"])

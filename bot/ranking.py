@@ -4,6 +4,7 @@ import math
 import sqlite3
 
 from bot.paths import CONFIG_PATH, DATABASE_PATH
+from bot.utilities.tools import replace_vars
 
 
 class Ranking:
@@ -89,7 +90,7 @@ class Ranking:
             if "Legend" in rank:
                 var = {"<USER>": bot.twitch.display_name(username), "<RANK>": rank}
                 bot.write(
-                    bot.replace_vars(
+                    replace_vars(
                         bot.config.responses["ranking"]["msg_legend"]["msg"], var
                     )
                 )

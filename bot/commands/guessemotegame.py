@@ -5,6 +5,7 @@ from bot.commands.abstract.command import Command
 from bot.utilities.permission import Permission
 from bot.utilities.startgame import start_game
 from bot.utilities.tools import emote_list_to_string
+from bot.utilities.tools import replace_vars
 
 
 class GuessEmoteGame(Command):
@@ -83,7 +84,7 @@ class GuessEmoteGame(Command):
             self.init_game(bot, msg)
             print("Right emote: " + self.emote)
             var = {"<MULTIEMOTES>": emote_list_to_string(self.emotes)}
-            bot.write(bot.replace_vars(self.responses["start_msg"]["msg"], var))
+            bot.write(replace_vars(self.responses["start_msg"]["msg"], var))
         else:
             if cmd == "!estop" and bot.get_permission(user) not in [
                 Permission.User,
@@ -100,13 +101,13 @@ class GuessEmoteGame(Command):
                     "<PRONOUN0>": bot.config.pronoun(user)[0].capitalize(),
                     "<AMOUNT>": bot.emote_game_points,
                 }
-                bot.write(bot.replace_vars(self.responses["winner_msg"]["msg"], var))
+                bot.write(replace_vars(self.responses["winner_msg"]["msg"], var))
                 bot.ranking.increment_points(user, bot.emote_game_points, bot)
                 bot.game_running = False
                 self.active = False
             elif cmd == "!emotes":
                 var = {"<MULTIEMOTES>": emote_list_to_string(self.emotes)}
-                bot.write(bot.replace_vars(self.responses["emote_msg"]["msg"], var))
+                bot.write(replace_vars(self.responses["emote_msg"]["msg"], var))
 
     def close(self, bot):
         """Close emote game."""

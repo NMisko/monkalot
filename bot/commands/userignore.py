@@ -1,6 +1,7 @@
 """Commands: "!ignore", "!unignore"."""
 from bot.commands.abstract.command import Command
 from bot.utilities.permission import Permission
+from bot.utilities.tools import replace_vars
 
 
 class UserIgnore(Command):
@@ -34,7 +35,8 @@ class UserIgnore(Command):
             # bot can ignore ANYONE, we just add the name to bot.config.ignored_users
             # IMPORTANT: ANYONE includes owner, mod and the bot itself, we do the checking here to prevent it
             if (target == bot.config.nickname) or any(
-                target in coll for coll in (bot.config.owner_list, bot.config.trusted_mods)
+                target in coll
+                for coll in (bot.config.owner_list, bot.config.trusted_mods)
             ):
                 reply = ignore_reply["privileged"]
             elif target in bot.config.ignored_users:
@@ -57,5 +59,5 @@ class UserIgnore(Command):
                 reply = unignore_reply["already"]
 
         var = {"<USER>": bot.config.twitch.display_name(target)}
-        output = bot.replace_vars(reply.get("msg"), var)
+        output = replace_vars(reply.get("msg"), var)
         bot.write(output)

@@ -1,6 +1,7 @@
 """Commands: "!total [emote]", "!minute [emote]"."""
 from bot.commands.abstract.command import Command
 from bot.utilities.permission import Permission
+from bot.utilities.tools import replace_vars
 
 
 class OutputStats(Command):
@@ -51,7 +52,7 @@ class OutputStats(Command):
             return
 
         var = {"<EMOTE>": emote, "<AMOUNT>": count}
-        bot.write(bot.replace_vars(response, var))
+        bot.write(replace_vars(response, var))
 
     @staticmethod
     def _second_word(msg):

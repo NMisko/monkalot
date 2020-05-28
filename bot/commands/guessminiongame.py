@@ -2,6 +2,7 @@
 
 from bot.commands.abstract.guessinggame import GuessingGame
 from bot.data_sources.hearthstone import Hearthstone
+from bot.utilities.tools import replace_vars
 
 
 class GuessMinionGame(GuessingGame):
@@ -10,6 +11,7 @@ class GuessMinionGame(GuessingGame):
     One Minion is randomly chosen from the list and the users
     have to guess which on it is. Give points to the winner.
     """
+
     def __init__(self, bot):
         hearthstone = Hearthstone(bot.cache)
         super().__init__(
@@ -23,7 +25,9 @@ class GuessMinionGame(GuessingGame):
                 "cost",
                 "health",
             ],
-            object_pool=[card for card in hearthstone.get_cards() if card["type"] == "MINION"],
+            object_pool=[
+                card for card in hearthstone.get_cards() if card["type"] == "MINION"
+            ],
         )
         self.responses = bot.config.responses["GuessMinionGame"]
         self.bot = bot
@@ -42,13 +46,13 @@ class GuessMinionGame(GuessingGame):
             "<PRONOUN0>": self.bot.config.pronoun(user)[0].capitalize(),
             "<AMOUNT>": self.points,
         }
-        return self.bot.replace_vars(self.responses["winner_msg"]["msg"], var)
+        return replace_vars(self.responses["winner_msg"]["msg"], var)
 
     # --- Hints ---
 
     def _cardclass_hint(self, obj):
         var = {"<STAT>": str(obj["cardClass"]).lower()}
-        return self.bot.replace_vars(self.responses["clue_stat"]["msg"], var)
+        return replace_vars(self.responses["clue_stat"]["msg"], var)
 
     def _set_hint(self, obj):
         self.statToSet = self.responses["setnames"]["msg"]
@@ -57,27 +61,27 @@ class GuessMinionGame(GuessingGame):
         else:
             setname = str(obj["set"])
         var = {"<STAT>": setname}
-        return self.bot.replace_vars(self.responses["clue_set"]["msg"], var)
+        return replace_vars(self.responses["clue_set"]["msg"], var)
 
     def _name_hint(self, obj):
         var = {"<STAT>": obj["name"][0]}
-        return self.bot.replace_vars(self.responses["clue_letter"]["msg"], var)
+        return replace_vars(self.responses["clue_letter"]["msg"], var)
 
     def _rarity_hint(self, obj):
         var = {"<STAT>": obj["rarity"]}
-        return self.bot.replace_vars(self.responses["clue_rarity"]["msg"], var)
+        return replace_vars(self.responses["clue_rarity"]["msg"], var)
 
     def _attack_hint(self, obj):
         var = {"<STAT>": obj["attack"]}
-        return self.bot.replace_vars(self.responses["clue_attackpower"]["msg"], var)
+        return replace_vars(self.responses["clue_attackpower"]["msg"], var)
 
     def _cost_hint(self, obj):
         var = {"<STAT>": obj["cost"]}
-        return self.bot.replace_vars(self.responses["clue_manacost"]["msg"], var)
+        return replace_vars(self.responses["clue_manacost"]["msg"], var)
 
     def _health_hint(self, obj):
         if obj["health"] == 1:
             var = {"<STAT>": obj["health"], "<PLURAL>": ""}
         else:
             var = {"<STAT>": obj["health"], "<PLURAL>": "s"}
-        return self.bot.replace_vars(self.responses["clue_healthpoints"]["msg"], var)
+        return replace_vars(self.responses["clue_healthpoints"]["msg"], var)

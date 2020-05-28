@@ -1,8 +1,8 @@
 """Commands: "!addmod", "!delmod"."""
-import json
 
 from bot.commands.abstract.command import Command
 from bot.utilities.permission import Permission
+from bot.utilities.tools import replace_vars
 
 
 class EditCommandMods(Command):
@@ -30,15 +30,13 @@ class EditCommandMods(Command):
                 bot.write(self.responses["mod_added"]["msg"])
             else:
                 var = {"<USER>": mod}
-                bot.write(bot.replace_vars(self.responses["already_mod"]["msg"], var))
+                bot.write(replace_vars(self.responses["already_mod"]["msg"], var))
         elif msg.startswith("!delmod "):
             if mod in bot.config.trusted_mods:
                 bot.config.trusted_mods.remove(mod)
                 bot.write(self.responses["mod_deleted"]["msg"])
             else:
                 var = {"<USER>": mod}
-                bot.write(
-                    bot.replace_vars(self.responses["user_not_in_list"]["msg"], var)
-                )
+                bot.write(replace_vars(self.responses["user_not_in_list"]["msg"], var))
 
         bot.config.write_trusted_mods()

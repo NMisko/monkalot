@@ -1,6 +1,7 @@
 """Commands: "!call", "!any", "!word"."""
 from bot.commands.abstract.command import Command
 from bot.utilities.permission import Permission
+from bot.utilities.tools import replace_vars
 
 
 class EmoteReply(Command):
@@ -68,7 +69,7 @@ class EmoteReply(Command):
 
         if self.cmd == "!call":
             var = {"<EMOTE>": self.emote}
-            s = bot.replace_vars(self.responses["call_reply"]["msg"], var)
+            s = replace_vars(self.responses["call_reply"]["msg"], var)
             parsetext = self.text.split(" ")
             for i in range(0, len(parsetext)):
                 s += " " + parsetext[i].upper() + " " + self.emote
