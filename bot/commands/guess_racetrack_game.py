@@ -24,30 +24,35 @@ class GuessRacetrackGame(GuessingGame):
         self.bot = bot
         self.points = 30
 
-    def start_message(self, _):
+    def _start_message(self, _):
         return "Race track guessing started!"
 
-    def stop_message(self):
+    def _stop_message(self):
         return "Stopped guessing race tracks."
 
-    def winner_message(self, guessed_object, user):
-        return f"{user} guessed correctly! It was {guessed_object['name']}"
+    def _winner_message(self, obj, user):
+        return f"{self.bot.twitch.display_name(user)} guessed correctly! It was {obj['name']}"
 
     # --- Hints ---
 
-    def name_hint(self, obj):
+    @staticmethod
+    def _nam_hint(obj):
         return f"Its name starts with '{obj['Name'][0]}'."
 
-    def country_hint(self, obj):
+    @staticmethod
+    def _country_hint(obj):
         return f"It's located in {obj['Country']}."
 
-    def length_hint(self, obj):
+    @staticmethod
+    def _length_hint(obj):
         return f"The race track is {obj['Length']} long."
 
-    def corners_hint(self, obj):
+    @staticmethod
+    def _corners_hint(obj):
         return f"It has {obj['Corners']} corners."
 
-    def cornername_hint(self, obj):
+    @staticmethod
+    def _cornername_hint(obj):
         return f"Hint: {obj['Cornername']}"
 
     @staticmethod

@@ -29,16 +29,16 @@ class GuessMinionGame(GuessingGame):
         self.bot = bot
         self.points = bot.config.config["points"]["minion_game"]
 
-    def start_message(self, _):
+    def _start_message(self, _):
         return self.responses["start_msg"]["msg"]
 
-    def stop_message(self):
+    def _stop_message(self):
         return self.responses["stop_msg"]["msg"]
 
-    def winner_message(self, guessed_object, user):
+    def _winner_message(self, obj, user):
         var = {
             "<USER>": self.bot.twitch.display_name(user),
-            "<MINION>": guessed_object["name"],
+            "<MINION>": obj["name"],
             "<PRONOUN0>": self.bot.config.pronoun(user)[0].capitalize(),
             "<AMOUNT>": self.points,
         }
@@ -46,11 +46,11 @@ class GuessMinionGame(GuessingGame):
 
     # --- Hints ---
 
-    def cardclass_hint(self, obj):
+    def _cardclass_hint(self, obj):
         var = {"<STAT>": str(obj["cardClass"]).lower()}
         return self.bot.replace_vars(self.responses["clue_stat"]["msg"], var)
 
-    def set_hint(self, obj):
+    def _set_hint(self, obj):
         self.statToSet = self.responses["setnames"]["msg"]
         if obj["set"] in self.statToSet:
             setname = self.statToSet[obj["set"]]
@@ -59,23 +59,23 @@ class GuessMinionGame(GuessingGame):
         var = {"<STAT>": setname}
         return self.bot.replace_vars(self.responses["clue_set"]["msg"], var)
 
-    def name_hint(self, obj):
+    def _name_hint(self, obj):
         var = {"<STAT>": obj["name"][0]}
         return self.bot.replace_vars(self.responses["clue_letter"]["msg"], var)
 
-    def rarity_hint(self, obj):
+    def _rarity_hint(self, obj):
         var = {"<STAT>": obj["rarity"]}
         return self.bot.replace_vars(self.responses["clue_rarity"]["msg"], var)
 
-    def attack_hint(self, obj):
+    def _attack_hint(self, obj):
         var = {"<STAT>": obj["attack"]}
         return self.bot.replace_vars(self.responses["clue_attackpower"]["msg"], var)
 
-    def cost_hint(self, obj):
+    def _cost_hint(self, obj):
         var = {"<STAT>": obj["cost"]}
         return self.bot.replace_vars(self.responses["clue_manacost"]["msg"], var)
 
-    def health_hint(self, obj):
+    def _health_hint(self, obj):
         if obj["health"] == 1:
             var = {"<STAT>": obj["health"], "<PLURAL>": ""}
         else:

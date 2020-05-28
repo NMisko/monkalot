@@ -2,6 +2,7 @@ import random
 from typing import List
 
 from twisted.internet import reactor
+from functools import partial
 
 from bot.utilities.permission import Permission
 from bot.utilities.startgame import start_game
@@ -25,9 +26,7 @@ class GuessingGame(Command):
         Objects need a "name" field.
 
         When implementing this, you need to implement a method for every hint, called like this:
-
-        <stat>_hint(object_to_guess)
-
+        '_<stat>_hint(obj)'
         which returns the string hint to send in the channel.
         """
         self.responses = {}
@@ -58,11 +57,18 @@ class GuessingGame(Command):
         stat = random.choice(self.attributes)
         self.attributes.remove(stat)
 
-        # Call <stat>_hint method, e.g.: self.health_hint(self.object_to_guess)
-        function = getattr(self, f"{stat.lower()}_hint")
+        # Call _<stat>_hint method, e.g.: self._health_hint(self.object_to_guess)
+        function = getattr(self, f"_{stat.lower()}_hint", partial(self._default_hint, stat=stat))
         bot.write(function(self.object_to_guess))
 
         self.callID = reactor.callLater(self.cluetime, self.give_clue, bot)
+
+    @staticmethod
+    def _default_hint(obj: dict, stat: str):
+        """This gets called if a hint function is not implemented."""
+        if stat.lower() == "name":
+            return f"Its name starts with '{obj[stat][0]}'."
+        return f"{stat}: {obj[stat]}"
 
     def init_game(self, bot):
         """Initialize game."""
@@ -81,7 +87,7 @@ class GuessingGame(Command):
             self.active = True
             self.init_game(bot)
             print("Answer: " + self.object_to_guess["name"])
-            bot.write(self.start_message(self.object_to_guess))
+            bot.write(self._start_message(self.object_to_guess))
             self.give_clue(bot)
         else:
             if cmd == self.command and bot.get_permission(user) not in [
@@ -94,7 +100,7 @@ class GuessingGame(Command):
 
             name = self.object_to_guess["name"].strip()
             if cmd.strip().lower() == name.lower():
-                bot.write(self.winner_message(self.object_to_guess, user))
+                bot.write(self._winner_message(self.object_to_guess, user))
                 bot.ranking.increment_points(user, self.points, bot)
                 self.close(bot)
 
@@ -106,17 +112,17 @@ class GuessingGame(Command):
         bot.game_running = False
 
     # ---- subclasses need to implement these ----
-    def start_message(self, object_to_guess):
+    def _start_message(self, object_to_guess):
         """Message sent when the game starts."""
         return "Started!"
 
-    def stop_message(self):
+    def _stop_message(self):
         """Message sent when the game stops."""
         return "Stopped!"
 
-    def winner_message(self, guessed_object, user):
+    def _winner_message(self, obj, user):
         """Message sent when the object is guessed."""
         return f"{user} won!"
 
-    # def <stat>_hint(self, stat):
+    # def _<stat>_hint(self, stat):
     #   pass

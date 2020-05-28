@@ -44,7 +44,7 @@ from .topspammers import TopSpammers
 from .userignore import UserIgnore
 
 
-active_games = [KappaGame, GuessEmoteGame, GuessMinionGame, MonkalotParty]
+active_games = [KappaGame, GuessRacetrackGame, GuessEmoteGame, GuessMinionGame, MonkalotParty]
 
 passive_games = [Pyramid]
 
