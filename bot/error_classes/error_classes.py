@@ -3,5 +3,5 @@
 
 class UserNotFoundError(ValueError):
     """Raised when a username is not found."""
-
-    pass
+    def __init__(self, username):
+        self.username = username

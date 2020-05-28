@@ -32,16 +32,9 @@ class Rank(Command):
         """
 
         self.responses = bot.config.responses["Rank"]
-        if msg.startswith("!rank "):
-            user = sanitize_user_name(msg.split(" ")[1])
+        user = sanitize_user_name(msg.split(" ")[1])
+        # user_id = bot.twitch.get_user_id(user)
 
-            if user in bot.displayNameToUserName:
-                # force display name to login id ... if that user is in our cache
-                user = bot.displayNameToUserName[user]
-
-        # code may break in this case
-        # if user input !rank XXXX, where XXXX is a display name, but that user
-        # does not show up in chat so that we can't get his login_id
         try:
             points = bot.ranking.get_points(user)
             var = {
@@ -50,6 +43,5 @@ class Rank(Command):
                 "<POINTS>": points,
             }
             bot.write(bot.replace_vars(self.responses["display_rank"]["msg"], var))
-
         except UserNotFoundError:
             bot.write(self.responses["user_not_found"]["msg"])

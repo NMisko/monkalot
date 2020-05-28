@@ -9,6 +9,7 @@ import requests
 import logging
 from bot.utilities.webcache import WebCache
 from bot.utilities.tools import sanitize_user_name
+from bot.error_classes.error_classes import UserNotFoundError
 
 
 class TwitchSource:
@@ -28,9 +29,9 @@ class TwitchSource:
         """Get the twitch id (numbers) from username."""
         try:
             user_id = self._get_user_tag(username)["users"][0]["_id"]
-        except KeyError:
+        except (KeyError, IndexError):
             logging.warning(f"User {username} not found.")
-            return None
+            raise UserNotFoundError(username)
         return user_id
 
     def get_channel(self, channel_id):
