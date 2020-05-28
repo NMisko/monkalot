@@ -17,7 +17,7 @@ class Cache(Command):
         """Match if message is !sleep or !wakeup."""
         cmd = msg.lower().strip()
 
-        if user in bot.trusted_mods or bot.get_permission(user) == 3:
+        if user in bot.config.trusted_mods or bot.get_permission(user) == 3:
             return cmd.startswith("!clearcache")
 
     def run(self, bot, user, msg, tag_info):

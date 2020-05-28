@@ -25,15 +25,15 @@ class EditCommandMods(Command):
         self.responses = bot.config.responses["EditCommandMods"]
         mod = msg.split(" ")[1].lower()
         if msg.startswith("!addmod "):
-            if mod not in bot.trusted_mods:
-                bot.trusted_mods.append(mod)
+            if mod not in bot.config.trusted_mods:
+                bot.config.trusted_mods.append(mod)
                 bot.write(self.responses["mod_added"]["msg"])
             else:
                 var = {"<USER>": mod}
                 bot.write(bot.replace_vars(self.responses["already_mod"]["msg"], var))
         elif msg.startswith("!delmod "):
-            if mod in bot.trusted_mods:
-                bot.trusted_mods.remove(mod)
+            if mod in bot.config.trusted_mods:
+                bot.config.trusted_mods.remove(mod)
                 bot.write(self.responses["mod_deleted"]["msg"])
             else:
                 var = {"<USER>": mod}
@@ -42,6 +42,6 @@ class EditCommandMods(Command):
                 )
 
         with open(
-            bot.trusted_mods_path.format(bot.root), "w", encoding="utf-8"
+            bot.config.trusted_mods_path.format(bot.root), "w", encoding="utf-8"
         ) as file:
-            json.dump(bot.trusted_mods, file, indent=4)
+            json.dump(bot.config.trusted_mods, file, indent=4)

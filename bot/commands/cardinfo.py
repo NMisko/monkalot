@@ -45,6 +45,7 @@ class CardInfo(Command):
 
         if not card:
             bot.write("@{} I can't find that card, sorry.".format(user))
+            return
 
         # Remove formatting and weird [x] I don't know the meaning of
         if "text" in card:

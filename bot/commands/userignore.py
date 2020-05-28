@@ -34,7 +34,7 @@ class UserIgnore(Command):
             # bot can ignore ANYONE, we just add the name to bot.ignored_users
             # IMPORTNT: ANYONE includes owner, mod and the bot itself, we do the checking here to prevent it
             if (target == bot.config.nickname) or any(
-                target in coll for coll in (bot.owner_list, bot.trusted_mods)
+                target in coll for coll in (bot.config.owner_list, bot.config.trusted_mods)
             ):
                 reply = ignore_reply["privileged"]
             elif target in bot.ignored_users:

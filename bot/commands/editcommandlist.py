@@ -78,7 +78,7 @@ class EditCommandList(Command):
             cmd.startswith("!addcommand ")
             or cmd.startswith("!delcommand ")
             or cmd == "!replylist"
-        ) and (user in bot.trusted_mods or user in bot.owner_list)
+        ) and (user in bot.config.trusted_mods or user in bot.config.owner_list)
 
     def run(self, bot, user, msg, tag_info):
         """Add or delete command, or print list."""

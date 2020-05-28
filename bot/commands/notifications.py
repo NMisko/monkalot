@@ -92,7 +92,7 @@ class Notifications(Command):
 
         Or if they want add or remove a notification from the list.
         """
-        if user in bot.trusted_mods or bot.get_permission(user) == 3:
+        if user in bot.config.trusted_mods or bot.get_permission(user) == 3:
             if msg.lower().startswith("!notifications on") or msg.lower().startswith(
                 "!notifications off"
             ):
