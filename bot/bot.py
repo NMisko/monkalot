@@ -52,7 +52,6 @@ class TwitchBot:
         # User Groups
         self.mods = set()
         self.trusted_mods = set()
-        self.ignored_users = set()
         self.subs = set()
         self.users = self.twitch.get_chatters()
 
@@ -189,7 +188,7 @@ class TwitchBot:
     def process_command(self, user, msg, tag_info):
         """Process messages and call commands."""
         # Ignore messages by ignored user
-        if user in self.ignored_users:
+        if user in self.config.ignored_users:
             return
 
         self.ranking.increment_points(user, 1, self)

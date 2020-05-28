@@ -12,7 +12,7 @@ class Questions(Command):
 
     whatis = ["what's", "whats", "what is"]
 
-    twohead = ["2head + 2head", "2head+2head", "2head and 2head"]
+    twohead = ["2head+2head", "2headand2head", "6head-2head", "-2head+6head"]
 
     def __init__(self, bot):
         """Initialize the command."""
@@ -21,8 +21,9 @@ class Questions(Command):
     @staticmethod
     def word_in_msg(wordlist, msg):
         """Check if one of the words is in the string. Returns index + 1, can be used as boolean."""
+        msg = msg.lower().replace(" ", "")
         for i in range(0, len(wordlist)):
-            if wordlist[i] in msg.lower():
+            if wordlist[i] in msg:
                 return i + 1
 
     def match(self, bot, user, msg, tag_info):
