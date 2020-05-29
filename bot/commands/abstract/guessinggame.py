@@ -15,7 +15,7 @@ class GuessingGame(Command):
 
     perm = Permission.User
 
-    def __init__(self, attributes: List[str], object_pool: List[dict], command: str):
+    def __init__(self, attributes: List[str], object_pool: List[dict], command: str, stop_command="!stop"):
         """Initialize variables.
 
         Objects need a "name" field.
@@ -29,6 +29,7 @@ class GuessingGame(Command):
         self.cluetime = 10  # time between clues in seconds
         self.callID = None
         self.statToSet = {}
+        self.stop_command = stop_command
 
         self.points = 30
 
@@ -87,12 +88,12 @@ class GuessingGame(Command):
             bot.write(self._start_message(self.object_to_guess))
             self.give_clue(bot)
         else:
-            if cmd == self.command and bot.get_permission(user) not in [
+            if cmd == self.stop_command and bot.get_permission(user) not in [
                 Permission.User,
                 Permission.Subscriber,
             ]:
                 self.close(bot)
-                bot.write(self.responses["stop"])
+                bot.write(self._stop_message())
                 return
 
             name = self.object_to_guess["name"].strip()
