@@ -25,11 +25,11 @@ def start_game(bot, user, msg, cmd):
             # The calling user is not a mod, so we subtract 5 points.
             if bot.ranking.get_points(user) > bot.config.config["points"]["game_start"]:
                 bot.last_plebgame = time.time()  # Set pleb_gametimer
-                bot.ranking.increment_points(user, -bot.GAMESTARTP, bot)
+                bot.ranking.increment_points(user, -int(bot.config.config["points"]["game_start"]), bot)
                 bot.game_running = True
                 return True
             else:
-                var = {"<AMOUNT>": bot.GAMESTARTP}
+                var = {"<AMOUNT>": int(bot.config.config["points"]["game_start"])}
                 bot.write(replace_vars(responses["points_needed"]["msg"], var))
                 return False
         else:
