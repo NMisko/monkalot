@@ -21,7 +21,7 @@ def start_game(bot, user, msg, cmd):
         and msg == cmd
     ):
         """Check if pleb_gametimer is not on cooldown."""
-        if (time.time() - bot.last_plebgame) > bot.pleb_gametimer:
+        if (time.time() - bot.last_plebgame) > bot.config.pleb_gametimer:
             # The calling user is not a mod, so we subtract 5 points.
             if bot.ranking.get_points(user) > bot.config.config["points"]["game_start"]:
                 bot.last_plebgame = time.time()  # Set pleb_gametimer
@@ -33,7 +33,7 @@ def start_game(bot, user, msg, cmd):
                 bot.write(replace_vars(responses["points_needed"]["msg"], var))
                 return False
         else:
-            t = bot.pleb_gametimer - time.time() + bot.last_plebgame
+            t = bot.config.pleb_gametimer - time.time() + bot.last_plebgame
             next_plebgame = "%8.0f" % t
             var = {"<COOLDOWN>": next_plebgame}
             bot.write(replace_vars(responses["plebgames_on_cooldown"]["msg"], var))
