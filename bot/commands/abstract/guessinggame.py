@@ -123,3 +123,20 @@ class GuessingGame(Command):
 
     # def _<stat>_hint(self, stat):
     #   pass
+
+    @staticmethod
+    def _convert_pandas_dict(data):
+        """Inverts pandas dict, from:
+
+        {"a": [1,2,3], "b": [3,4,5]}
+        to
+        [{"a": 1, "b": 3}, {"a": 2, "b": 4}, {"a": 3, "b": 5}]
+        """
+        items = list(data.items())
+        # assuming all fields are set for all objects
+        objects = [{} for _ in range(0, len(list(items)[0][1]))]
+
+        for column, values in items:
+            for index, _ in enumerate(values):
+                objects[index][column] = values[index]
+        return objects

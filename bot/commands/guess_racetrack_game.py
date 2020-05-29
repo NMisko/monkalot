@@ -35,7 +35,7 @@ class GuessRacetrackGame(GuessingGame):
     # --- Hints ---
 
     @staticmethod
-    def _nam_hint(obj):
+    def _name_hint(obj):
         return f"Its name starts with '{obj['Name'][0]}'."
 
     @staticmethod
@@ -53,20 +53,3 @@ class GuessRacetrackGame(GuessingGame):
     @staticmethod
     def _cornername_hint(obj):
         return f"Hint: {obj['Cornername']}"
-
-    @staticmethod
-    def _convert_pandas_dict(data):
-        """Inverts pandas dict, from:
-
-        {"a": [1,2,3], "b": [3,4,5]}
-        to
-        [{"a": 1, "b": 3}, {"a": 2, "b": 4}, {"a": 3, "b": 5}]
-        """
-        items = list(data.items())
-        # assuming all fields are set for all objects
-        objects = [{} for _ in range(0, len(list(items)[0][1]))]
-
-        for column, values in items:
-            for index, _ in enumerate(values):
-                objects[index][column] = values[index]
-        return objects
