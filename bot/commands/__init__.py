@@ -15,6 +15,7 @@ from .cardinfo import CardInfo
 from .editcommandlist import EditCommandList
 from .editcommandmods import EditCommandMods
 from .editquotelist import EditQuoteList
+from .guess_driver_game import GuessDriverGame
 from .guess_racetrack_game import GuessRacetrackGame
 from .guessemotegame import GuessEmoteGame
 from .guessminiongame import GuessMinionGame
@@ -46,7 +47,8 @@ from .userignore import UserIgnore
 
 active_games = [
     KappaGame,
-    GuessRacetrackGame,
+    # GuessDriverGame,
+    # GuessRacetrackGame,
     GuessEmoteGame,
     GuessMinionGame,
     MonkalotParty,

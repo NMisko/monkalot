@@ -52,4 +52,4 @@ class GuessRacetrackGame(GuessingGame):
 
     @staticmethod
     def _cornername_hint(obj):
-        return f"Hint: {obj['Cornername']}"
+        return f"A corner is called: {obj['Cornername']}"
