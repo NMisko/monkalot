@@ -37,7 +37,7 @@ class GuessDriverGame(GuessingGame):
     @staticmethod
     def _driver_hint(obj):
         names = obj['Driver'].split(' ')
-        return f"His last name starts with '{names[1][0]}'."
+        return f"His last name starts with '{names[len(names)-1][0]}'."
 
     @staticmethod
     def _first_hint(obj):
