@@ -15,10 +15,10 @@ class GuessDriverGame(GuessingGame):
     def __init__(self, bot):
         excel_dict = pd.read_excel("data/Drivers.xlsx").to_dict()
         data = self._convert_pandas_dict(excel_dict)
-        data = [{**x, "name": x["Driver"]} for x in data]
+        data = [{**x, "name": f"{x['Firstname']} {x['Lastname']}"} for x in data]
 
         super().__init__(
-            command="!dstart", attributes=list(excel_dict.keys()) + ["first"], object_pool=data,
+            command="!dstart", attributes=list(excel_dict.keys()), object_pool=data,
         )
         self.bot = bot
         self.points = 30
@@ -35,14 +35,12 @@ class GuessDriverGame(GuessingGame):
     # --- Hints ---
 
     @staticmethod
-    def _driver_hint(obj):
-        names = obj['Driver'].split(' ')
-        return f"His last name starts with '{names[len(names)-1][0]}'."
+    def _lastname_hint(obj):
+        return f"His last name starts with '{obj['Lastname'][0]}'."
 
     @staticmethod
-    def _first_hint(obj):
-        names = obj['Driver'].split(' ')
-        return f"His first name starts with '{names[0][0]}'."
+    def _firstname_hint(obj):
+        return f"His first name starts with '{obj['Firstname'][0]}'."
 
     @staticmethod
     def _birthyear_hint(obj):
@@ -58,4 +56,6 @@ class GuessDriverGame(GuessingGame):
 
     @staticmethod
     def _championships_hint(obj):
-        return f"He won {obj['Championships']} championships."
+        return f"He won {obj['Championships']} " \
+               f"championship{'s' if int(obj['Championships']) != 1 else ''}." \
+               f"{' FeelsBadMan' if int(obj['Championships']) == 0 else ''}"
