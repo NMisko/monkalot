@@ -32,6 +32,7 @@ class ConfigSource:
         custom_responses = self._read_json(CUSTOM_RESPONSES_PATH)
         # then merge with custom responses
         self.responses = deep_merge_dict(responses, custom_responses)
+        self.emote_game_emotes = self.config["EmoteGame"]
 
         self.owner_list = self.config["owner_list"]
         self.nickname = str(self.config["username"])
