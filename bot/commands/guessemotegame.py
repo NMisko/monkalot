@@ -59,7 +59,7 @@ class GuessEmoteGame(Command):
                     i += 1
         else:
             """Get emotes from config-file."""
-            emotelist = bot.config.emote_game_emotes
+            emotelist = self.emote_game_emotes
 
         """Shuffle list and choose a winning emote."""
         random.shuffle(emotelist)
@@ -99,10 +99,10 @@ class GuessEmoteGame(Command):
                     "<USER>": bot.twitch.display_name(user),
                     "<EMOTE>": self.emote,
                     "<PRONOUN0>": bot.config.pronoun(user)[0].capitalize(),
-                    "<AMOUNT>": bot.emote_game_points,
+                    "<AMOUNT>": self.emote_game_points,
                 }
                 bot.write(replace_vars(self.responses["winner_msg"]["msg"], var))
-                bot.ranking.increment_points(user, bot.emote_game_points, bot)
+                bot.ranking.increment_points(user, self.emote_game_points, bot)
                 bot.game_running = False
                 self.active = False
             elif cmd == "!emotes":
