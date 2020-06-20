@@ -6,6 +6,8 @@ passiveGames: Commands that should always react (no cooldown)
 games: activeGames + passiveGames
 commands: all commands
 """
+from typing import Type, List
+from .abstract.command import Command
 
 from .autogames import AutoGames
 from .banme import BanMe
@@ -37,7 +39,7 @@ from .sleep import Sleep
 from .smorc import Smorc
 from .spam import Spam
 
-from .speech import Speech
+from .speech_chatterbot import ChatterbotSpeech
 from .streaminfo import StreamInfo
 from .tentareply import TentaReply
 from .tip import Tip
@@ -45,7 +47,7 @@ from .topspammers import TopSpammers
 from .userignore import UserIgnore
 
 
-active_games = [
+active_games: List[Type[Command]] = [
     KappaGame,
     # GuessDriverGame,
     # GuessRacetrackGame,
@@ -54,9 +56,9 @@ active_games = [
     MonkalotParty,
 ]
 
-passive_games = [Pyramid]
+passive_games: List[Type[Command]] = [Pyramid]
 
-other = [
+other: List[Type[Command]] = [
     # EmoteReply,     # Deactivated due to request from IGetNoKick in Zetalot's channel 26.09.2017
     AutoGames,
     BanMe,
@@ -85,11 +87,12 @@ other = [
     Tip,
     TopSpammers,
     UserIgnore,
-    # Speech,  # Speech always has to be the last entry so it does not 'overwrite' commands which include the bots name.
+    # Speech always has to be the last entry so it does not 'overwrite' commands which include the bots name.
+    # ChatterbotSpeech,
 ]
 
 # Repeat here the commands that should not get reloaded if the config gets rewritten
-non_reload = [Speech]
+non_reload = [ChatterbotSpeech]
 
 commands = active_games + passive_games + other
 games = active_games + passive_games
