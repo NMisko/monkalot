@@ -1,7 +1,7 @@
 """Commands: "[command in list]"."""
 import json
 
-from bot.commands.command import Command
+from bot.commands.abstract.command import Command
 from bot.paths import REPLIES_FILE
 from bot.utilities.permission import Permission
 

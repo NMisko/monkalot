@@ -1,6 +1,6 @@
 """Commands: "!sleep", "!wakeup"."""
 
-from bot.commands.command import Command
+from bot.commands.abstract.command import Command
 from bot.utilities.permission import Permission
 
 
@@ -9,7 +9,7 @@ class Sleep(Command):
 
     perm = Permission.Moderator
 
-    def __init__(self, bot):
+    def __init__(self, _):
         """Initialize variables."""
         self.responses = {}
 
@@ -17,13 +17,13 @@ class Sleep(Command):
         """Match if message is !sleep or !wakeup."""
         cmd = msg.lower().strip()
 
-        if (user in bot.trusted_mods or bot.get_permission(user) == 3):
+        if user in bot.config.trusted_mods or bot.get_permission(user) == 3:
             return cmd.startswith("!sleep") or cmd.startswith("!wakeup")
 
     def run(self, bot, user, msg, tag_info):
         """Put the bot to sleep or wake it up."""
-        self.responses = bot.responses["Sleep"]
-        cmd = msg.lower().replace(' ', '')
+        self.responses = bot.config.responses["Sleep"]
+        cmd = msg.lower().replace(" ", "")
         if cmd.startswith("!sleep"):
             bot.write(self.responses["bot_deactivate"]["msg"])
             bot.close_commands()

@@ -1,5 +1,5 @@
 """Commands:."""
-from bot.commands.command import Command
+from bot.commands.abstract.command import Command
 from bot.utilities.permission import Permission
 
 
@@ -11,7 +11,7 @@ class Spam(Command):
     OBSERVED_MESSAGES = 15
     NECESSARY_SPAM = 6
 
-    def __init__(self, bot):
+    def __init__(self, _):
         """Initialize variables."""
         self.fifo = []
         self.counter = {}
@@ -21,7 +21,7 @@ class Spam(Command):
     def match(self, bot, user, msg, tag_info):
         """Add message to queue. Match if a message was spammed more than NECESSARY_SPAM."""
         self.fifo.append(msg)
-        if (msg not in self.counter):
+        if msg not in self.counter:
             self.counter[msg] = 1
         else:
             self.counter[msg] = self.counter[msg] + 1

@@ -1,9 +1,10 @@
 """Commands: "!addcommand"."""
 import json
 
-from bot.commands.command import Command
+from bot.commands.abstract.command import Command
 from bot.paths import REPLIES_FILE
 from bot.utilities.permission import Permission
+from bot.utilities.tools import replace_vars
 
 
 class EditCommandList(Command):
@@ -22,7 +23,7 @@ class EditCommandList(Command):
 
     def addcommand(self, bot, cmd):
         """Add a new command to the list, make sure there are no duplicates."""
-        tailcmd = cmd[len("!addcommand "):]
+        tailcmd = cmd[len("!addcommand ") :]
         tailcmd.strip()
 
         """Add all commands in lower case, so no case-sensitive
@@ -37,49 +38,52 @@ class EditCommandList(Command):
         else:
             self.replies[entrycmd] = entryarg
 
-            with open(REPLIES_FILE.format(bot.root), 'w', encoding="utf-8") as file:
+            with open(REPLIES_FILE.format(bot.root), "w", encoding="utf-8") as file:
                 json.dump(self.replies, file, indent=4, ensure_ascii=False)
 
             bot.reload_commands()  # Needs to happen to refresh the list.
             var = {"<COMMAND>": entrycmd}
-            bot.write(bot.replace_vars(self.responses["cmd_added"]["msg"], var))
+            bot.write(replace_vars(self.responses["cmd_added"]["msg"], var))
 
     def delcommand(self, bot, cmd):
         """Delete an existing command from the list."""
-        entrycmd = cmd[len("!delcommand "):]
+        entrycmd = cmd[len("!delcommand ") :]
         entrycmd.strip()
 
         if entrycmd in self.replies:
             del self.replies[entrycmd]
 
-            with open(REPLIES_FILE.format(bot.root), 'w', encoding="utf-8") as file:
+            with open(REPLIES_FILE.format(bot.root), "w", encoding="utf-8") as file:
                 json.dump(self.replies, file, indent=4, ensure_ascii=False)
 
             bot.reload_commands()  # Needs to happen to refresh the list.
             var = {"<COMMAND>": entrycmd}
-            bot.write(bot.replace_vars(self.responses["cmd_removed"]["msg"], var))
+            bot.write(replace_vars(self.responses["cmd_removed"]["msg"], var))
         else:
             var = {"<COMMAND>": entrycmd}
-            bot.write(bot.replace_vars(self.responses["cmd_not_found"]["msg"], var))
+            bot.write(replace_vars(self.responses["cmd_not_found"]["msg"], var))
 
-    def replylist(self, bot, cmd):
+    def replylist(self, bot, _):
         """Write out the Commandlist in chat."""
-        replylist = 'Replylist Commands: '
+        replylist = "Replylist Commands: "
 
         for key in self.replies:
-            replylist = replylist + key + ' '
+            replylist = replylist + key + " "
 
         bot.write(str(replylist))
 
     def match(self, bot, user, msg, tag_info):
         """Match if !addcommand, !delcommand or !replyList."""
         cmd = msg.lower().strip()
-        return (cmd.startswith("!addcommand ") or cmd.startswith("!delcommand ") or cmd == "!replylist") and \
-               (user in bot.trusted_mods or user in bot.owner_list)
+        return (
+            cmd.startswith("!addcommand ")
+            or cmd.startswith("!delcommand ")
+            or cmd == "!replylist"
+        ) and (user in bot.config.trusted_mods or user in bot.config.owner_list)
 
     def run(self, bot, user, msg, tag_info):
         """Add or delete command, or print list."""
-        self.responses = bot.responses["EditCommandList"]
+        self.responses = bot.config.responses["EditCommandList"]
         cmd = msg.lower().strip()
 
         if cmd.startswith("!addcommand "):

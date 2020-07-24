@@ -1,5 +1,5 @@
 """Commands: "what's/whats/what is XXXXX"."""
-from bot.commands.command import Command
+from bot.commands.abstract.command import Command
 from bot.utilities.permission import Permission
 
 from .calculator import Calculator
@@ -10,42 +10,50 @@ class Questions(Command):
 
     perm = Permission.User
 
-    whatis = [
-        'what\'s',
-        'whats',
-        'what is'
-    ]
+    whatis = ["what's", "whats", "what is"]
 
-    twohead = [
-        '2head + 2head',
-        '2head+2head',
-        '2head and 2head'
-    ]
+    twohead = ["2head+2head", "2headand2head", "6head-2head", "-2head+6head"]
 
     def __init__(self, bot):
         """Initialize the command."""
         self.calc = Calculator(bot)
 
-    def wordInMsg(self, wordlist, msg):
+    @staticmethod
+    def word_in_msg(wordlist, msg):
         """Check if one of the words is in the string. Returns index + 1, can be used as boolean."""
+        msg = msg.lower().replace(" ", "")
         for i in range(0, len(wordlist)):
-            if wordlist[i] in msg.lower():
+            if wordlist[i] in msg:
                 return i + 1
 
     def match(self, bot, user, msg, tag_info):
         """Match if the bot is tagged, the sentence contains 'what is' (in various forms) or proper math syntax."""
-        if bot.nickname.lower() in msg.lower() and self.wordInMsg(self.whatis, msg):
-            index = self.wordInMsg(self.whatis, msg)
-            cmd = msg.lower().replace(self.whatis[index-1], '').replace('@', '').replace(bot.nickname, '').replace('?', '')
-            if self.wordInMsg(self.twohead, msg) or self.calc.checkSymbols(cmd):
+        if bot.config.nickname.lower() in msg.lower() and self.word_in_msg(
+            self.whatis, msg
+        ):
+            index = self.word_in_msg(self.whatis, msg)
+            cmd = (
+                msg.lower()
+                .replace(self.whatis[index - 1], "")
+                .replace("@", "")
+                .replace(bot.config.nickname, "")
+                .replace("?", "")
+            )
+            if self.word_in_msg(self.twohead, msg) or self.calc.check_symbols(cmd):
                 bot.antispeech = True
                 return True
 
     def run(self, bot, user, msg, tag_info):
         """Define answers based on pieces in the message."""
-        index = self.wordInMsg(self.whatis, msg)
-        if self.wordInMsg(self.twohead, msg):
-            bot.write('@' + bot.displayName(user) + ' It\'s 4Head')
+        index = self.word_in_msg(self.whatis, msg)
+        if self.word_in_msg(self.twohead, msg):
+            bot.write("@" + bot.twitch.display_name(user) + " It's 4Head")
         else:
-            cmd = msg.lower().replace(self.whatis[index-1], '').replace('@', '').replace(bot.nickname, '').replace('?', '')
+            cmd = (
+                msg.lower()
+                .replace(self.whatis[index - 1], "")
+                .replace("@", "")
+                .replace(bot.config.nickname, "")
+                .replace("?", "")
+            )
             self.calc.run(bot, user, "!calc " + cmd, tag_info)

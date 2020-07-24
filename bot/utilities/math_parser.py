@@ -18,15 +18,6 @@ class NumericStringParser(object):
     more easily in other places.
     """
 
-    def pushFirst(self, strg, loc, toks):
-        """Push first token."""
-        self.exprStack.append(toks[0])
-
-    def pushUMinus(self, strg, loc, toks):
-        """Push a unary minus."""
-        if toks and toks[0] == '-':
-            self.exprStack.append('unary -')
-
     def __init__(self):
         """
         Initialize parser.
@@ -42,10 +33,12 @@ class NumericStringParser(object):
         """
         point = pyp.Literal(".")
         e = pyp.CaselessLiteral("E")
-        fnumber = pyp.Combine(pyp.Word("+-"+pyp.nums, pyp.nums) +
-                              pyp.Optional(point + pyp.Optional(pyp.Word(pyp.nums))) +
-                              pyp.Optional(e + pyp.Word("+-"+pyp.nums, pyp.nums)))
-        ident = pyp.Word(pyp.alphas, pyp.alphas+pyp.nums+"_$")
+        fnumber = pyp.Combine(
+            pyp.Word("+-" + pyp.nums, pyp.nums)
+            + pyp.Optional(point + pyp.Optional(pyp.Word(pyp.nums)))
+            + pyp.Optional(e + pyp.Word("+-" + pyp.nums, pyp.nums))
+        )
+        ident = pyp.Word(pyp.alphas, pyp.alphas + pyp.nums + "_$")
         plus = pyp.Literal("+")
         minus = pyp.Literal("-")
         mult = pyp.Literal("*")
@@ -57,19 +50,26 @@ class NumericStringParser(object):
         expop = pyp.Literal("^")
         pi = pyp.CaselessLiteral("PI")
         expr = pyp.Forward()
-        atom = ((pyp.Optional(pyp.oneOf("- +")) +
-                 (pi | e | fnumber | ident+lpar+expr+rpar).setParseAction(self.pushFirst))
-                | pyp.Optional(pyp.oneOf("- +")) + pyp.Group(lpar+expr+rpar)
-                ).setParseAction(self.pushUMinus)
+        atom = (
+            (
+                pyp.Optional(pyp.oneOf("- +"))
+                + (pi | e | fnumber | ident + lpar + expr + rpar).setParseAction(
+                    self.push_first
+                )
+            )
+            | pyp.Optional(pyp.oneOf("- +")) + pyp.Group(lpar + expr + rpar)
+        ).setParseAction(self.push_u_minus)
         # by defining exponentiation as "atom [ ^ factor ]..." instead of
         # "atom [ ^ atom ]...", we get right-to-left exponents, instead of left-to-right
         # that is, 2^3^2 = 2^(3^2), not (2^3)^2.
         factor = pyp.Forward()
-        factor << atom + pyp.ZeroOrMore((expop + factor).setParseAction(
-            self.pushFirst))
-        term = factor + pyp.ZeroOrMore((multop + factor).setParseAction(
-            self.pushFirst))
-        expr << term + pyp.ZeroOrMore((addop + term).setParseAction(self.pushFirst))
+        factor << atom + pyp.ZeroOrMore(
+            (expop + factor).setParseAction(self.push_first)
+        )
+        term = factor + pyp.ZeroOrMore(
+            (multop + factor).setParseAction(self.push_first)
+        )
+        expr << term + pyp.ZeroOrMore((addop + term).setParseAction(self.push_first))
         self.bnf = expr
         # map operator symbols to corresponding arithmetic operations
         epsilon = 1e-12
@@ -78,13 +78,13 @@ class NumericStringParser(object):
             "-": operator.sub,
             "*": operator.mul,
             "/": operator.truediv,
-            "^": operator.pow
+            "^": operator.pow,
         }
         self.fn = {
             "abs": abs,
             "trunc": lambda a: int(a),
             "round": round,
-            "sgn": lambda a: abs(a) > epsilon and a > 0 or 0
+            "sgn": lambda a: abs(a) > epsilon and a > 0 or 0,
         }
 
         for n in dir(math):
@@ -94,29 +94,38 @@ class NumericStringParser(object):
 
         self.exprStack = []
 
-    def evaluateStack(self, s):
+    def push_first(self, _, __, toks):
+        """Push first token."""
+        self.exprStack.append(toks[0])
+
+    def push_u_minus(self, _, __, toks):
+        """Push a unary minus."""
+        if toks and toks[0] == "-":
+            self.exprStack.append("unary -")
+
+    def evaluate_stack(self, s):
         """Evaluate content of stack."""
         op = s.pop()
-        if op == 'unary -':
-            return -self.evaluateStack(s)
+        if op == "unary -":
+            return -self.evaluate_stack(s)
         if op in "+-*/^":
-            op2 = self.evaluateStack(s)
-            op1 = self.evaluateStack(s)
+            op2 = self.evaluate_stack(s)
+            op1 = self.evaluate_stack(s)
             return self.opn[op](op1, op2)
         elif op == "PI":
             return math.pi  # 3.1415926535
         elif op == "E":
             return math.e  # 2.718281828
         elif op in self.fn:
-            return self.fn[op](self.evaluateStack(s))
+            return self.fn[op](self.evaluate_stack(s))
         elif op[0].isalpha():
             return 0
         else:
             return float(op)
 
-    def eval(self, num_string, parseAll=True):
+    def eval(self, num_string, parse_all=True):
         """Evaluate value of string."""
         self.exprStack = []
-        self.bnf.parseString(num_string, parseAll)
-        val = self.evaluateStack(self.exprStack[:])
+        self.bnf.parseString(num_string, parse_all)
+        val = self.evaluate_stack(self.exprStack[:])
         return val

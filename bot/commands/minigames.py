@@ -4,15 +4,45 @@ import json
 import random
 from random import randint, shuffle
 
-DATA_OBJECT = '{}data/monkalot_party.json'
+DATA_OBJECT = "{}data/monkalot_party.json"
 
 
 class MiniGames(object):
     """Small and fast chat games."""
 
-    questtype = ['oppositeof', 'capitalof', 'colorof', 'completelyric', 'completewithemote', 'similars', 'write']
+    questtype = [
+        "oppositeof",
+        "capitalof",
+        "colorof",
+        "completelyric",
+        "completewithemote",
+        "similars",
+        "write",
+    ]
 
-    def storycalc(self):
+    def __init__(self, bot):
+        """Initialize mini game structure."""
+        with open(DATA_OBJECT.format(bot.root), "r", encoding="utf-8") as file:
+            self.data = json.load(file)
+
+        """Reset rankings and games."""
+        self.ranks = {}
+        self.games = {}
+
+        """Create the minigames."""
+        self.games.update(self.oppositeof())
+        self.games.update(self.capitalof())
+        self.games.update(self.colorof())
+        self.games.update(self.completelyric())
+        self.games.update(self.completewithemote())
+        self.games.update(self.oneisnotliketheother())
+        self.games.update(self.bethefirsttowrite())
+        self.games.update(self.coolstorybob())
+        self.games.update(self.simplecalc())
+        self.games.update(self.storycalc())
+
+    @staticmethod
+    def storycalc():
         """Give a math text question."""
         start_a = random.randrange(2, 10, 2)
         start_b = random.randrange(2, 10, 2)
@@ -30,10 +60,31 @@ class MiniGames(object):
             give_take = "takes"
             his_your = "your"
 
-        story = "/me ▬▬▬▬▬▬M▬A▬T▬H▬▬T▬I▬M▬E▬▬▬▬▬▬▬ You have " + str(start_a) + " " + fruit \
-            + " and meet Kappa who has " + str(start_b) + " " + fruit + " . He " + give_take + " half of " \
-            + his_your + " " + fruit + " . Later you find " + str(more) + " more " + fruit + " and give " \
-            + str(give_b) + " " + fruit + " to Kappa . ▬▬▬▬▬▬M▬A▬T▬H▬▬T▬I▬M▬E▬▬▬▬▬▬▬ "
+        story = (
+            "/me ▬▬▬▬▬▬M▬A▬T▬H▬▬T▬I▬M▬E▬▬▬▬▬▬▬ You have "
+            + str(start_a)
+            + " "
+            + fruit
+            + " and meet Kappa who has "
+            + str(start_b)
+            + " "
+            + fruit
+            + " . He "
+            + give_take
+            + " half of "
+            + his_your
+            + " "
+            + fruit
+            + " . Later you find "
+            + str(more)
+            + " more "
+            + fruit
+            + " and give "
+            + str(give_b)
+            + " "
+            + fruit
+            + " to Kappa . ▬▬▬▬▬▬M▬A▬T▬H▬▬T▬I▬M▬E▬▬▬▬▬▬▬ "
+        )
 
         if plus_minus:
             end_a = start_a + int(start_b / 2) + more - give_b
@@ -52,7 +103,8 @@ class MiniGames(object):
         question = story + quest
         return {"storycalc": {"question": question, "answer": answer}}
 
-    def simplecalc(self):
+    @staticmethod
+    def simplecalc():
         """Do a simple calculation."""
         a = randint(2, 9)
         b = randint(2, 9)
@@ -69,32 +121,63 @@ class MiniGames(object):
         elif n == 2:
             quest = str(a) + " + " + str(b) + " + " + str(c) + " + " + str(d)
             answer = a + b + c + d
-        elif n == 3:
+        else:
             quest = str(a) + " x " + str(b) + " + " + str(c) + " + " + str(d)
             answer = a * b + c + d
 
-        question = "/me ▬▬▬▬▬▬M▬A▬T▬H▬▬T▬I▬M▬E▬▬▬▬▬▬▬ NotLikeThis What is {} = ? NotLikeThis ▬▬▬▬▬▬M▬A▬T▬H▬▬T▬I▬M▬E▬▬▬▬▬▬▬".format(quest)
+        question = (
+            f"/me ▬▬▬▬▬▬M▬A▬T▬H▬▬T▬I▬M▬E▬▬▬▬▬▬▬ NotLikeThis What is {quest} = ? "
+            f"NotLikeThis ▬▬▬▬▬▬M▬A▬T▬H▬▬T▬I▬M▬E▬▬▬▬▬▬▬"
+        )
 
         return {"simplecalc": {"question": question, "answer": answer}}
 
     def coolstorybob(self):
         """Tell a story, ask about one detail."""
-        emotes = random.sample(list(self.data['write']), 2)
+        emotes = random.sample(list(self.data["write"]), 2)
         emote = emotes[0]
         emote2 = emotes[1]
 
-        relative = random.choice(list(self.data['relative']))
-        location = self.randomLocation()
+        relative = random.choice(list(self.data["relative"]))
+        location = self.random_location()
 
-        color = random.choice(list(self.data['similars']['colors']))
-        vehicle = random.choice(list(self.data['similars']['vehicles']))
-        toy = random.choice(list(self.data['similars']['vehicles'] + self.data['similars']['animals']))
-        deck = random.choice(list(self.data['archetype'])) + ' ' + random.choice(list(self.data['similars']['classes']))
-        device = random.choice(list(self.data['device']))
+        color = random.choice(list(self.data["similars"]["colors"]))
+        vehicle = random.choice(list(self.data["similars"]["vehicles"]))
+        toy = random.choice(
+            list(self.data["similars"]["vehicles"] + self.data["similars"]["animals"])
+        )
+        deck = (
+            random.choice(list(self.data["archetype"]))
+            + " "
+            + random.choice(list(self.data["similars"]["classes"]))
+        )
+        device = random.choice(list(self.data["device"]))
 
-        story = "/me ▬▬▬C▬O▬O▬L▬S▬T▬O▬R▬Y▬B▬O▬B▬▬▬▬ CoolStoryBob Storytime: " + emote + " and his " + relative + " " + emote2 \
-            + " are going to " + location + " by " + vehicle + ". " + emote + " brought his " + color + " plastic toy " + toy + " along, " \
-            + emote2 + " was playing " + deck + " on his " + device + ". CoolStoryBob ▬▬▬C▬O▬O▬L▬S▬T▬O▬R▬Y▬B▬O▬B▬▬▬▬ :thinking: "
+        story = (
+            "/me ▬▬▬C▬O▬O▬L▬S▬T▬O▬R▬Y▬B▬O▬B▬▬▬▬ CoolStoryBob Storytime: "
+            + emote
+            + " and his "
+            + relative
+            + " "
+            + emote2
+            + " are going to "
+            + location
+            + " by "
+            + vehicle
+            + ". "
+            + emote
+            + " brought his "
+            + color
+            + " plastic toy "
+            + toy
+            + " along, "
+            + emote2
+            + " was playing "
+            + deck
+            + " on his "
+            + device
+            + ". CoolStoryBob ▬▬▬C▬O▬O▬L▬S▬T▬O▬R▬Y▬B▬O▬B▬▬▬▬ :thinking: "
+        )
 
         n = randint(0, 8)
         if n == 0:
@@ -121,23 +204,20 @@ class MiniGames(object):
         elif n == 7:
             quest = "On what device is " + emote2 + " playing?"
             answer = device
-        elif n == 8:
+        else:
             quest = "Who brought the " + color + " " + toy + "?"
             answer = emote
-        else:
-            print("Error in selecting a question.")
         quest += " :thinking:"
-
         question = story + quest
         return {"coolstorybob": {"question": question, "answer": answer}}
 
-    def randomLocation(self):
+    def random_location(self):
         """Return either a random country or a random capital."""
-        location_key = random.choice(list(self.data['capitalof']))
+        location_key = random.choice(list(self.data["capitalof"]))
         if bool(random.getrandbits(1)):
             location = location_key
         else:
-            location = self.data['capitalof'][location_key]
+            location = self.data["capitalof"][location_key]
         return location
 
     def bethefirsttowrite(self):
@@ -147,36 +227,37 @@ class MiniGames(object):
         """if random.randrange(100) < 25:
             DONT = "not "
         else:"""
-        DONT = ""
+        _not_ = ""
 
         answer = random.choice(list(self.data[qtype]))
-        question = "/me ▬▬▬G▬O▬T▬T▬A▬▬G▬O▬▬F▬A▬S▬T▬▬▬▬ PogChamp QUICK! PogChamp Be the first to {}write {} ! ▬▬▬G▬O▬T▬T▬A▬▬G▬O▬▬F▬A▬S▬T▬▬▬▬".format(DONT, answer)
+        question = (
+            f"/me ▬▬▬G▬O▬T▬T▬A▬▬G▬O▬▬F▬A▬S▬T▬▬▬▬ PogChamp QUICK! PogChamp "
+            f"Be the first to {_not_}write {answer} ! ▬▬▬G▬O▬T▬T▬A▬▬G▬O▬▬F▬A▬S▬T▬▬▬▬"
+        )
 
         return {"bethefirsttowrite": {"question": question, "answer": answer}}
 
     def oneisnotliketheother(self):
         """Present a list of words, where one doesn't belong in."""
         qtype = self.questtype[5]
-        itemfound = False
 
         rngkey = random.choice(list(self.data[qtype]))
         itemlist = self.data[qtype][rngkey].copy()
         for i in range(0, len(itemlist)):
             itemlist[i] = itemlist[i].upper()
 
-        while not itemfound:
-            otherkey = random.choice(list(self.data[qtype]))
-            if otherkey != rngkey:
-                itemfound = True
-
+        otherkey = random.choice(list(set(self.data[qtype]) - {rngkey}))
         otheritemlist = self.data[qtype][otherkey]
 
         answer = random.choice(otheritemlist)
         itemlist.append(answer.upper())
         shuffle(itemlist)
-        item = ', '.join(str(x) for x in itemlist)
+        item = ", ".join(str(x) for x in itemlist)
 
-        question = "/me ▬O▬N▬E▬▬I▬S▬▬N▬O▬T▬▬A▬L▬I▬K▬E▬▬ NotLikeThis - One of these things is not like the others! - NotLikeThis {} ▬O▬N▬E▬▬I▬S▬▬N▬O▬T▬▬A▬L▬I▬K▬E▬▬".format(item)
+        question = (
+            f"/me ▬O▬N▬E▬▬I▬S▬▬N▬O▬T▬▬A▬L▬I▬K▬E▬▬ NotLikeThis - "
+            f"One of these things is not like the others! - NotLikeThis {item} ▬O▬N▬E▬▬I▬S▬▬N▬O▬T▬▬A▬L▬I▬K▬E▬▬"
+        )
 
         return {"oneisnotliketheother": {"question": question, "answer": answer}}
 
@@ -185,7 +266,10 @@ class MiniGames(object):
         qtype = self.questtype[4]
 
         item = random.choice(list(self.data[qtype]))
-        question = "/me ▬▬C▬O▬M▬P▬L▬E▬T▬E▬▬E▬M▬O▬T▬E▬▬ monkaS Complete the following rhyme with an emote! monkaS \"{}\" ▬▬C▬O▬M▬P▬L▬E▬T▬E▬▬E▬M▬O▬T▬E▬▬".format(item)
+        question = (
+            f"/me ▬▬C▬O▬M▬P▬L▬E▬T▬E▬▬E▬M▬O▬T▬E▬▬ monkaS "
+            f'Complete the following rhyme with an emote! monkaS "{item}"'
+        )
         answer = self.data[qtype][item]
 
         return {"completewithemote": {"question": question, "answer": answer}}
@@ -195,7 +279,10 @@ class MiniGames(object):
         qtype = self.questtype[3]
 
         item = random.choice(list(self.data[qtype]))
-        question = "/me ▬C▬O▬M▬P▬L▬E▬T▬E▬▬L▬Y▬R▬I▬C▬S▬▬ monkaS Complete the following lyrics: \"{}\" monkaS ▬C▬O▬M▬P▬L▬E▬T▬E▬▬L▬Y▬R▬I▬C▬S▬▬".format(item)
+        question = (
+            f"/me ▬C▬O▬M▬P▬L▬E▬T▬E▬▬L▬Y▬R▬I▬C▬S▬▬ monkaS "
+            f'Complete the following lyrics: "{item}" monkaS ▬C▬O▬M▬P▬L▬E▬T▬E▬▬L▬Y▬R▬I▬C▬S▬▬'
+        )
         answer = self.data[qtype][item]
 
         return {"completelyric": {"question": question, "answer": answer}}
@@ -206,7 +293,10 @@ class MiniGames(object):
 
         item = random.choice(list(self.data[qtype]))
         article = self.data[qtype][item][1]
-        question = "/me ▬W▬H▬A▬T▬S▬▬T▬H▬E▬▬C▬O▬L▬O▬R▬▬ :thinking: What's the color of {}{}? :thinking: ▬W▬H▬A▬T▬S▬▬T▬H▬E▬▬C▬O▬L▬O▬R▬▬".format(article, item)
+        question = (
+            f"/me ▬W▬H▬A▬T▬S▬▬T▬H▬E▬▬C▬O▬L▬O▬R▬▬ :thinking: "
+            f"What's the color of {article}{item}? :thinking: ▬W▬H▬A▬T▬S▬▬T▬H▬E▬▬C▬O▬L▬O▬R▬▬"
+        )
         answer = self.data[qtype][item][0]
 
         return {"colorof": {"question": question, "answer": answer}}
@@ -220,11 +310,19 @@ class MiniGames(object):
 
         if key_arg:
             item = self.data[qtype][key]
-            question = "/me ▬▬▬▬▬▬C▬A▬P▬I▬T▬A▬L▬▬O▬F▬▬▬▬▬▬ :thinking: {} is the capital of? :thinking: ▬▬▬▬▬▬C▬A▬P▬I▬T▬A▬L▬▬O▬F▬▬▬▬▬▬".format(item)
+            question = (
+                f"/me ▬▬▬▬▬▬C▬A▬P▬I▬T▬A▬L▬▬O▬F▬▬▬▬▬▬ :thinking: "
+                f"{item} is the capital of? "
+                f":thinking: ▬▬▬▬▬▬C▬A▬P▬I▬T▬A▬L▬▬O▬F▬▬▬▬▬▬"
+            )
             answer = key
         else:
             item = key
-            question = "/me ▬▬▬▬▬▬C▬A▬P▬I▬T▬A▬L▬▬O▬F▬▬▬▬▬▬ :thinking: What is the capital of {}? :thinking: ▬▬▬▬▬▬C▬A▬P▬I▬T▬A▬L▬▬O▬F▬▬▬▬▬▬".format(item)
+            question = (
+                f"/me ▬▬▬▬▬▬C▬A▬P▬I▬T▬A▬L▬▬O▬F▬▬▬▬▬▬ :thinking: "
+                f"What is the capital of {item}?"
+                f":thinking: ▬▬▬▬▬▬C▬A▬P▬I▬T▬A▬L▬▬O▬F▬▬▬▬▬▬"
+            )
             answer = self.data[qtype][key]
 
         return {"capitalof": {"question": question, "answer": answer}}
@@ -243,7 +341,11 @@ class MiniGames(object):
             item = self.data[qtype][key]
             answer = key
 
-        question = "/me ▬▬▬▬▬O▬P▬P▬O▬S▬I▬T▬E▬▬O▬F▬▬▬▬▬ :thinking: What is the opposite of {}? :thinking: ▬▬▬▬▬O▬P▬P▬O▬S▬I▬T▬E▬▬O▬F▬▬▬▬▬".format(item)
+        question = (
+            f"/me ▬▬▬▬▬O▬P▬P▬O▬S▬I▬T▬E▬▬O▬F▬▬▬▬▬ :thinking: "
+            f"What is the opposite of {item}? :thinking: "
+            f"▬▬▬▬▬O▬P▬P▬O▬S▬I▬T▬E▬▬O▬F▬▬▬▬▬"
+        )
 
         return {"oppositeof": {"question": question, "answer": answer}}
 
@@ -258,7 +360,7 @@ class MiniGames(object):
         """Return the top ranked users and return the amount of spampoints they get."""
         winners = []
 
-        topscore = self.ranks[max(self.ranks.keys(), key=(lambda key: self.ranks[key]))]
+        topscore = self.ranks[max(self.ranks.keys(), key=(lambda x: self.ranks[x]))]
         if topscore > 1:
             for key in self.ranks:
                 if self.ranks[key] == topscore:
@@ -274,28 +376,8 @@ class MiniGames(object):
             spampoints = 20
         elif len(winners) == 4:
             spampoints = 15
-        elif len(winners) == 5:
+        else:
+            # len(winners) == 5
             spampoints = 10
 
         return winners, topscore, spampoints
-
-    def __init__(self, bot):
-        """Initialize mini game structure."""
-        with open(DATA_OBJECT.format(bot.root), "r", encoding="utf-8") as file:
-            self.data = json.load(file)
-
-        """Reset rankings and games."""
-        self.ranks = {}
-        self.games = {}
-
-        """Create the minigames."""
-        self.games.update(self.oppositeof())
-        self.games.update(self.capitalof())
-        self.games.update(self.colorof())
-        self.games.update(self.completelyric())
-        self.games.update(self.completewithemote())
-        self.games.update(self.oneisnotliketheother())
-        self.games.update(self.bethefirsttowrite())
-        self.games.update(self.coolstorybob())
-        self.games.update(self.simplecalc())
-        self.games.update(self.storycalc())

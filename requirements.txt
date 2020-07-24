@@ -7,3 +7,6 @@ colorlog
 bottle
 jwcrypto
 chatterbot
+chatterbot_corpus
+pandas
+xlrd >= 1.0.0

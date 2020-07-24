@@ -1,12 +1,12 @@
 """Commands: "!addquote", "!delquote"."""
 import json
 
-from bot.commands.command import Command
+from bot.commands.abstract.command import Command
 from bot.paths import QUOTES_FILE
 from bot.utilities.permission import Permission
 
 
-class editQuoteList(Command):
+class EditQuoteList(Command):
     """Add or delete quote from a json-file."""
 
     perm = Permission.Moderator
@@ -19,12 +19,12 @@ class editQuoteList(Command):
 
     def addquote(self, bot, msg):
         """Add a quote to the list."""
-        quote = msg[len("!addquote "):]
+        quote = msg[len("!addquote ") :]
         quote.strip()
 
         if quote not in self.quotelist:
             self.quotelist.append(quote)
-            with open(QUOTES_FILE.format(bot.root), 'w', encoding="utf-8") as file:
+            with open(QUOTES_FILE.format(bot.root), "w", encoding="utf-8") as file:
                 json.dump(self.quotelist, file, indent=4)
             bot.reload_commands()  # Needs to happen to refresh the list.
             bot.write(self.responses["quote_added"]["msg"])
@@ -33,12 +33,12 @@ class editQuoteList(Command):
 
     def delquote(self, bot, msg):
         """Delete a quote from the list."""
-        quote = msg[len("!delquote "):]
+        quote = msg[len("!delquote ") :]
         quote.strip()
 
         if quote in self.quotelist:
             self.quotelist.remove(quote)
-            with open(QUOTES_FILE.format(bot.root), 'w', encoding="utf-8") as file:
+            with open(QUOTES_FILE.format(bot.root), "w", encoding="utf-8") as file:
                 json.dump(self.quotelist, file, indent=4)
             bot.reload_commands()  # Needs to happen to refresh the list.
             bot.write(self.responses["quote_removed"]["msg"])
@@ -52,7 +52,7 @@ class editQuoteList(Command):
 
     def run(self, bot, user, msg, tag_info):
         """Add or delete quote."""
-        self.responses = bot.responses["editQuoteList"]
+        self.responses = bot.config.responses["editQuoteList"]
         cmd = msg.lower().strip()
         if cmd.startswith("!addquote "):
             self.addquote(bot, msg)

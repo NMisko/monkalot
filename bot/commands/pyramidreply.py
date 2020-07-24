@@ -1,5 +1,5 @@
 """Commands: "!pjsalt"."""
-from bot.commands.command import Command
+from bot.commands.abstract.command import Command
 from bot.utilities.permission import Permission
 
 
@@ -30,8 +30,8 @@ class PyramidReply(Command):
         for key, reply in self.replies.items():
             if cmd == key:
                 bot.write(reply)
-                bot.write(reply + ' ' + reply)
-                bot.write(reply + ' ' + reply + ' ' + reply)
-                bot.write(reply + ' ' + reply)
+                bot.write(reply + " " + reply)
+                bot.write(reply + " " + reply + " " + reply)
+                bot.write(reply + " " + reply)
                 bot.write(reply)
                 break

@@ -8,7 +8,7 @@ from datetime import datetime
 DEFAULT_DURATION = 21600  # 6 hrs in sec
 
 
-class WebCache():
+class WebCache:
     """Caches web requests."""
 
     def __init__(self, duration=DEFAULT_DURATION):
@@ -16,14 +16,14 @@ class WebCache():
         self.data = dict()  # Maps url -> [data, timestamp]
         self.duration = duration
 
-    def get(self, url, function=None, fallback=None):
+    def get(self, url, function=None, fallback=None, headers=None):
         """Get the json returned by an url.
 
         If a 'function' is defined, the result of 'function(json)' gets returned.
         """
-        if self.isExpired(url):
+        if self.is_expired(url):
             timestamp = datetime.now()
-            json = self.loadJSON(url)
+            json = self.load_json(url, headers)
             if json:
                 if function is not None:
                     result = function(json)
@@ -44,17 +44,18 @@ class WebCache():
         else:
             return self.data[url][0]
 
-    def isExpired(self, url):
+    def is_expired(self, url):
         """Return whether recent data exists for the given url."""
         if url in self.data:
             return (datetime.now() - self.data[url][1]).seconds > self.duration
         else:
             return True
 
-    def loadJSON(self, url):
+    @staticmethod
+    def load_json(url, headers=None):
         """Load a JSON from an url, return False if something fails."""
         try:
-            r = requests.get(url)
+            r = requests.get(url, headers=headers)
             r.raise_for_status()
             return r.json()
 

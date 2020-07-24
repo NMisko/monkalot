@@ -1,14 +1,16 @@
 """Commands: "!calc"."""
+import math
 import re
 
-import math
 import pyparsing
 
-from bot.commands.command import Command
+from bot.commands.abstract.command import Command
 from bot.utilities.math_parser import NumericStringParser
 from bot.utilities.permission import Permission
+from bot.utilities.tools import replace_vars
 
 PRECISION = 5
+
 
 class Calculator(Command):
     """A chat calculator that can do some pretty advanced stuff like sqrt and trigonometry.
@@ -20,7 +22,7 @@ class Calculator(Command):
 
     symbols = ["e", "pi", "sin", "cos", "tan", "abs", "trunc", "round", "sgn"]
 
-    def __init__(self, bot):
+    def __init__(self, _):
         """Initialize variables."""
         self.nsp = NumericStringParser()
         self.responses = {}
@@ -31,8 +33,8 @@ class Calculator(Command):
 
     def run(self, bot, user, msg, tag_info):
         """Evaluate second part of message and write the result."""
-        self.responses = bot.responses["Calculator"]
-        expr = msg.split(' ', 1)[1]
+        self.responses = bot.config.responses["Calculator"]
+        expr = msg.split(" ", 1)[1]
         try:
             result = self.nsp.eval(expr)
 
@@ -41,28 +43,30 @@ class Calculator(Command):
             # E.g.: 0.30000004 -> 0.3
             #       0.000030030004 -> 0.00003003
             if abs(result) < 1:
-                dist = abs(int(math.log10(abs(result)))) # How many zeroes are after ., before a non zero digit
+                dist = abs(
+                    int(math.log10(abs(result)))
+                )  # How many zeroes are after ., before a non zero digit
                 result = round(result, PRECISION + dist)
             else:
                 result = round(result, PRECISION)
             reply = "{} = {}".format(expr, result)
             bot.write(reply)
         except ZeroDivisionError:
-            var = {"<USER>": bot.displayName(user)}
-            bot.write(bot.replace_vars(self.responses["div_by_zero"]["msg"], var))
+            var = {"<USER>": bot.twitch.display_name(user)}
+            bot.write(replace_vars(self.responses["div_by_zero"]["msg"], var))
         except OverflowError:
-            var = {"<USER>": bot.displayName(user)}
-            bot.write(bot.replace_vars(self.responses["number_overflow"]["msg"], var))
+            var = {"<USER>": bot.twitch.display_name(user)}
+            bot.write(replace_vars(self.responses["number_overflow"]["msg"], var))
         except pyparsing.ParseException:
-            var = {"<USER>": bot.displayName(user)}
-            bot.write(bot.replace_vars(self.responses["wrong_input"]["msg"], var))
+            var = {"<USER>": bot.twitch.display_name(user)}
+            bot.write(replace_vars(self.responses["wrong_input"]["msg"], var))
         except (TypeError, ValueError):  # Not sure which Errors might happen here.
-            var = {"<USER>": bot.displayName(user), "<EXPRESSION>": expr}
-            bot.write(bot.replace_vars(self.responses["default_error"]["msg"], var))
+            var = {"<USER>": bot.twitch.display_name(user), "<EXPRESSION>": expr}
+            bot.write(replace_vars(self.responses["default_error"]["msg"], var))
 
-    def checkSymbols(self, msg):
+    def check_symbols(self, msg):
         """Check whether s contains no letters, except e, pi, sin, cos, tan, abs, trunc, round, sgn."""
         msg = msg.lower()
         for s in self.symbols:
-            msg = msg.lower().replace(s, '')
-        return re.search('[a-zA-Z]', msg) is None
+            msg = msg.lower().replace(s, "")
+        return re.search("[a-zA-Z]", msg) is None

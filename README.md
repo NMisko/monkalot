@@ -103,7 +103,7 @@ Make sure to modify the following values in `bot_config.json`:
 - `EmoteGame`: Preset of emotes used in the `!estart`- command.
 
 # Adding a new custom command
-Create a command which inherits from [command.py](/bot/commands/command.py) in a new file and add it to the [commands](/bot/commands/) folder.
+Create a command which inherits from [command.py](/bot/commands/abstract/command.py) in a new file and add it to the [commands](/bot/commands/) folder.
 Then import your new class into [\_\_init\_\_.py](/bot/commands/__init__.py) and add it to one of the command arrays, depending on its priority.
 
 # REST Api
