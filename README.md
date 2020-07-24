@@ -1,12 +1,53 @@
 **Monkalot**
 ===============
-SEE BRANCH 2.0 FOR CURRENT DEVELOPMENT STATE
 
-A bot for [Zetalot's Twitch stream](https://twitch.tv/zetalot).
+Subjectively the best twitch bot. 
 
-Users in chat gain "spam" points by chatting, playing games and building emote pyramids. Small emote pyramids (width: 3) get timed out, big emote pyramids (width: 5) reward points. The bot can be conversed with (requires Cleverbot key) and many more special commands exist (see list below).
+Easy to get running, highly modular and [fast to extend](#adding-a-new-custom-command), 
+monkalot is almost fully configurable on a channel by channel basis. 
+Fully modifiable texts allow for full localization on each channel (if you have the patience to translate).
+These configurations can also be controlled via [REST api](#rest-api) or through a [Web Interface](https://github.com/NMisko/monkalot-ui).
 
-The bot is designed to be highly modular, making it very easy to disable commands (by just commenting out one line) or [add commands](#adding-a-new-custom-command). The bot is almost fully configurable on a channel by channel basis. These configurations can also be controlled via [REST api](#rest-api) or through a [Web Interface](https://github.com/NMisko/monkalot-ui).
+## Quick Start
+Clone this project.  
+`$ git clone https://github.com/NMisko/monkalot.git`
+
+Switch into it.  
+`$ cd monkalot`
+
+Install all necessary packages.  
+`$ pip install -r requirements.txt`
+
+Copy the `template` folder in `channels`, rename it to whatever channel 
+the bot needs to run on.  
+`$ cp -r channels/template channels/<your_channel>`
+
+Set the configuration parameters in `channels/<your_channel/configs/bot_config.json` (see configuration section).
+
+Then start the bot.  
+`$ python3 monkalot.py`
+
+Multiple bots can be started by adding more folders with different configurations to `channels`.
+
+#### Configuration:
+Make sure to modify the following values in `bot_config.json`:
+- `channel`: Twitch channel which the bot will run on
+- `username`: The bot's Twitch user
+- `clientID`: Twitch ClientID for API calls.
+- `oauth_key`: IRC oauth_key for the bot user (from [here](http://twitchapps.com/tmi/))
+- `owner_list`: List of Twitch users which have admin powers on bot
+- `ignore_list`: List of Twitch users which will be ignored by the bot
+
+**Warning**: Make sure all channel and user names above are in lowercase.
+
+#### Additional Configuration Parameters:
+- `points`: Various parameters that balance point-distribution for the different games.
+- `ranking`: Ranking System Point Distribution -> Rank_n = base * factor^n
+- `auto_game_interval`: Time between automaticly started games while AutoGames are on.
+- `pleb_cooldown`: Time between normal chat user commands.
+- `pleb_gametimer`: Time between games started by normal chat users.
+- `EmoteGame`: Preset of emotes used in the `!estart`- command.
+
 
 # Commands
 
@@ -75,32 +116,6 @@ All games can be canceled by their respected `!stop` command.
 | `!delmod <username>`  | Deletes a mod from the list of *trusted mods*. | `!delmod Monkalot` |
 | `!g <username> <pronouns>` | Allows changing gender pronouns for a user. Three pronouns have to be given. | `!g monkalot she her hers` |
 
-# Installation and usage
-Clone this project and install all necessary packages in `requirements.txt`.
-Copy the `template` folder in `channels`, rename it and fill in the values in `bot_config.json`.
-Then start the bot by starting `monkalot.py`.
-
-Multiple bots can be started by adding more folders with different configurations to `channels`.
-
-#### Configuration:
-Make sure to modify the following values in `bot_config.json`:
-- `channel`: Twitch channel which the bot will run on
-- `username`: The bot's Twitch user
-- `clientID`: Twitch ClientID for API calls.
-- `oauth_key`: IRC oauth_key for the bot user (from [here](http://twitchapps.com/tmi/))
-- `owner_list`: List of Twitch users which have admin powers on bot
-- `ignore_list`: List of Twitch users which will be ignored by the bot
-- `cleverbot_key`: Cleverbot API Key for native speech.
-
-**Warning**: Make sure all channel and user names above are in lowercase.
-
-#### Additional Configuration Parameters:
-- `points`: Various parameters that balance point-distribution for the different games.
-- `ranking`: Ranking System Point Distribution -> Rank_n = base * factor^n
-- `auto_game_interval`: Time between automaticly started games while AutoGames are on.
-- `pleb_cooldown`: Time between normal chat user commands.
-- `pleb_gametimer`: Time between games started by normal chat users.
-- `EmoteGame`: Preset of emotes used in the `!estart`- command.
 
 # Adding a new custom command
 Create a command which inherits from [command.py](/bot/commands/abstract/command.py) in a new file and add it to the [commands](/bot/commands/) folder.
