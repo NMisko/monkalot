@@ -145,6 +145,7 @@ class EmoteCounterForBot(EmoteCounter):
 
 class CountDatabase:
     """Database for emote counts."""
+
     def __init__(self, path):
         self.connection = sqlite3.connect(path)
         sql_create_command = """

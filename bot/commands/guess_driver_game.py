@@ -56,6 +56,8 @@ class GuessDriverGame(GuessingGame):
 
     @staticmethod
     def _championships_hint(obj):
-        return f"He won {obj['Championships']} " \
-               f"championship{'s' if int(obj['Championships']) != 1 else ''}." \
-               f"{' FeelsBadMan' if int(obj['Championships']) == 0 else ''}"
+        return (
+            f"He won {obj['Championships']} "
+            f"championship{'s' if int(obj['Championships']) != 1 else ''}."
+            f"{' FeelsBadMan' if int(obj['Championships']) == 0 else ''}"
+        )

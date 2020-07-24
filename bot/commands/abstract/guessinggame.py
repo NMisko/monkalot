@@ -15,7 +15,13 @@ class GuessingGame(Command):
 
     perm = Permission.User
 
-    def __init__(self, attributes: List[str], object_pool: List[dict], command: str, stop_command="!stop"):
+    def __init__(
+        self,
+        attributes: List[str],
+        object_pool: List[dict],
+        command: str,
+        stop_command="!stop",
+    ):
         """Initialize variables.
 
         Objects need a "name" field.
