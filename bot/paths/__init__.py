@@ -10,7 +10,6 @@ QUOTES_FILE = "{}data/quotes.json"
 REPLIES_FILE = "{}data/sreply_cmds.json"
 SLAPHUG_FILE = "{}data/slaphug.json"
 SMORC_FILE = "{}data/smorc.json"
-STATISTIC_FILE = "{}data/emote_stats.json"
 TRUSTED_MODS_PATH = "{}data/trusted_mods.json"
 
 JSON_DATA_PATH = "{}data/api_json_data/{}"

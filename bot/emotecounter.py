@@ -1,9 +1,10 @@
 """Class that counts the emotes from chat messages."""
-import json
 import logging
+import sqlite3
 import time
 from collections import deque
-from bot.paths import STATISTIC_FILE
+
+from bot.paths import DATABASE_PATH
 
 
 class EmoteCounter(object):
@@ -93,14 +94,21 @@ class EmoteCounterForBot(EmoteCounter):
         super().__init__(t)
 
         self.bot = bot
-        self.__init_total_count()
+        self.database = CountDatabase(DATABASE_PATH.format(bot.root))
+        self.counts = self.database.get_all()
+
+        # Sets up total emote count for new emotes
+        for emote in self.bot.emotes.get_emotes():
+            if emote not in self.counts:
+                self.database.set_count(emote, 0)
+                logging.info(
+                    f"New emote {emote} added to Twitch/BTTV, adding it to count database."
+                )
+                self.counts[emote] = 0
 
     def get_total_count(self, emote):
         """Return the Total count of an emote."""
-        with open(STATISTIC_FILE.format(self.bot.root), encoding="utf-8") as file:
-            total_count = json.load(file)
-
-        return total_count.get(emote, 0)
+        return self.database.get_count(emote)
 
     def process_message(self, msg):
         """Process an incoming chatmessage."""
@@ -110,66 +118,11 @@ class EmoteCounterForBot(EmoteCounter):
             self.__update_total_count(emote_dict)
             self.add_entry(emote_dict)
 
-    def __init_total_count(self):
-        """Create a emote stat JSON if there aren't one already."""
-        # True when need to create or add new emote to file
-        refresh_file = False
-        try:
-            with open(STATISTIC_FILE.format(self.bot.root), encoding="utf-8") as file:
-                try:
-                    total_data = json.load(file)
-                except ValueError:
-                    logging.info("Broken EmoteCountFile found, creating new one.")
-                    total_data = self.__create_empty_total_list()
-                    refresh_file = True
-                else:
-                    # If there are new emotes, add them here
-                    for emote in self.bot.emotes.get_emotes():
-                        if emote not in total_data:
-                            logging.info(
-                                "New emote {} added to Twitch/BTTV, adding it to count file".format(
-                                    emote
-                                )
-                            )
-                            total_data[emote] = 0
-                            refresh_file = True
-
-        except FileNotFoundError:  # noqa
-            logging.info("No EmoteCountFile found, creating new one.")
-            total_data = self.__create_empty_total_list()
-            refresh_file = True
-
-        if refresh_file:
-            with open(
-                STATISTIC_FILE.format(self.bot.root), "w+", encoding="utf-8"
-            ) as file:
-                json.dump(total_data, file, indent=4)
-
-    def __create_empty_total_list(self):
-        """Create an emote-statistic-dictionary and set all values to 0.
-
-        Return the dictionary
-        """
-        empty_list = {}
-
-        for emote in self.bot.emotes.get_emotes():
-            empty_list[emote] = 0
-
-        return empty_list
-
     def __update_total_count(self, emote_dict):
         """Update the total emote count."""
-        with open(STATISTIC_FILE.format(self.bot.root), encoding="utf-8") as file:
-            total_count = json.load(file)
-
-        for emote in emote_dict:
-            if emote in total_count:
-                total_count[emote] += emote_dict[emote]
-            else:
-                total_count[emote] = emote_dict[emote]
-
-        with open(STATISTIC_FILE.format(self.bot.root), "w", encoding="utf-8") as file:
-            json.dump(total_count, file, indent=4)
+        for emote, count in emote_dict.items():
+            self.counts[emote] += count
+            self.database.set_count(emote, self.counts[emote])
 
     def __count_emotes(self, msg):
         """Count the Emotes of the message.
@@ -188,3 +141,54 @@ class EmoteCounterForBot(EmoteCounter):
                     emote_dict[m] = 1
 
         return emote_dict
+
+
+class CountDatabase:
+    """Database for emote counts."""
+    def __init__(self, path):
+        self.connection = sqlite3.connect(path)
+        sql_create_command = """
+                    CREATE TABLE IF NOT EXISTS emote_total (
+                    'emote' CHAR NOT NULL,
+                    'total' INTEGER NOT NULL,
+                    PRIMARY KEY('emote')
+                    );
+                    """
+        self._execute_command_get_cursor(sql_create_command, ())
+
+    def get_count(self, emote, default=0):
+        """Get emote count from database."""
+        sql_command = "SELECT total FROM emote_total WHERE emote = ?;"
+        cursor = self._execute_command_get_cursor(sql_command, (emote,))
+        one = cursor.fetchone()
+
+        if one is None:
+            return default
+        else:
+            return one[0]
+
+    def get_all(self):
+        """Get a dictionary mapping emotes to their total."""
+        sql_command = "SELECT emote, total FROM emote_total;"
+        cursor = self._execute_command_get_cursor(sql_command, ())
+        result = cursor.fetchall()
+        return {emote: total for (emote, total) in result}
+
+    def set_count(self, emote, value=0):
+        """Adds emote to database if it does not exist yet."""
+        sql_command = "INSERT OR REPLACE INTO emote_total (emote, total) VALUES (?, ?);"
+        self._execute_command_get_cursor(sql_command, (emote, value))
+
+    def _execute_command_get_cursor(self, sql_command, args):
+        """Execute a command and return the cursor and connection.
+
+        Use this if you need the output of the command, or need the cursor and connection.
+        Since different threads will try to access this method, a connection has to be reopened everytime.
+        """
+        cursor = self.connection.cursor()
+        cursor.execute(sql_command, args)
+        self.connection.commit()
+        return cursor
+
+    def __del__(self):
+        self.connection.close()
