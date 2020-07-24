@@ -88,7 +88,7 @@ other: List[Type[Command]] = [
     TopSpammers,
     UserIgnore,
     # Speech always has to be the last entry so it does not 'overwrite' commands which include the bots name.
-    # ChatterbotSpeech,
+    ChatterbotSpeech,
 ]
 
 # Repeat here the commands that should not get reloaded if the config gets rewritten
