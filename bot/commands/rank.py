@@ -1,9 +1,8 @@
 """Commands: "!rank [username]"."""
 from bot.commands.abstract.command import Command
-from bot.utilities.permission import Permission
-from bot.utilities.tools import sanitize_user_name
-
 from bot.error_classes import UserNotFoundError
+from bot.utilities.permission import Permission
+from bot.utilities.tools import sanitize_user_name, replace_vars
 
 
 class Rank(Command):
