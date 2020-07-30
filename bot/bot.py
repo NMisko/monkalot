@@ -52,7 +52,6 @@ class TwitchBot:
 
         # User Groups
         self.mods = set()
-        self.trusted_mods = set()
         self.subs = set()
         self.users = self.twitch.get_chatters()
 
@@ -198,7 +197,7 @@ class TwitchBot:
         if (
             self.pause
             and user not in self.config.owner_list
-            and user not in self.trusted_mods
+            and user not in self.config.trusted_mods
         ):
             return
 
