@@ -10,6 +10,9 @@ DATA_OBJECT = "{}data/monkalot_party.json"
 class MiniGames(object):
     """Small and fast chat games."""
 
+    # global data object
+    data = None
+
     questtype = [
         "oppositeof",
         "capitalof",
@@ -22,8 +25,9 @@ class MiniGames(object):
 
     def __init__(self, bot):
         """Initialize mini game structure."""
-        with open(DATA_OBJECT.format(bot.root), "r", encoding="utf-8") as file:
-            self.data = json.load(file)
+        if not MiniGames.data:
+            with open(DATA_OBJECT.format(bot.root), "r", encoding="utf-8") as file:
+                MiniGames.data = json.load(file)
 
         """Reset rankings and games."""
         self.ranks = {}

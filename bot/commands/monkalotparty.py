@@ -20,9 +20,19 @@ class MonkalotParty(Command):
         """Initialize variables."""
         self.active = False
         self.responses = {}
-        self.monkalotparty = MiniGames(bot)
+        self.monkalotparty = None
         self.answer = ""
         self.callID = None
+
+    def start_game(self, bot):
+        """Starts pstart game."""
+        self.active = True
+        bot.game_running = True
+        self.monkalotparty = MiniGames(bot)
+        bot.write(self.responses["start_msg"]["msg"])
+
+        """Start of threading"""
+        self.callID = reactor.callLater(5, self.select_game, bot)
 
     def select_game(self, bot):
         """Select a game to play next."""
@@ -37,6 +47,28 @@ class MonkalotParty(Command):
         bot.write(question)
 
         del self.monkalotparty.games[game]
+
+    def handle_answer(self, cmd, user, bot):
+        """Handle answer by user."""
+        if (
+            self.answer not in bot.emotes.get_emotes()
+        ):  # If not an emote compare in lowercase.
+            self.answer = self.answer.lower()
+            cmd = cmd.lower()
+        if cmd == self.answer:
+            var = {
+                "<USER>": bot.twitch.display_name(user),
+                "<ANSWER>": self.answer,
+            }
+            bot.write(replace_vars(self.responses["winner_msg"]["msg"], var))
+            self.answer = ""
+            bot.ranking.increment_points(user, 5, bot)
+            self.monkalotparty.uprank(user)
+            if len(self.monkalotparty.games) > 3:
+                self.callID = reactor.callLater(6, self.select_game, bot)
+            else:
+                self.game_winners(bot)
+                self.close(bot)
 
     def game_winners(self, bot):
         """Announce game winners and give points."""
@@ -65,39 +97,19 @@ class MonkalotParty(Command):
         cmd = msg.strip()
 
         if not self.active:
-            self.active = True
-            bot.game_running = True
-            bot.write(self.responses["start_msg"]["msg"])
-
-            """Start of threading"""
-            self.callID = reactor.callLater(5, self.select_game, bot)
+            self.start_game(bot)
         else:
             if cmd.lower() == "!pstop" and (
                 bot.get_permission(user) > 1
             ):  # Fix for Subs stopping pstop - Bellyria
-                self.close(bot)
-                bot.write(self.responses["stop_msg"]["msg"])
-                return
-            if self.answer != "":  # If we are not between games.
-                if (
-                    self.answer not in bot.emotes.get_emotes()
-                ):  # If not an emote compare in lowercase.
-                    self.answer = self.answer.lower()
-                    cmd = cmd.lower()
-                if cmd == self.answer:
-                    var = {
-                        "<USER>": bot.twitch.display_name(user),
-                        "<ANSWER>": self.answer,
-                    }
-                    bot.write(replace_vars(self.responses["winner_msg"]["msg"], var))
-                    self.answer = ""
-                    bot.ranking.increment_points(user, 5, bot)
-                    self.monkalotparty.uprank(user)
-                    if len(self.monkalotparty.games) > 3:
-                        self.callID = reactor.callLater(6, self.select_game, bot)
-                    else:
-                        self.game_winners(bot)
-                        self.close(bot)
+                self.stop_game(bot)
+            elif self.answer != "":  # If we are not between games.
+                self.handle_answer(cmd, user, bot)
+
+    def stop_game(self, bot):
+        """Stops the current game."""
+        self.close(bot)
+        bot.write(self.responses["stop_msg"]["msg"])
 
     def close(self, bot):
         """Turn off on shutdown or reload."""
