@@ -31,8 +31,14 @@ class Rank(Command):
         """
 
         self.responses = bot.config.responses["Rank"]
-        user = sanitize_user_name(msg.split(" ")[1])
-        # user_id = bot.twitch.get_user_id(user)
+
+        split_msg = msg.split(" ")
+        if len(split_msg) == 2:
+            # !rank <name>
+            user = sanitize_user_name(split_msg[1])
+        else:
+            # !rank
+            user = sanitize_user_name(user)
 
         try:
             points = bot.ranking.get_points(user)
