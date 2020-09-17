@@ -121,6 +121,9 @@ class EmoteCounterForBot(EmoteCounter):
     def __update_total_count(self, emote_dict):
         """Update the total emote count."""
         for emote, count in emote_dict.items():
+            if emote not in self.counts:
+                self.counts[emote] = 0
+
             self.counts[emote] += count
             self.database.set_count(emote, self.counts[emote])
 
