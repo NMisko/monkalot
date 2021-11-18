@@ -57,7 +57,6 @@ All commands that can be called from chat via different calls. Note that some co
 
 | Command               | Description           | Examples  |
 | --------------------- | --------------------- | --------- |
-| `!active`             | Returns the amount of active viewers in chat. | - |
 | `!smorc`              | Returns a random SMOrc quote. | - |
 | `!quote [<number>]`   | Returns a random quote. Optional a number can be given to call a specific quote. | `!quote` , `!quote 2` |
 | `!slap <user>`        | Sends a slap to another user. | `!slap Monkalot` |

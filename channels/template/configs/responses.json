@@ -535,17 +535,6 @@
             "args_info": {}
         }
     },
-    "Active": {
-        "msg_active_users": {
-            "msg": "<USER>: There is <AMOUNT> active user<PLURAL> in chat.",
-            "info": "Return the amount of active users in chat.",
-            "args_info": {
-                "<USER>": "User who used the '!active' command.",
-                "<AMOUNT>": "Amount of active users.",
-                "<PLURAL>": "Add an 's' if amount > 1"
-            }
-        }
-    },
     "Pronouns": {
         "pronoun_added": {
             "msg": "Successfully added pronouns monkaS .",
