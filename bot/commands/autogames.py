@@ -36,7 +36,8 @@ class AutoGames(Command):
             if cmd == "!estart" and random.randrange(100) < 33:
                 cmd = "!rngestart"
 
-            bot.process_command(user, cmd)
+            """Trigger one of the commands."""
+            bot.process_command(user, cmd, {})
 
         """ start of threading """
         self.callID = reactor.callLater(self.auto_game_interval, self.random_game, bot)

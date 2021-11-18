@@ -17,6 +17,7 @@ def start_game(bot, user, msg, cmd):
     if bot.game_running:
         return False
     elif (
+        user != bot.config.nickname and
         bot.get_permission(user) in [Permission.User, Permission.Subscriber]
         and msg == cmd
     ):

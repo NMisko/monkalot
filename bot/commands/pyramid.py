@@ -307,7 +307,7 @@ class Pyramid(Command):
     @staticmethod
     def check_valid_twitch_emote_with_count(tag_info):
         """Checks whether message contains a valid twitch emote and returns it and its count."""
-        if tag_info["twitch_emote_only"]:
+        if tag_info and tag_info.get("twitch_emote_only"):
             emote_stats = tag_info[
                 "twitch_emotes"
             ].copy()  # make a copy since we will popitem()
