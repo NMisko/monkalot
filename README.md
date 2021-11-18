@@ -57,31 +57,39 @@ All commands that can be called from chat via different calls. Note that some co
 
 | Command               | Description           | Examples  |
 | --------------------- | --------------------- | --------- |
-| `!smorc`              | Returns a random SMOrc quote. | - |
-| `!quote [<number>]`   | Returns a random quote. Optional a number can be given to call a specific quote. | `!quote` , `!quote 2` |
-| `!slap <user>`        | Sends a slap to another user. | `!slap Monkalot` |
-| `!hug <user>`         | Sends a hug to another user. | `!hug Monkalot` |
-| `!pjsalt`             | Sends a pjsalt pyramid in chat.      | - |
-| `!call <emote> <text>`| Sends a call interlaced by an emote. All Twitch- and BTTV-emotes and emojis are supported. | `!call Kappa a nice stream` |
 | `!any <emote> <text>` | Sends out any sentence interlaced by an emote. All Twitch- and BTTV-emotes and emojis are supported. | `!any Jebaited Long have we waited, now we Jebaited` |
-| `!word <emote> <text>`| Sends a word with an emote interlaced between letters. All Twitch- and BTTV-emotes and emojis are supported. | `!word monkaS dragons` |
-| `!rank [<username>]`  | Returns the current spam-rank and -points for the chatter or optional for a specific <username>. | `!rank` , `!rank monkalot` |
-| `!topspammers`        | Returns the five highest ranked spammers. | - |
+| `!bttv`               | Returns all bttv emotes on this channel (messy) | - |
+| `!calc <formula>`     | A chat calculator that can do some pretty advanced stuff like sqrt and trigonometry. | `!calc (5+7)/2` , <br>`!calc log(5^2) + sin(pi/4)` |
+| `!call <emote> <text>`| Sends a call interlaced by an emote. All Twitch- and BTTV-emotes and emojis are supported. | `!call Kappa a nice stream` |
+| `!fps`                | Returns the fps of the stream | - |
+| `!hug <user>`         | Sends a hug to another user. | `!hug Monkalot` |
 | `!kpm`                | Returns the amount of Kappas per minute in channel. | - |
-| `!tkp`                | Returns the total amount of Kappas in channel. | - |
 | `!minute <emote>`     | Returns the amount of a specific emote per minute in channel. All Twitch- and BTTV-emotes and emojis are supported. | `!minute BabyRage` |
+| `!oralpleasure on/off`| Turns oralpleasure on or off. | - |
+| `!penta <emote>`      | Quintuples an emote | `!penta PunOko` |
+| `!pjsalt`             | Sends a pjsalt pyramid in chat.      | - |
+| `!quote [<number>]`   | Returns a random quote. Optional a number can be given to call a specific quote. | `!quote` , `!quote 2` |
+| `!rank [<username>]`  | Returns the current spam-rank and -points for the chatter or optional for a specific <username>. | `!rank` , `!rank monkalot` |
+| `!slap <user>`        | Sends a slap to another user. | `!slap Monkalot` |
+| `!smorc`              | Returns a random SMOrc quote. | - |
+| `!tenta <emote>`      | Gives an emote some tentacles | `!tenta WutFace` |
+| `!tip <user> <amount>`| Transfers an amount of channel points to another user. | `!tip Keepo 500` |
+| `!tkp`                | Returns the total amount of Kappas in channel. | - |
+| `!topspammers`        | Returns the five highest ranked spammers. | - |
 | `!total <emote>`      | Returns the total amount of a specific emote in channel. All Twitch- and BTTV-emotes and emojis are supported. | `!total EleGiggle` |
-| `!oralpleasure on/off`  | Turns oralpleasure on or off. | - |
-| `!calc <formula>`       | A chat calculator that can do some pretty advanced stuff like sqrt and trigonometry. | `!calc (5+7)/2` , <br>`!calc log(5^2) + sin(pi/4)` |
-| `<botname> <text>`      | Talk to the bot. Questions can be asked or a conversation can be started with the native speech engine. | `Hey Monkalot, how are you doing?`, `What's 2Head + 2Head? @Monkalot` |
-| `[<hearthstone card>]` | Get some information about a hearthstone card. Allows up to two spelling mistakes. | `[Malganis]` |
+| `!uptime`             | Returns how long this stream has been on | - | 
+| `!word <emote> <text>`| Sends a word with an emote interlaced between letters. All Twitch- and BTTV-emotes and emojis are supported. | `!word monkaS dragons` |
+| `<botname> <text>`    | Talk to the bot. Questions can be asked or a conversation can be started with the native speech engine. | `Hey Monkalot, how are you doing?`, `What's 2Head + 2Head? @Monkalot` |
+| `@monkalot ban me`    | Users can ask the bot to get banned (they will get banned and unbanned immediately) | `@monkalot ban me please :)` |
+| `[<hearthstone card>]`| Get some information about a hearthstone card. Allows up to two spelling mistakes. | `[Malganis]` |
+
 
 ### Chat games:
 
 | Command               | Description           | Examples  |
 | --------------------- | --------------------- | --------- |
-| `!kstart`, `[!pstop]` | Starts the *KappaGame*. Guess the right amount of Kappas to win. Type Kappas to start playing. | - |
 | `!estart`, `[!estop]`, `[!emotes]`| Starts the *GuessEmoteGame*. Guess the right emote from the list. Type emotes to start playing. While the game is active `!emotes` shows all possible emotes. | - |
+| `!kstart`, `[!pstop]` | Starts the *KappaGame*. Guess the right amount of Kappas to win. Type Kappas to start playing. | - |
 | `!mstart`, `[!mstop]` | Starts the *GuessMinionGame*. Guess the right minion card. Type minion names to play. After a short time the game will give clues to the chat. | - |
 | `!pstart`, `[!pstop]` | Starts the *MonkalotParty*. A Minigames tournament with 7 games by default. | - |
 | `<emote>-pyramids`    | Build emote pyramids to gain spampoints. All Twitch- and BTTV-emotes and emojis are supported. | `Kappa`<br/>`Kappa`&nbsp;`Kappa`<br/>`Kappa` |
@@ -92,20 +100,27 @@ All games can be canceled by their respected `!stop` command.
 
 | Command               | Description           | Examples  |
 | --------------------- | --------------------- | --------- |
+| `!addnotification <msg>` | Adds a message to the notification message rotation | `!addnotification Please remember to drink water. :)` |
+| `!delnotification <msg>` | Removes a message from the notification message rotation | `!delnotification wheeeeee` |
 | `!addquote <quote>`   | Adds a quote to the *quotelist*. | `!addquote "Priest in 2k17 LUL"` |
 | `!delquote <quote>`   | Deletes a quote from the *quotelist*. | `!delquote "Priest in 2k17 LUL"` |
-| <nobr>`!block on/off`</nobr>     | Turns pyramidblock on or off. If on, pyramids will be interupted by the bot. | - |
-| <nobr>`!games on/off`</nobr>     | Turns automatic games on or off. If on, *chatgames* will start automaticly after a certain amount of time. | - |
+| `!block on/off`       | Turns pyramidblock on or off. If on, pyramids will be interupted by the bot. | - |
+| `!games on/off`       | Turns automatic games on or off. If on, *chatgames* will start automaticly after a certain amount of time. | - |
+| `!notifications on/off`   | Enables or disables notifications. Notifications are messages that get sent out in regular intervals. | - |
 
 ### Trusted-Moderator commands:
 
 | Command               | Description           | Examples  |
 | --------------------- | --------------------- | --------- |
+| `!addcommand <command> <response>` | Adds a command to the *simplereply*-list. | `!addcommand !ping pong` |
+| `!clearcache`         | Clears the cache. Use this e.g. to load newly released twitch emotes | - |
+| `!delcommand <command>`| Deletes a command from the *simplereply*-list. | `!delcommand !ping` |
+| `!ignore <user>`      | Makes the bot ignore a user. Please enter the username in lowercase. | - |
+| `!unignore <user>`    | Makes the bot no longer ignore a user. Please enter the username in lowercase. | - |
+| `!replylist`          | Returns all available commands from the *simplereply*-list. | - |
 | `!sleep`    			| Puts the bot in *sleepmode*. All games will be disabled and the bot only responses to admins | - |
 | `!wakeup`    			| Puts the in normal mode again. | - |
-| `!addcommand <command> <response>` | Adds a command to the *simplereply*-list. | `!addcommand !ping pong` |
-| `!delcommand <command>`| Deletes a command from the *simplereply*-list. | `!delcommand !ping` |
-| `!replylist`          | Returns all available commands from the *simplereply*-list. | - |
+
 
 ### Admin commands:
 
