@@ -3,6 +3,7 @@
 	"username": "",
 	"clientID": "",
 	"oauth_key": "",
+	"access_token": "",
 	"owner_list": [""],
 
 	"notification_interval": 600,
