@@ -28,7 +28,7 @@ class TwitchSource:
     def get_user_id(self, username):
         """Get the twitch id (numbers) from username."""
         try:
-            user_id = self._get_user_tag(username)["users"][0]["_id"]
+            user_id = self._get_user_tag(username)["data"][0]["id"]
         except (KeyError, IndexError):
             logging.warning(f"User {username} not found.")
             raise UserNotFoundError(username)
