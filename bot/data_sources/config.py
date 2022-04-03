@@ -36,12 +36,13 @@ class ConfigSource:
         self.owner_list = self.config["owner_list"]
         self.nickname = str(self.config["username"])
         self.clientID = str(self.config["clientID"])
-        self.password = str(self.config["oauth_key"])
+        self.access_token = str(self.config["access_token"])
+        self.oauth_key = str(self.config["oauth_key"])
 
         self.twitch_api_headers = {
             "Accept": "application/vnd.twitchtv.v5+json",
             "Client-ID": self.clientID,
-            "Authorization": self.password,
+            "Authorization": self.access_token,
         }
 
         self.channel = "#" + str(self.config["channel"])

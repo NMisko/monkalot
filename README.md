@@ -35,6 +35,7 @@ Make sure to modify the following values in `bot_config.json`:
 - `username`: The bot's Twitch user
 - `clientID`: Twitch ClientID for API calls.
 - `oauth_key`: IRC oauth_key for the bot user (from [here](http://twitchapps.com/tmi/))
+- `access_token`: access token for the bot user (see [here](https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-client-credentials-flow))
 - `owner_list`: List of Twitch users which have admin powers on bot
 - `ignore_list`: List of Twitch users which will be ignored by the bot
 
