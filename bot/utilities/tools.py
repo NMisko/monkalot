@@ -33,7 +33,7 @@ def format_emote_list(emotelist):
     """Format emote json correctly."""
     emotes = []
     for emoteEntry in emotelist:
-        emote = emoteEntry["code"].strip()
+        emote = (emoteEntry.get("code") or emoteEntry.get("name")).strip()
         emotes.append(emote)
     return emotes
 

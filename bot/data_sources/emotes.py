@@ -51,7 +51,7 @@ class EmoteSource:
 
         def f(emote_json):
             result = []
-            for emote in format_emote_list(emote_json["emoticon_sets"]["0"]):
+            for emote in format_emote_list(emote_json["data"]):
                 if ("\\") not in emote:
                     # print("Simple single word twitch emote", emote)
                     result.append(emote)

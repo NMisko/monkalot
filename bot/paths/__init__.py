@@ -40,7 +40,7 @@ STREAMS_API = TWITCH_HELIX_API + "streams/{}"
 USER_EMOTE_API = TWITCH_HELIX_API + "users/{}/emotes"
 USER_ID_API = TWITCH_HELIX_API + "users/{}"
 USER_NAME_API = TWITCH_HELIX_API + "users?login={}"
-TWITCH_EMOTE_API = TWITCH_HELIX_API + "chat/emoticon_images?emotesets=0"
+TWITCH_EMOTE_API = TWITCH_HELIX_API + "chat/emotes/global"
 
 
 BTTV_API = "https://api.betterttv.net/2/"
