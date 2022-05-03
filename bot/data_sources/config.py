@@ -42,7 +42,7 @@ class ConfigSource:
         self.twitch_api_headers = {
             "Accept": "application/vnd.twitchtv.v5+json",
             "Client-ID": self.clientID,
-            "Authorization": self.access_token,
+            'Authorization': 'Bearer ' + self.access_token,
         }
 
         self.channel = "#" + str(self.config["channel"])
